@@ -24,54 +24,16 @@ def formsRemovedPattern(hai, forms):
     return pattern
 
 def removedAtamaPattern(hai):
-    haiLen = len(hai)
-    pattern = []
-
-    for index in range(0, haiLen):
-        pattern.append(hai.copy())
-        pattern[index][index] -= 2
-
-    return getNonZeroHai(pattern)
+    return formRemovedPattern(hai, [2])
 
 def removedKotsuPattern(hai):
-    haiLen = len(hai)
-    pattern = []
-
-    for index in range(0, haiLen):
-        pattern.append(hai.copy())
-        pattern[index][index] -= 3
-
-    return getNonZeroHai(pattern)
+    return formRemovedPattern(hai, [3])
 
 def removedShuntsuPattern(hai):
-    haiLen = len(hai)
-    pattern = []
-
-    for index in range(0, haiLen - 2):
-        pattern.append(hai.copy())
-        pattern[index][index] -= 1
-        pattern[index][index + 1] -= 1
-        pattern[index][index + 2] -= 1
-
-    return getNonZeroHai(pattern)
+    return formRemovedPattern(hai, [1, 1, 1])
 
 def removedAtamaConnectedShuntsuPattern(hai):
-    haiLen = len(hai)
-    patternAsc = []
-    patternDesc = []
-
-    for index in range(0, haiLen - 2):
-        patternAsc.append(hai.copy())
-        patternAsc[index][index] -= 3
-        patternAsc[index][index + 1] -= 1
-        patternAsc[index][index + 2] -= 1
-
-        patternDesc.append(hai.copy())
-        patternDesc[index][index] -= 1
-        patternDesc[index][index + 1] -= 1
-        patternDesc[index][index + 2] -= 3
-
-    return getNonZeroHai(patternAsc + patternDesc)
+    return formsRemovedPattern(hai, [[3, 1, 1], [1, 1, 3]])
 
 def removedMentsuPattern(hai):
     return removedKotsuPattern(hai) + removedShuntsuPattern(hai)

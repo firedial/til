@@ -38,11 +38,11 @@ HAN = {
 }
 
 YAKUMAN = {
-    Yaku.SUANKO: 1,
-    Yaku.SUANKO_TANKI: 2,
-    Yaku.RYUISO: 1,
-    Yaku.CHUREN: 1,
-    Yaku.CHUREN_JUNSEI: 2,
+    Yaku.SUANKO: 10000,
+    Yaku.SUANKO_TANKI: 20000,
+    Yaku.RYUISO: 10000,
+    Yaku.CHUREN: 10000,
+    Yaku.CHUREN_JUNSEI: 20000,
 }
 
 print(HAN)

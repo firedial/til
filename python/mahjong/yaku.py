@@ -1,5 +1,6 @@
 from typing import List
 from enum import Enum, auto
+import copy
 import remove
 
 class Yaku(Enum):
@@ -45,7 +46,8 @@ YAKUMAN = {
     Yaku.CHUREN_JUNSEI: 20000,
 }
 
-print(HAN)
+# -------------------------------------
+# ここから役判定
 
 def isMenzen(mentsu):
     return mentsu['isTsumo']
@@ -275,9 +277,80 @@ def getYaku(mentsu):
     return getMentsuYaku(mentsu)
 
 
-def getAll(hai, agariHai, isTsumo, isBamboo):
-    pass
+# ここまで役判定
+# --------------------------------------------
 
+def getMentsuStructure(pattern, hai, mentsu):
+
+    if set(hai) - {0} == set():
+        pattern.append(mentsu)
+        return None
+
+    for index in range(9):
+        if hai[index] >= 3:
+            hai_ = hai[:]
+            hai_[index] -= 3
+            mentsu_ = copy.deepcopy(mentsu)
+            mentsu_['kotsu'].append(index + 1)
+            getMentsuStructure(pattern, hai_, mentsu_)
+
+    for index in range(7):
+        if hai[index] >= 1 and hai[index + 1] >= 1 and hai[index + 2] >= 1:
+            hai_ = hai[:]
+            hai_[index] -= 1
+            hai_[index + 1] -= 1
+            hai_[index + 2] -= 1
+            mentsu_ = copy.deepcopy(mentsu)
+            mentsu_['shuntsu'].append(index + 1)
+            getMentsuStructure(pattern, hai_, mentsu_)
+
+    return None
+
+
+def getHaiStructure(hai):
+    pattern = []
+    for index in range(9):
+        if hai[index] >= 2:
+            hai_ = hai[:]
+            hai_[index] -= 2
+            mentsu_ = {'atama': index + 1, 'shuntsu': [], 'kotsu': []}
+            getMentsuStructure(pattern, hai_, mentsu_)
+
+    return pattern
+
+def getAll(hai, agariHai, isTsumo, isBamboo):
+    structure = getHaiStructure(hai)
+
+    # 面子形でない、つまりチートイ形のとき
+    if structure == []:
+        # todo 後で書く
+        pass
+
+    mentsues = []
+    base = {'agari': agariHai, 'isChitoi': False, 'isTsumo': isTsumo, 'isBamboo': isBamboo, 'hai': hai}
+    for s in structure:
+        m = base | s
+        if s['atama'] == agariHai:
+            m['agariMentsu'] = 'atama'
+            mentsues.append(m)
+        if agariHai in s['kotsu']:
+            m['agariMentsu'] = 'kotsu'
+            mentsues.append(m)
+        if agariHai in s['shuntsu']:
+            m['agariMentsu'] = 'shuntsu_l'
+            mentsues.append(m)
+        if agariHai - 1 in s['shuntsu']:
+            m['agariMentsu'] = 'shuntsu_m'
+            mentsues.append(m)
+        if agariHai - 2 in s['shuntsu']:
+            m['agariMentsu'] = 'shuntsu_r'
+            mentsues.append(m)
+
+    print(list(map(getYaku, mentsues)))
+
+# s = getHaiStructure([4, 1, 1, 1, 1, 1, 1, 1, 3])
+# print(s)
+getAll([0, 1, 1, 4, 4, 1, 1, 2, 0], 2, True, True)
 
 
 
@@ -311,8 +384,6 @@ def calcMentsuYaku(mentsu):
 
     print(getYakuman(mentsu))
 
-
-calcMentsuYaku(1)
 
 
 

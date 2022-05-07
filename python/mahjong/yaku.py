@@ -4,24 +4,24 @@ import copy
 import remove
 
 class Yaku(Enum):
-    MENZEN = auto()
-    TANYAO = auto()
-    PINFU = auto()
-    IPEKO = auto()
-    SANANKO = auto()
-    ITTSU = auto()
-    TOITOI = auto()
-    RYANPEKO = auto()
-    JUNCHAN = auto()
-    CHINITSU = auto()
+    MENZEN = 1
+    TANYAO = 2
+    PINFU = 3
+    IPEKO = 4
+    SANANKO = 5
+    ITTSU = 6
+    TOITOI = 7
+    RYANPEKO = 8
+    JUNCHAN = 9
+    CHINITSU = 10
 
-    CHITOI = auto()
+    CHITOI = 11
 
-    SUANKO = auto()
-    SUANKO_TANKI = auto()
-    RYUISO = auto()
-    CHUREN = auto()
-    CHUREN_JUNSEI = auto()
+    SUANKO = 12
+    SUANKO_TANKI = 13
+    RYUISO = 14
+    CHUREN = 15
+    CHUREN_JUNSEI = 16
 
 
 HAN = {
@@ -220,7 +220,7 @@ def getYakuman(mentsu):
 
     if isSuankoTanki(mentsu):
         yakuman.add(Yaku.SUANKO_TANKI)
-    elif isSananko(mentsu):
+    elif isSuanko(mentsu):
         yakuman.add(Yaku.SUANKO)
 
     if isRyuiso(mentsu):
@@ -279,6 +279,25 @@ def getYaku(mentsu):
 
 # ここまで役判定
 # --------------------------------------------
+
+def transYakuToNum(yaku):
+    num = 0
+    for y in yaku:
+        num += 1 << y.value
+
+    return num
+
+def transNumToYaku(num):
+    yaku = set()
+    index = 0
+    while num != 0:
+        if num & 1 == 1:
+            yaku.add(Yaku(index))
+        num = num >> 1
+        index += 1
+
+    return yaku
+
 
 def getMentsuStructure(pattern, hai, mentsu):
 
@@ -346,11 +365,11 @@ def getAll(hai, agariHai, isTsumo, isBamboo):
             m['agariMentsu'] = 'shuntsu_r'
             mentsues.append(m)
 
-    print(list(map(getYaku, mentsues)))
+    print(list(map(transNumToYaku, set(list(map(transYakuToNum, map(getYaku, mentsues)))))))
 
 # s = getHaiStructure([4, 1, 1, 1, 1, 1, 1, 1, 3])
 # print(s)
-getAll([0, 1, 1, 4, 4, 1, 1, 2, 0], 2, True, True)
+getAll([0, 3, 3, 3, 0, 1, 1, 1, 2], 9, False, True)
 
 
 

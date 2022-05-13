@@ -35,10 +35,8 @@ HAN = {
     Yaku.RYANPEKO: 3,
     Yaku.JUNCHAN: 3,
     Yaku.CHINITSU: 6,
-    Yaku.CHITOI: 2
-}
+    Yaku.CHITOI: 2,
 
-YAKUMAN = {
     Yaku.SUANKO: 10000,
     Yaku.SUANKO_TANKI: 20000,
     Yaku.RYUISO: 10000,
@@ -131,7 +129,7 @@ def isRyanpeko(mentsu):
 
 def isJunchan(mentsu):
     # 頭が 1 か 9 で構成されていない場合は違う
-    if mentsu['atama'] != 1 or mentsu['amata'] != 9:
+    if mentsu['atama'] != 1 or mentsu['atama'] != 9:
         return False
 
     # 順子で 1 か 7 から始まらないものがあれば違う
@@ -337,13 +335,19 @@ def getHaiStructure(hai):
 
     return pattern
 
+def getHan(yaku):
+    han = 0
+    for y in yaku:
+        han += HAN[y]
+
+    return han
+
 def getAll(hai, agariHai, isTsumo, isBamboo):
     structure = getHaiStructure(hai)
 
     # 面子形でない、つまりチートイ形のとき
     if structure == []:
-        # todo 後で書く
-        pass
+        base = {'agari': agariHai, 'isChitoi': True, 'isTsumo': isTsumo, 'isBamboo': isBamboo, 'hai': hai}
 
     mentsues = []
     base = {'agari': agariHai, 'isChitoi': False, 'isTsumo': isTsumo, 'isBamboo': isBamboo, 'hai': hai}
@@ -365,11 +369,26 @@ def getAll(hai, agariHai, isTsumo, isBamboo):
             m['agariMentsu'] = 'shuntsu_r'
             mentsues.append(m)
 
-    print(list(map(transNumToYaku, set(list(map(transYakuToNum, map(getYaku, mentsues)))))))
+    yakus = list(map(transNumToYaku, set(list(map(transYakuToNum, map(getYaku, mentsues))))))
+    hans = list(map(getHan, yakus))
+
+    han = max(hans)
+    return list(map(transYakuToNum, filter(lambda x: han == getHan(x), yakus)))
+
+    # if len(list(filter(lambda x: han == x, hans))) > 1:
+    #     print('exist 2 pattern')
+    #     print(hai)
+    #     print(agariHai)
+    #     print(yakus)
+
+
+
+
+
 
 # s = getHaiStructure([4, 1, 1, 1, 1, 1, 1, 1, 3])
 # print(s)
-getAll([0, 3, 3, 3, 0, 1, 1, 1, 2], 9, False, True)
+getAll([0, 3, 3, 3, 0, 1, 1, 1, 2], 2, False, True)
 
 
 

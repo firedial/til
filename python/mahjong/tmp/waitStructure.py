@@ -75,10 +75,10 @@ def countWaitingStructure(hai):
 
 def printWaitingStructure(hai):
     p = {}
-    p['ryanmen'] = ''
-    p['tanki'] = ''
-    p['shanpon'] = ''
-    p['kanchan'] = ''
+    p['ryanmen'] = 'r'
+    p['tanki'] = 't'
+    p['shanpon'] = 's'
+    p['kanchan'] = 'k'
 
     s = getWaitingStructure(hai)
     for wait in s:
@@ -103,4 +103,4 @@ if __name__ == '__main__':
     print(countWaitingStructure([3, 1, 1, 1, 1, 1, 1, 1, 3]))
 
     printWaitingStructure([3, 1, 1, 1, 1, 1, 1, 1, 3])
-    printWaitingStructure([3, 1, 1, 1, 2])
+    printWaitingStructure([3, 1, 1, 1, 2, 0, 2])

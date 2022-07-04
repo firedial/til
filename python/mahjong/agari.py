@@ -48,8 +48,17 @@ def isAgari(hand: list[int]) -> bool:
         return False
 
 
-def isSevenPairs(hai):
-    return len(list(filter(lambda x: x == 2, hai))) == 7
+def isSevenPairs(hand: list[int]) -> bool:
+    """
+    七対子かどうかを判定する
+
+    Args:
+        hand: (list[int]): 牌形
+
+    Returns:
+        bool: 七対子形なら True / そうでない時 False
+    """
+    return len(list(filter(lambda x: x == 2, hand))) == 7
 
 if __name__ == '__main__':
     assert isAgari([3, 1, 1, 1, 1, 1, 1, 1, 4])
@@ -71,6 +80,10 @@ if __name__ == '__main__':
     assert isAgari([2, 3, 3])
     assert isAgari([2, 3, 1, 1, 1])
     assert isAgari([1, 1, 3, 1, 1, 1])
+
+    assert not isSevenPairs([1, 1, 3, 1, 1, 1])
+    assert not isSevenPairs([2, 2, 0, 2, 0])
+    assert isSevenPairs([2, 2, 0, 2, 2, 0, 2, 2, 2])
 
 
 

@@ -1,4 +1,35 @@
 
+def removedTilesList(hand: list[int], tiles: list[int]) -> list[list[int]]:
+    """
+    牌形から牌を除去できるパターンのリストを返す
+
+    Args:
+        hand (list[int]): 牌形
+        tiles (list[int]): 除去する牌
+
+    Returns:
+        list[list[int]]: 除去できるパターンのリスト
+    """
+    # 除去処理のループを回す回数を求める
+    loopCount: int = len(hand) - len(tiles) + 1
+
+    # 除去した牌形を格納する
+    removed: list[list[int]] = []
+
+    for x in range(0, loopCount):
+        tmpHand = hand[:]
+        for index, count in enumerate(tiles):
+            # 牌形から牌を除去する
+            tmpHand[x + index] -= count
+            # 途中で 0 未満になったら抜ける
+            if tmpHand[x + index] < 0:
+                break
+        else:
+            # 全て 0 以上なのでリストに追加する
+            removed.append(tmpHand)
+
+    return removed
+
 def getNonZeroHai(pattern):
     isNonZero = lambda hai: len(list(filter(lambda x: x < 0, hai))) == 0
     return list(filter(isNonZero, pattern))

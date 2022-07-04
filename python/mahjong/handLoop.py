@@ -113,6 +113,9 @@ def nextHandZeroFirst(hand: list[int]) -> list[int]:
             return hand
         index += 1
 
+    # ここに来ることはない
+    return hand
+
 if __name__ == '__main__':
     assert nextHand([0, 1]) == [1, 0]
     assert nextHand([5, 0, 0, 1]) == [0, 0, 6, 0]

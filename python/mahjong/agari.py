@@ -33,7 +33,7 @@ def isAgari(hand: list[int]) -> bool:
 
     # 枚数が 3n + 2 場合は頭を除去する
     if count % 3 == 2:
-        for h in remove.removedAtamaPattern(hand):
+        for h in remove.removedTilesPossible(hand, [2]):
             if isAgari(h):
                 return True
         else:
@@ -41,7 +41,7 @@ def isAgari(hand: list[int]) -> bool:
 
 
     # 3n 枚の時のは面子の除去
-    for h in remove.removedMentsuPattern(hand):
+    for h in remove.removedTilesListPossible(hand, [[3], [1, 1, 1]]):
         if isAgari(h):
             return True
     else:

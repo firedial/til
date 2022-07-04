@@ -1,22 +1,4 @@
 
-def removedTilesListPossible(hand: list[int], tilesList: list[list[int]]) -> list[list[int]]:
-    """
-    牌のリストを受け取り、その一つ一つの牌が牌形から除去できるパターンのリストを返す
-
-    Args:
-        hand (list[int]): 牌形
-        tilesList (list[list[int]]): 除去する牌のリスト
-
-    Returns:
-        list[list[int]]: 除去できるパターンのリスト
-    """
-    removed = []
-
-    for tiles in tilesList:
-        removed += removedTilesPossible(hand, tiles)
-
-    return removed
-
 def removedTilesPossible(hand: list[int], tiles: list[int]) -> list[list[int]]:
     """
     牌形から牌を除去できるパターンのリストを返す
@@ -45,6 +27,24 @@ def removedTilesPossible(hand: list[int], tiles: list[int]) -> list[list[int]]:
         else:
             # 全て 0 以上なのでリストに追加する
             removed.append(tmpHand)
+
+    return removed
+
+def removedTilesListPossible(hand: list[int], tilesList: list[list[int]]) -> list[list[int]]:
+    """
+    牌のリストを受け取り、その一つ一つの牌が牌形から除去できるパターンのリストを返す
+
+    Args:
+        hand (list[int]): 牌形
+        tilesList (list[list[int]]): 除去する牌のリスト
+
+    Returns:
+        list[list[int]]: 除去できるパターンのリスト
+    """
+    removed = []
+
+    for tiles in tilesList:
+        removed += removedTilesPossible(hand, tiles)
 
     return removed
 

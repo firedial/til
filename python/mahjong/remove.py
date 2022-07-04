@@ -24,19 +24,64 @@ def formsRemovedPattern(hai, forms):
     return pattern
 
 def removedAtamaPattern(hai):
+    """
+    刻子のパターンを省けるだけ省いた牌形のリストを返す
+
+    Args:
+        hand (list[int]): 牌形
+
+    Returns:
+        lits[list[int]]: 牌形から刻子のパターンを省いた牌形のリスト
+    """
     return formRemovedPattern(hai, [2])
 
-def removedKotsuPattern(hai):
-    return formRemovedPattern(hai, [3])
+def removedKotsuPattern(hand: list[int]) -> list[list[int]]:
+    """
+    刻子のパターンを省けるだけ省いた牌形のリストを返す
 
-def removedShuntsuPattern(hai):
-    return formRemovedPattern(hai, [1, 1, 1])
+    Args:
+        hand (list[int]): 牌形
 
-def removedAtamaConnectedShuntsuPattern(hai):
-    return formsRemovedPattern(hai, [[3, 1, 1], [1, 1, 3]])
+    Returns:
+        lits[list[int]]: 牌形から刻子のパターンを省いた牌形のリスト
+    """
+    return formRemovedPattern(hand, [3])
 
-def removedMentsuPattern(hai):
-    return removedKotsuPattern(hai) + removedShuntsuPattern(hai)
+def removedShuntsuPattern(hand: list[int]) -> list[list[int]]:
+    """
+    順子のパターンを省けるだけ省いた牌形のリストを返す
+
+    Args:
+        hand (list[int]): 牌形
+
+    Returns:
+        lits[list[int]]: 牌形から順子のパターンを省いた牌形のリスト
+    """
+    return formRemovedPattern(hand, [1, 1, 1])
+
+def removedAtamaConnectedShuntsuPattern(hand: list[int]) -> list[list[int]]:
+    """
+    雀頭接続順子のパターンを省けるだけ省いた牌形のリストを返す
+
+    Args:
+        hand (list[int]): 牌形
+
+    Returns:
+        lits[list[int]]: 牌形から雀頭接続順子のパターンを省いた牌形のリスト
+    """
+    return formsRemovedPattern(hand, [[3, 1, 1, 0], [0, 1, 1, 3]])
+
+def removedMentsuPattern(hand: list[int]) -> list[list[int]]:
+    """
+    面子(刻子と順子)のパターンを省けるだけ省いた牌形のリストを返す
+
+    Args:
+        hand (list[int]): 牌形
+
+    Returns:
+        lits[list[int]]: 牌形から面子のパターンを省いた牌形のリスト
+    """
+    return removedKotsuPattern(hand) + removedShuntsuPattern(hand)
 
 def removedSendableForm(hai):
     return removedAtamaPattern(hai) + removedAtamaConnectedShuntsuPattern(hai)

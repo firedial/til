@@ -40,20 +40,16 @@ class GFPolynomial:
             
         return " + ".join(poly)
     
-    def getCofficient(self):
-        return self.cofficient
-
-
 __inverse: List[GFPolynomial] = [GFPolynomial(0)] * 256
 for i in range(256):
     for j in range(256):
         m = GFPolynomial(i) * GFPolynomial(j)
-        if m.getCofficient() == 1:
+        if m.cofficient == 1:
             __inverse[i]= GFPolynomial(j)
             break
 
 def inverse(poly) -> GFPolynomial:
-    return __inverse[poly.getCofficient()]
+    return __inverse[poly.cofficient]
 
 
 if __name__ == "__main__":

@@ -52,9 +52,6 @@ for i in range(256):
             __inverse[i]= GFPolynomial(j)
             break
 
-
-print(list(map(lambda x: x.getCofficient(), __inverse)))
-
 def inverse(poly) -> GFPolynomial:
     return __inverse[poly.getCofficient()]
 

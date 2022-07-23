@@ -36,7 +36,9 @@ def addRoundKey(state, w):
 
 
 
-def cipher(plain: List[int], key: List[int]):
+def cipher(plainString: str, keyString: str):
+    plain = [int(("0x" + plainString[i:i+2]), 16) for i in range(0, len(plainString), 2)]
+    key = [int(("0x" + keyString[i:i+2]), 16) for i in range(0, len(keyString), 2)]
 
     assert(len(plain) == 16)
 
@@ -69,30 +71,22 @@ def cipher(plain: List[int], key: List[int]):
     state = shiftRows(state)
     state = addRoundKey(state, expandedKey[Nr*Nb:(Nr+1)*Nb])
 
-    return state
+    return "".join(list(map(lambda x: '{:02x}'.format(x), state)))
         
 if __name__ == "__main__":
-    plain = [0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34]
-    key = [0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c]
+    plain = "00112233445566778899aabbccddeeff"
+    key = "000102030405060708090a0b0c0d0e0f"
     c = cipher(plain, key)
-    assert("".join(list(map(lambda x: '{:02x}'.format(x), c))) == "3925841d02dc09fbdc118597196a0b32")
+    assert(c == "69c4e0d86a7b0430d8cdb78070b4c55a")
 
-    def strToList(s):
-        return [int(("0x" + s[i:i+2]), 16) for i in range(0, len(s), 2)]
 
-    plain = strToList("00112233445566778899aabbccddeeff")
-    key = strToList("000102030405060708090a0b0c0d0e0f")
+    plain = "00112233445566778899aabbccddeeff"
+    key = "000102030405060708090a0b0c0d0e0f1011121314151617"
     c = cipher(plain, key)
-    assert("".join(list(map(lambda x: '{:02x}'.format(x), c))) == "69c4e0d86a7b0430d8cdb78070b4c55a")
+    assert(c == "dda97ca4864cdfe06eaf70a0ec0d7191")
 
-
-    plain = strToList("00112233445566778899aabbccddeeff")
-    key = strToList("000102030405060708090a0b0c0d0e0f1011121314151617")
+    plain = "00112233445566778899aabbccddeeff"
+    key = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
     c = cipher(plain, key)
-    assert("".join(list(map(lambda x: '{:02x}'.format(x), c))) == "dda97ca4864cdfe06eaf70a0ec0d7191")
-
-    plain = strToList("00112233445566778899aabbccddeeff")
-    key = strToList("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
-    c = cipher(plain, key)
-    assert("".join(list(map(lambda x: '{:02x}'.format(x), c))) == "8ea2b7ca516745bfeafc49904b496089")
+    assert(c == "8ea2b7ca516745bfeafc49904b496089")
 

@@ -1,4 +1,3 @@
-
 def isOverFour(hand: list[int]) -> bool:
     """
     4 枚以上使っていないか判定する
@@ -11,16 +10,17 @@ def isOverFour(hand: list[int]) -> bool:
     """
     return len(list(filter(lambda x: x > 4, hand))) > 0
 
+
 def isBasicForm(hand: list[int]) -> bool:
     """
     基本形かどうかを判定する
 
     判定方法:
         1. 後方重心なら基本形ではない
-        2. 両端接地/左接地/右接地/無接地 の判定をする
-        3. 左右対称形かつ右接地は基本形ではない
-        4. 無接地かつ左から 2 以上離れていた場合は基本形ではない
-        5. 基本形である
+        2. 両接地なら基本形
+        3. ゆとり 1 なら基本形
+        4. 2 番目から始まっていたら基本形
+        5. それ以外は基本形ではない
 
     Args:
         hand (lsit[int]): 牌形
@@ -35,18 +35,20 @@ def isBasicForm(hand: list[int]) -> bool:
     if gravity == -1:
         return False
 
-    # 左右対称形かつ右接地は基本形ではない
-    if gravity == 0 and hand[-1] != 0:
-        return False
+    # 両接地なら基本形
+    if hand[0] != 0 and hand[-1] != 0:
+        return True
 
-    # 無接地かつ左から 2 以上離れている時は基本形ではない
-    if hand[0] == 0 and hand[-1] == 0 and hand[1] == 0:
-        return False
+    # ゆとりが 1 の時も基本形
+    if (hand[0] == 0 and hand[1] != 0 and hand[-1] != 0) or (hand[0] != 0 and hand[-2] != 0 and hand[-1] == 0):
+        return True
 
-    # その他の場合は基本形である
-    return True
+    # 2番目から始まっていた場合基本形
+    if hand[0] == 0 and hand[1] != 0:
+        return True
 
-
+    # それ以外は基本形ではない
+    return False
 
 
 def handGravityPosition(hand: list[int]) -> int:
@@ -100,3 +102,30 @@ def handGravityPosition(hand: list[int]) -> int:
 
     # 左右対称形
     return 0
+
+
+def removeFormerZeros(hand: list[int]) -> list[int]:
+    length = len(hand)
+
+    r = []
+    isZero = True
+    for i in range(length):
+        if isZero and hand[i] == 0:
+            continue
+
+        isZero = False
+        r.append(hand[i])
+
+    return r
+
+
+def getUniformForm(hand: list[int]) -> list[int]:
+    hand = removeFormerZeros(hand)
+    hand.reverse()
+    hand = removeFormerZeros(hand)
+
+    position = handGravityPosition(hand)
+    if position == -1:
+        hand.reverse()
+
+    return hand

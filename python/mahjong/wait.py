@@ -2,6 +2,7 @@ import agari
 
 MAX_HAI_NUMBER = 4
 
+
 def getWaitingHai(hand: list[int]) -> list[bool]:
     """
     待ち牌のリストを求める
@@ -20,12 +21,14 @@ def getWaitingHai(hand: list[int]) -> list[bool]:
         # 存在する牌の枚数以上持っていた場合は和了牌とならない
         if hand[index] >= MAX_HAI_NUMBER:
             waitingHai.append(False)
+            continue
 
         hand_ = hand[:]
         hand_[index] += 1
         waitingHai.append(agari.isAgari(hand_))
 
     return waitingHai
+
 
 def countWaitingHai(hand: list[int]) -> int:
     """
@@ -40,9 +43,8 @@ def countWaitingHai(hand: list[int]) -> int:
     return len(list(filter(lambda x: x, getWaitingHai(hand))))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     assert getWaitingHai([3, 1, 1, 1, 1, 1, 1, 1, 3]) == [True, True, True, True, True, True, True, True, True]
     assert countWaitingHai([1, 1, 1, 1, 1, 1, 1]) == 3
     assert countWaitingHai([3, 1, 1, 1, 1, 1, 1, 1, 3]) == 9
-
-
+    assert getWaitingHai([0, 4, 4, 2, 0, 0, 0, 0, 0]) == [True, False, False, True, True, False, False, False, False]

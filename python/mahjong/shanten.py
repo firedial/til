@@ -16,13 +16,15 @@ def getAgariHai(hai):
         hai[index] -= 1
 
         index += 1
-    
+
     return agariHai
-    
-def isTempai(hai):
-    return len(list(filter(lambda x: x, getAgariHai(hai)))) > 0
-    
+
+def isTempai(hand: list[int]) -> bool:
+    if sum(hand) % 3 == 2 and agari.isAgari(hand):
+        return True
+    return len(list(filter(lambda x: x, getAgariHai(hand)))) > 0
 
 
-    
+
+
 

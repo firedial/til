@@ -1,3 +1,4 @@
+from re import I
 import sys
 
 import agari
@@ -13,7 +14,7 @@ import wait
 
 count = 0
 # num = inut(sys.argv[1])
-num = 8
+num = 11
 
 hai = [0, 0, 0, 0, 0, 0, 0, 0, num]
 while True:
@@ -25,6 +26,9 @@ while True:
         # and irreducibleStructure.isIrreducible(hai)):
         and irreducible.isIrreducible(hai)
     ):
+        haiCount = sum(hai)
+        print(haiCount, end="|")
+
         waitingList = wait.getWaitingHai(hai)
         waitingKindCount = len(list(filter(lambda x: x, waitingList)))
         waitingCount = 0
@@ -54,6 +58,12 @@ while True:
 
         print(hai, end="||")
         print(list(map(lambda x: 1 if x else 0, waitingList)), end="||")
+
+        if haiCount % 3 == 2 and agari.isAgari(hai):
+            print("m", end="|")
+        else:
+            print("-", end="|")
+
         print(waitingKindCount, end="|")
         print(waitingCount)
         count += 1

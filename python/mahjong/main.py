@@ -35,17 +35,17 @@ while True:
         # 両側の0を省く
         bothAttachHai = form.getUniformForm(hai)
         if len(bothAttachHai) <= 7:
-            leftIrreducible = irreducible.isIrreducible(bothAttachHai + [0])
-            rightIrreducible = irreducible.isIrreducible([0] + bothAttachHai)
+            leftIrreducible = shanten.isTempai(bothAttachHai + [0]) and irreducible.isIrreducible(bothAttachHai + [0])
+            rightIrreducible = shanten.isTempai([0] + bothAttachHai) and irreducible.isIrreducible([0] + bothAttachHai)
             print("o" if leftIrreducible else "x", end="")
             print("o" if rightIrreducible else "x", end="|")
         elif len(bothAttachHai) == 8:
             if hai[0] != 0:
-                rightIrreducible = irreducible.isIrreducible([0] + bothAttachHai)
+                rightIrreducible = shanten.isTempai([0] + bothAttachHai) and irreducible.isIrreducible([0] + bothAttachHai)
                 print("-", end="")
                 print("o" if rightIrreducible else "x", end="|")
             else:
-                leftIrreducible = irreducible.isIrreducible(bothAttachHai + [0])
+                leftIrreducible = shanten.isTempai(bothAttachHai + [0]) and irreducible.isIrreducible(bothAttachHai + [0])
                 print("o" if leftIrreducible else "x", end="")
                 print("-", end="|")
 

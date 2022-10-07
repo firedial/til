@@ -42,14 +42,27 @@ class HandUtil:
         handCount = sum(self.hand)
         return (handCount == 5 or handCount == 8) and self.isAgari()
 
-
     def getLeftAttachHand(self) -> list[int]:
         if self.hand[0] != 0:
             return self.hand.copy()
 
         return self.hand[1:] + [0]
 
-    def printHandDetail(self):
+    def getHandNumber(self) -> int:
+        handCount = sum(self.hand)
+        normalHandCount = handCount + (2 if handCount % 3 == 2 else 0) + (3 if self.isConnected else 0)
+
+        handCountMap = {1: 1, 2: 2, 4: 3, 5: 4, 7: 5, 8: 6, 10: 7, 11: 8, 13: 9}
+
+        number = 0
+        leftAttachHand = self.getLeftAttachHand()
+        for hai in leftAttachHand:
+            number *= 5
+            number += hai
+
+        return int(str(handCountMap[normalHandCount]) + str(handCountMap[handCount]) + str(number).zfill(7))
+
+    def printHandDetail(self) -> str:
         hand = self.hand
 
         # 牌の全体の枚数
@@ -62,8 +75,8 @@ class HandUtil:
         waiting = wait.getWaitingHai(hand)
         hasAtamaWaiting = handCount % 3 == 2 and self.isAgari()
 
-        waitingKindCount = sum(list(filter(lambda x: x, waiting))) + (0 if hasAtamaWaiting else (2 if self.isConnected else 1))
-        waitingCount = sum([4 - h if w else 0 for (h, w) in zip(hand, waiting)]) + (0 if hasAtamaWaiting else (5 if self.isConnected else 2))
+        waitingKindCount = sum(list(filter(lambda x: x, waiting))) + (0 if not hasAtamaWaiting else (2 if self.isConnected else 1))
+        waitingCount = sum([4 - h if w else 0 for (h, w) in zip(hand, waiting)]) + (0 if not hasAtamaWaiting else (5 if self.isConnected else 2))
 
         # 両側の0を省く
         bothAttachHand = form.getUniformForm(hand)
@@ -93,22 +106,20 @@ class HandUtil:
         leftAttachedHandString = ",".join(map(lambda x: str(x), self.getLeftAttachHand()))
         waitingString = ",".join(map(lambda x: "1" if x else "0", waiting))
 
-        print(
-            "|%2s|%2s|%s||%s|%s|%s||%s|%s|%s||%s||%s|%s|"
-            % (
-                handCount,
-                normalHandCount,
-                handLength,
-                "-" if isLeftIrreducible is None else ("o" if isLeftIrreducible else "x"),
-                "-" if isRightIrreducible is None else ("o" if isRightIrreducible else "x"),
-                "o" if handLength != 8 else ("x" if isLeftIrreducible == True else "o"),
-                handString,
-                leftAttachedHandString,
-                waitingString,
-                "-" if not hasAtamaWaiting else ("c" if self.isConnected else "a"),
-                waitingKindCount,
-                waitingCount,
-            )
+        return "|%s||%2s|%2s|%s||%s|%s|%s||%s|%s|%s||%s||%s|%2s|" % (
+            self.getHandNumber(),
+            normalHandCount,
+            handCount,
+            handLength,
+            "-" if isLeftIrreducible is None else ("o" if isLeftIrreducible else "x"),
+            "-" if isRightIrreducible is None else ("o" if isRightIrreducible else "x"),
+            "o" if handLength != 8 else ("x" if isLeftIrreducible == True else "o"),
+            handString,
+            leftAttachedHandString,
+            waitingString,
+            "-" if not hasAtamaWaiting else ("c" if self.isConnected else "a"),
+            waitingKindCount,
+            waitingCount,
         )
 
 

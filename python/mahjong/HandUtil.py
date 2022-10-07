@@ -38,6 +38,11 @@ class HandUtil:
     def isNeedIrreducible(self) -> bool:
         return self.isValid() and self.isBasicForm() and self.isIrreducible()
 
+    def hasAtamaConnectedShuntsu(self) -> bool:
+        handCount = sum(self.hand)
+        return (handCount == 5 or handCount == 8) and self.isAgari()
+
+
     def getLeftAttachHand(self) -> list[int]:
         if self.hand[0] != 0:
             return self.hand.copy()
@@ -57,8 +62,8 @@ class HandUtil:
         waiting = wait.getWaitingHai(hand)
         hasAtamaWaiting = handCount % 3 == 2 and self.isAgari()
 
-        waitingKindCount = len(list(filter(lambda x: x, waiting)))
-        waitingCount = sum([4 - h if w else 0 for (h, w) in zip(hand, waiting)])
+        waitingKindCount = sum(list(filter(lambda x: x, waiting))) + (0 if hasAtamaWaiting else (2 if self.isConnected else 1))
+        waitingCount = sum([4 - h if w else 0 for (h, w) in zip(hand, waiting)]) + (0 if hasAtamaWaiting else (5 if self.isConnected else 2))
 
         # 両側の0を省く
         bothAttachHand = form.getUniformForm(hand)
@@ -89,7 +94,7 @@ class HandUtil:
         waitingString = ",".join(map(lambda x: "1" if x else "0", waiting))
 
         print(
-            "|%2s|%2s|%s||%s|%s|%s||%s|%s|%s|"
+            "|%2s|%2s|%s||%s|%s|%s||%s|%s|%s||%s||%s|%s|"
             % (
                 handCount,
                 normalHandCount,
@@ -100,6 +105,9 @@ class HandUtil:
                 handString,
                 leftAttachedHandString,
                 waitingString,
+                "-" if not hasAtamaWaiting else ("c" if self.isConnected else "a"),
+                waitingKindCount,
+                waitingCount,
             )
         )
 

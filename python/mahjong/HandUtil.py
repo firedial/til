@@ -113,7 +113,7 @@ class HandUtil:
             handLength,
             "-" if isLeftIrreducible is None else ("o" if isLeftIrreducible else "x"),
             "-" if isRightIrreducible is None else ("o" if isRightIrreducible else "x"),
-            "o" if handLength != 8 else ("x" if isLeftIrreducible == True else "o"),
+            "o" if handLength != 8 else ("x" if isLeftIrreducible else "o"),
             handString,
             leftAttachedHandString,
             waitingString,

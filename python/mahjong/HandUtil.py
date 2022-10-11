@@ -1,3 +1,5 @@
+from re import I
+from turtle import left
 import agari
 import shanten
 import form
@@ -50,17 +52,22 @@ class HandUtil:
 
     def getHandNumber(self) -> int:
         handCount = sum(self.hand)
-        normalHandCount = handCount + (2 if handCount % 3 == 2 else 0) + (3 if self.isConnected else 0)
+        handCountMap = {1: 1, 4: 2, 7: 3, 10: 4, 13: 5}
 
-        handCountMap = {1: 1, 2: 2, 4: 3, 5: 4, 7: 5, 8: 6, 10: 7, 11: 8, 13: 9}
+        normalHandNumber = 2 if handCount % 3 != 2 else (0 if self.isConnected else 1)
+        normalHandCount = handCount + (2 if handCount % 3 == 2 else 0) + (3 if self.isConnected else 0)
+        place = 0 if len(self.hand) <= 7 else (1 if self.hand[0] != 0 else 2)
 
         number = 0
         leftAttachHand = self.getLeftAttachHand()
-        for hai in leftAttachHand:
+
+        handNumber = [handCountMap[normalHandCount]] + [normalHandNumber] + list(map(lambda x: 4 - x, leftAttachHand)) + [place]
+
+        for hai in handNumber:
             number *= 5
             number += hai
 
-        return int(str(handCountMap[normalHandCount]) + str(handCountMap[handCount]) + str(number).zfill(7))
+        return number
 
     def printHandDetail(self) -> str:
         hand = self.hand
@@ -103,10 +110,9 @@ class HandUtil:
             isLeftIrreducible = None
 
         handString = ",".join(map(lambda x: str(x), hand))
-        leftAttachedHandString = ",".join(map(lambda x: str(x), self.getLeftAttachHand()))
         waitingString = ",".join(map(lambda x: "1" if x else "0", waiting))
 
-        return "|%s||%2s|%2s|%s||%s|%s|%s||%s|%s|%s||%s||%s|%2s|" % (
+        return "|%9s||%2s|%2s|%s||%s|%s|%s||%s|%s||%s||%s|%2s|" % (
             self.getHandNumber(),
             normalHandCount,
             handCount,
@@ -115,7 +121,6 @@ class HandUtil:
             "-" if isRightIrreducible is None else ("o" if isRightIrreducible else "x"),
             "o" if handLength != 8 else ("x" if isLeftIrreducible else "o"),
             handString,
-            leftAttachedHandString,
             waitingString,
             "-" if not hasAtamaWaiting else ("c" if self.isConnected else "a"),
             waitingKindCount,

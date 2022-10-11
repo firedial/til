@@ -19,6 +19,10 @@ class HandUtil:
         while number != 0:
             n.append(number % 5)
             number //= 5
+
+        # 先頭が 0 の時
+        if len(n) == 11:
+            n.append(0)
         n.reverse()
 
         # 左接地させるかどうか判定

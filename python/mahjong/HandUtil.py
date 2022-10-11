@@ -35,6 +35,24 @@ class HandUtil:
         # 雀頭接続順子
         self.isConnected = n[1] == 0
 
+    def getHand(self) -> list[int]:
+        return self.hand
+
+    def getAtamaNumber(self) -> int:
+        if sum(self.hand) % 3 == 1:
+            return 0
+
+        if self.isConnected:
+            return 5
+
+        return 2
+
+    def getWaitng(self) -> list[bool]:
+        return wait.getWaitingHai(self.hand)
+
+    def getIsConnected(self) -> bool:
+        return self.isConnected
+
     def isValid(self) -> bool:
         # 0 枚未満の牌を持っているとき
         if len(list(filter(lambda x: x < 0, self.hand))) > 0:

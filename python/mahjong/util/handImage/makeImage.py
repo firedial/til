@@ -46,7 +46,8 @@ def makeImage(number: str, hand: list[int], atama: int) -> None:
             handImage.paste(sozuImage[i + 1].resize((WIDTH, HIGHT)), (WIDTH * count, 0))
             count += 1
 
-    handImage.save("./image/result/" + number + ".gif")
+    # handImage.save("./image/result/" + number + ".gif")
+    handImage.save("./" + number + ".gif")
 
     for i in range(0, 10):
         sozuImage[i].close()
@@ -91,4 +92,50 @@ def makeWaitImage(number: str, wait: list[int], atamaWait: int) -> None:
     handImage.save("./image/result/" + number + ".gif")
 
 
-# makeImage("W000", [2], 2)
+def kokushiImage() -> None:
+    handImage = Image.new("RGB", (WIDTH * 13, HIGHT))
+
+    count = 0
+
+    p1 = Image.open("./image/manzu/p_ms1_1.gif")
+    handImage.paste(p1.resize((WIDTH, HIGHT)), (WIDTH * count, 0))
+    count += 1
+    p1.close
+    p1 = Image.open("./image/manzu/p_ms9_1.gif")
+    handImage.paste(p1.resize((WIDTH, HIGHT)), (WIDTH * count, 0))
+    count += 1
+    p1.close
+
+    # p1 = Image.open("./image/pinzu/p_ps1_1.gif")
+    # handImage.paste(p1.resize((WIDTH, HIGHT)), (WIDTH * count, 0))
+    # count += 1
+    # p1.close
+    p1 = Image.open("./image/pinzu/p_ps9_1.gif")
+    handImage.paste(p1.resize((WIDTH, HIGHT)), (WIDTH * count, 0))
+    count += 1
+    p1.close
+
+    p1 = Image.open("./image/sozu/p_ss1_1.gif")
+    handImage.paste(p1.resize((WIDTH, HIGHT)), (WIDTH * count, 0))
+    count += 1
+    p1.close
+
+    p1 = Image.open("./image/sozu/p_ss9_1.gif")
+    handImage.paste(p1.resize((WIDTH, HIGHT)), (WIDTH * count, 0))
+    count += 1
+    p1.close
+
+    for i in range(1, 8):
+        p1 = Image.open("./image/jihai/p_ji" + str(i) + "_1.gif")
+        handImage.paste(p1.resize((WIDTH, HIGHT)), (WIDTH * count, 0))
+        count += 1
+        if i == 3:
+            handImage.paste(p1.resize((WIDTH, HIGHT)), (WIDTH * count, 0))
+            count += 1
+
+        p1.close
+
+    handImage.save("tmp.gif")
+
+
+makeImage("tmp", [0, 1, 2, 1], 0)

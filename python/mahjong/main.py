@@ -1,6 +1,6 @@
-from HandUtil import HandUtil
+from util.hand.HandUtil import HandUtil
 
-import handLoop
+import util.handLoop
 
 
 def loopHand(fp, num: int):
@@ -18,12 +18,13 @@ def loopHand(fp, num: int):
                 fp.write(str(handUtil.getHandNumber()))
                 fp.write("\n")
 
-        hand = handLoop.nextHand(hand)
+        hand = util.handLoop.nextHand(hand)
         if hand == [0, 0, 0, 0, 0, 0, 0, 0, num]:
             break
 
 
 numbers = [1, 2, 4, 5, 7, 8, 10, 11, 13]
+numbers = [1, 2, 4, 5, 7]
 fp = open("hands.txt", "w")
 
 for n in numbers:

@@ -1,4 +1,5 @@
-import agari
+from . import agari
+
 
 def getAgariHai(hai):
     haiLen = len(hai)
@@ -19,12 +20,8 @@ def getAgariHai(hai):
 
     return agariHai
 
+
 def isTempai(hand: list[int]) -> bool:
     if sum(hand) % 3 == 2 and agari.isAgari(hand):
         return True
     return len(list(filter(lambda x: x, getAgariHai(hand)))) > 0
-
-
-
-
-

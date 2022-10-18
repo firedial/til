@@ -1,8 +1,8 @@
 from enum import Enum
 
-import wait
-import remove
-import agari
+from . import wait
+from . import remove
+from . import agari
 
 
 class RemoveHai(Enum):

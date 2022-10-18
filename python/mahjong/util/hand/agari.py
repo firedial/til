@@ -1,4 +1,5 @@
-import remove
+from . import remove
+
 
 def isAgari(hand: list[int]) -> bool:
     """
@@ -39,7 +40,6 @@ def isAgari(hand: list[int]) -> bool:
         else:
             return False
 
-
     # 3n 枚の時のは面子の除去
     for h in remove.removedTilesListPossible(hand, [[3], [1, 1, 1]]):
         if isAgari(h):
@@ -60,7 +60,8 @@ def isSevenPairs(hand: list[int]) -> bool:
     """
     return len(list(filter(lambda x: x == 2, hand))) == 7
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     assert isAgari([3, 1, 1, 1, 1, 1, 1, 1, 4])
     assert isAgari([3, 1, 1, 1, 1, 1, 1, 2, 3])
     assert isAgari([3, 1, 1, 1, 1, 1, 2, 1, 3])
@@ -84,6 +85,3 @@ if __name__ == '__main__':
     assert not isSevenPairs([1, 1, 3, 1, 1, 1])
     assert not isSevenPairs([2, 2, 0, 2, 0])
     assert isSevenPairs([2, 2, 0, 2, 2, 0, 2, 2, 2])
-
-
-

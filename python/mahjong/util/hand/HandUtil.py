@@ -1,8 +1,8 @@
-import agari
-import shanten
-import form
-import irreducible
-import wait
+from . import agari
+from . import shanten
+from . import form
+from . import irreducible
+from . import wait
 
 
 class HandUtil:
@@ -167,17 +167,60 @@ class HandUtil:
         handString = ",".join(map(lambda x: str(x), hand))
         waitingString = ",".join(map(lambda x: "1" if x else "0", waiting))
 
-        return "|%9s||%2s|%2s|%s||%s|%s|%s||%s|%s||%s||%s|%2s|" % (
-            self.getHandNumber(),
+        return "|%2s|%2s|%s|%s|%s|%s|%s|%s|%s|%2s|" % (
             normalHandCount,
             handCount,
             handLength,
             "-" if isLeftIrreducible is None else ("o" if isLeftIrreducible else "x"),
             "-" if isRightIrreducible is None else ("o" if isRightIrreducible else "x"),
-            "o" if handLength != 8 else ("x" if isLeftIrreducible else "o"),
             handString,
             waitingString,
             "-" if not hasAtamaWaiting else ("c" if self.isConnected else "a"),
+            waitingKindCount,
+            waitingCount,
+        )
+
+    def printHandTable(self, number: str) -> str:
+        hand = self.hand
+
+        # 牌の全体の枚数
+        handCount = sum(hand)
+
+        waiting = wait.getWaitingHai(hand)
+        hasAtamaWaiting = handCount % 3 == 2 and self.isAgari()
+
+        waitingKindCount = sum(list(filter(lambda x: x, waiting))) + (0 if not hasAtamaWaiting else (2 if self.isConnected else 1))
+        waitingCount = sum([4 - h if w else 0 for (h, w) in zip(hand, waiting)]) + (0 if not hasAtamaWaiting else (5 if self.isConnected else 2))
+
+        # 両側の0を省く
+        bothAttachHand = form.getUniformForm(hand)
+        handUtil = HandUtil()
+        if len(bothAttachHand) <= 7:
+            handUtil.setHand(bothAttachHand + [0])
+            isLeftIrreducible = handUtil.isIrreducible()
+            handUtil.setHand([0] + bothAttachHand)
+            isRightIrreducible = handUtil.isIrreducible()
+        elif len(bothAttachHand) == 8:
+            # 左接地の時
+            if hand[0] != 0:
+                handUtil.setHand([0] + bothAttachHand)
+                isRightIrreducible = handUtil.isIrreducible()
+                isLeftIrreducible = None
+            # 右接地の時
+            else:
+                handUtil.setHand(bothAttachHand + [0])
+                isRightIrreducible = None
+                isLeftIrreducible = handUtil.isIrreducible()
+        else:
+            isRightIrreducible = None
+            isLeftIrreducible = None
+
+        return "|%s|%s|%s|%s|%s|%s|%s|" % (
+            number,
+            "-" if isLeftIrreducible is None else ("o" if isLeftIrreducible else "x"),
+            "-" if isRightIrreducible is None else ("o" if isRightIrreducible else "x"),
+            "![](/images/result/" + number + ".gif)",
+            "![](/images/result/Wait_" + number + ".gif)",
             waitingKindCount,
             waitingCount,
         )

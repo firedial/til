@@ -1,4 +1,4 @@
-import agari
+from . import agari
 
 MAX_HAI_NUMBER = 4
 

@@ -1,5 +1,7 @@
-from HandUtil import HandUtil
-import makeImage
+from util.hand.HandUtil import HandUtil
+from util.handImage.makeImage import makeImage
+
+fp = open("list.txt", "w")
 
 handNumbers = []
 with open("hands.txt", "r") as f:
@@ -29,13 +31,18 @@ for handNumber in handNumbers:
         blank = "  "
 
     handUtil.setHandByNumber(handNumber)
-    print(wait + blank + handUtil.printHandDetail())
-    makeImage.makeImage(wait, handUtil.getHand(), handUtil.getAtamaNumber())
-    makeImage.makeWaitImage(
-        "Wait_" + wait,
-        list(map(lambda x: 1 if x else 0, handUtil.getWaitng())),
-        (1 if handUtil.isAgari() else 0) + (1 if handUtil.getIsConnected() else 0),
-    )
+    fp.write(wait + blank + handUtil.printHandDetail())
+    fp.write("\n")
+    # print(wait + blank + handUtil.printHandDetail())
+    # makeImage.makeImage(wait, handUtil.getHand(), handUtil.getAtamaNumber())
+    # makeImage.makeWaitImage(
+    #     "Wait_" + wait,
+    #     list(map(lambda x: 1 if x else 0, handUtil.getWaitng())),
+    #     (1 if handUtil.isAgari() else 0) + (1 if handUtil.getIsConnected() else 0),
+    # )
+    # print(handUtil.printHandTable(wait))
 
     waitingNumber += 1
     beforeNumber = currentNumber
+
+fp.close()

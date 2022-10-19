@@ -20,6 +20,7 @@ class HandUtilTest(unittest.TestCase):
         handUtil = HandUtil()
         handUtilSet = HandUtil()
         numbers = [1, 2, 4, 7, 8, 10, 11, 13]
+        numbers = [1, 2, 4, 7]
 
         for num in numbers:
             hand = [0, 0, 0, 0, 0, 0, 0, 0, num]

@@ -41,10 +41,3 @@ def countWaitingHai(hand: list[int]) -> int:
         int: 待ち牌の種類数
     """
     return len(list(filter(lambda x: x, getWaitingHai(hand))))
-
-
-if __name__ == "__main__":
-    assert getWaitingHai([3, 1, 1, 1, 1, 1, 1, 1, 3]) == [True, True, True, True, True, True, True, True, True]
-    assert countWaitingHai([1, 1, 1, 1, 1, 1, 1]) == 3
-    assert countWaitingHai([3, 1, 1, 1, 1, 1, 1, 1, 3]) == 9
-    assert getWaitingHai([0, 4, 4, 2, 0, 0, 0, 0, 0]) == [True, False, False, True, True, False, False, False, False]

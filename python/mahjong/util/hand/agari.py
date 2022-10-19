@@ -59,5 +59,3 @@ def isSevenPairs(hand: list[int]) -> bool:
         bool: 七対子形なら True / そうでない時 False
     """
     return len(list(filter(lambda x: x == 2, hand))) == 7
-
-

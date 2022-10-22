@@ -1,6 +1,6 @@
-import copy
 import itertools
-import re
+import functools
+import operator
 
 
 poly1 = [
@@ -26,7 +26,29 @@ poly4 = [
     [(0, 0), (1, 0), (1, 1), (1, 2)],
 ]
 
-polyomino = poly1 + poly2 + poly3 + poly4
+poly5 = [
+    [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)],
+    [(0, 0), (-1, 0), (0, -1), (0, 1), (1, 1)],
+    [(0, 0), (1, 0), (0, -1), (0, 1), (-1, 1)],
+    [(0, 0), (1, 0), (1, 2), (1, 3), (1, 4)],
+    [(0, 0), (-1, 0), (-1, 2), (-1, 3), (-1, 4)],
+    [(0, 0), (0, 1), (0, 2), (-1, 1), (-1, 2)],
+    [(0, 0), (0, 1), (0, 2), (1, 1), (1, 2)],
+    [(0, 0), (1, 0), (1, 1), (1, 2), (1, 3)],
+    [(0, 0), (-1, 0), (-1, 1), (-1, 2), (-1, 3)],
+    [(0, 0), (0, 1), (0, 2), (-1, 2), (1, 2)],
+    [(0, 0), (1, 0), (1, 1), (-1, 0), (-1, 1)],
+    [(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)],
+    [(0, 0), (1, 0), (1, 1), (2, 1), (2, 2)],
+    [(0, 0), (1, 0), (0, 1), (-1, 0), (0, -1)],
+    [(0, 0), (1, 0), (1, 1), (1, -1), (1, -2)],
+    [(0, 0), (-1, 0), (-1, 1), (-1, -1), (-1, -2)],
+    [(0, 0), (1, 0), (1, 1), (1, 2), (2, 2)],
+    [(0, 0), (-1, 0), (-1, 1), (-1, 2), (-2, 2)],
+]
+
+polyomino = poly1 + poly2 + poly3 + poly4 + poly5
+polyominoRoutate = [1, 2, 2, 4, 2, 1, 4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4]
 
 
 def deletePolyomino(f, n, p, x, y, d):
@@ -102,7 +124,8 @@ def main(polyomino, n, f, pn, result):
                     continue
 
                 if isFull(f, n):
-                    result.append(copy.deepcopy(f))
+                    key = frozenset((itertools.chain.from_iterable(f)))
+                    result[key] = result.get(key, 0) + 1
                     deletePolyomino(f, n, p, i, j, d)
                     continue
 
@@ -114,12 +137,17 @@ def main(polyomino, n, f, pn, result):
 
 
 n = 4
-result = []
+result = {}
 f = [[-1 for _ in range(n)] for _ in range(n)]
 
 main(polyomino, n, f, 0, result)
 
+answer = []
+polyominoRoutate.reverse()
+for k, v in result.items():
+    count = functools.reduce(operator.floordiv, map(lambda y: 4 // polyominoRoutate[y], k), v)
+    if count == 4:
+        answer.append(k)
+
 print(result)
-r = list(map(lambda x: set(itertools.chain.from_iterable(x)), result))
-t = max(map(lambda x: len(x), r))
-print(t)
+print(answer)

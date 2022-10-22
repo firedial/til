@@ -1,54 +1,9 @@
 import itertools
 import functools
 import operator
+import polyominoList
 
-
-poly1 = [
-    [(0, 0)],
-]
-
-poly2 = [
-    [(0, 0), (0, 1)],
-]
-
-poly3 = [
-    [(0, 0), (0, 1), (0, 2)],
-    [(0, 0), (0, 1), (1, 0)],
-]
-
-poly4 = [
-    [(0, 0), (0, 1), (0, 2), (0, 3)],
-    [(0, 0), (0, 1), (1, 0), (1, 1)],
-    [(0, 0), (0, 1), (1, 0), (2, 0)],
-    [(0, 0), (0, 1), (1, 1), (1, 2)],
-    [(0, 0), (0, 1), (1, 1), (0, 2)],
-    [(0, 0), (0, 1), (1, 1), (1, 2)],
-    [(0, 0), (1, 0), (1, 1), (1, 2)],
-]
-
-poly5 = [
-    [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)],
-    [(0, 0), (-1, 0), (0, -1), (0, 1), (1, 1)],
-    [(0, 0), (1, 0), (0, -1), (0, 1), (-1, 1)],
-    [(0, 0), (1, 0), (1, 2), (1, 3), (1, 4)],
-    [(0, 0), (-1, 0), (-1, 2), (-1, 3), (-1, 4)],
-    [(0, 0), (0, 1), (0, 2), (-1, 1), (-1, 2)],
-    [(0, 0), (0, 1), (0, 2), (1, 1), (1, 2)],
-    [(0, 0), (1, 0), (1, 1), (1, 2), (1, 3)],
-    [(0, 0), (-1, 0), (-1, 1), (-1, 2), (-1, 3)],
-    [(0, 0), (0, 1), (0, 2), (-1, 2), (1, 2)],
-    [(0, 0), (1, 0), (1, 1), (-1, 0), (-1, 1)],
-    [(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)],
-    [(0, 0), (1, 0), (1, 1), (2, 1), (2, 2)],
-    [(0, 0), (1, 0), (0, 1), (-1, 0), (0, -1)],
-    [(0, 0), (1, 0), (1, 1), (1, -1), (1, -2)],
-    [(0, 0), (-1, 0), (-1, 1), (-1, -1), (-1, -2)],
-    [(0, 0), (1, 0), (1, 1), (1, 2), (2, 2)],
-    [(0, 0), (-1, 0), (-1, 1), (-1, 2), (-2, 2)],
-]
-
-polyomino = poly1 + poly2 + poly3 + poly4 + poly5
-polyominoRoutate = [1, 2, 2, 4, 2, 1, 4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4]
+EMPTY_CELL = -1
 
 
 def deletePolyomino(f, n, p, x, y, d):
@@ -60,7 +15,7 @@ def deletePolyomino(f, n, p, x, y, d):
         if d == 3:
             dx, dy = dy, -dx
 
-        f[x + dx][y + dy] = -1
+        f[x + dx][y + dy] = EMPTY_CELL
 
 
 def putPolyomino(f, n, p, pn, x, y, d):
@@ -84,7 +39,7 @@ def putPolyomino(f, n, p, pn, x, y, d):
         if not (0 <= (y + dy) < n):
             return None
 
-        if f[x + dx][y + dy] != -1:
+        if f[x + dx][y + dy] != EMPTY_CELL:
             return None
 
     for dx, dy in p:
@@ -103,7 +58,7 @@ def putPolyomino(f, n, p, pn, x, y, d):
 def isFull(f, n):
     for i in range(n):
         for j in range(n):
-            if f[i][j] == -1:
+            if f[i][j] == EMPTY_CELL:
                 return False
 
     return True
@@ -117,7 +72,7 @@ def main(polyomino, n, f, pn, result):
 
     for i in range(n):
         for j in range(n):
-            if f[i][j] != -1:
+            if f[i][j] != EMPTY_CELL:
                 continue
             for d in range(4):
                 if putPolyomino(f, n, p, pn, i, j, d) is None:
@@ -136,9 +91,12 @@ def main(polyomino, n, f, pn, result):
     polyomino.append(p)
 
 
-n = 4
+n = 3
 result = {}
-f = [[-1 for _ in range(n)] for _ in range(n)]
+f = [[EMPTY_CELL for _ in range(n)] for _ in range(n)]
+
+polyomino = polyominoList.getPolyomino()
+polyominoRoutate = polyominoList.getPolyominoRotate()
 
 main(polyomino, n, f, 0, result)
 

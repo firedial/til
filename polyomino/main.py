@@ -6,7 +6,7 @@ import polyominoList
 EMPTY_CELL = -1
 
 
-def deletePolyomino(f, n, p, x, y, d):
+def deletePolyomino(f, p, x, y, d):
     for dx, dy in p:
         if d == 1:
             dx, dy = -dy, dx
@@ -55,10 +55,10 @@ def putPolyomino(f, n, p, pn, x, y, d):
     return True
 
 
-def isFull(f, n):
-    for i in range(n):
-        for j in range(n):
-            if f[i][j] == EMPTY_CELL:
+def isFull(field):
+    for rows in field:
+        for cell in rows:
+            if cell == EMPTY_CELL:
                 return False
 
     return True
@@ -78,14 +78,14 @@ def main(polyomino, n, f, pn, result):
                 if putPolyomino(f, n, p, pn, i, j, d) is None:
                     continue
 
-                if isFull(f, n):
+                if isFull(f):
                     key = frozenset((itertools.chain.from_iterable(f)))
                     result[key] = result.get(key, 0) + 1
-                    deletePolyomino(f, n, p, i, j, d)
+                    deletePolyomino(f, p, i, j, d)
                     continue
 
                 main(polyomino, n, f, pn + 1, result)
-                deletePolyomino(f, n, p, i, j, d)
+                deletePolyomino(f, p, i, j, d)
 
     main(polyomino, n, f, pn + 1, result)
     polyomino.append(p)

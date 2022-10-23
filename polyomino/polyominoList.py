@@ -9,7 +9,7 @@ poly = [
     {"id": 8, "hasMirrored": True, "rotate": 2, "count": 4, "form": [(0, 0), (0, 1), (1, 1), (1, 2)]},
     {"id": 9, "hasMirrored": False, "rotate": 4, "count": 4, "form": [(0, 0), (0, 1), (1, 1), (0, 2)]},
     {"id": 10, "hasMirrored": True, "rotate": 2, "count": 4, "form": [(0, 0), (0, 1), (-1, 1), (-1, 2)]},
-    {"id": 11, "hasMirrored": True, "rotate": 4, "count": 4, "form": [(0, 0), (1, 0), (1, 1), (1, 2)]},
+    {"id": 11, "hasMirrored": True, "rotate": 4, "count": 4, "form": [(0, 0), (0, 1), (-1, 0), (-2, 0)]},
     {"id": 12, "hasMirrored": False, "rotate": 2, "count": 5, "form": [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)]},
     {"id": 13, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (-1, 0), (0, -1), (0, 1), (1, 1)]},
     {"id": 14, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (1, 0), (0, -1), (0, 1), (-1, 1)]},
@@ -54,5 +54,5 @@ def getPolyominos():
 if __name__ == "__main__":
     for p in poly:
         print("-" * 10)
-        print(p["id"], p["rotate"])
+        print(p["id"], p["count"], p["rotate"])
         printPolyomino(p)

@@ -4,7 +4,7 @@ import polyominoList
 import random
 import copy
 
-EMPTY_CELL = -1
+EMPTY_CELL = 0
 
 
 def deletePolyomino(f, p, x, y, d):
@@ -94,22 +94,41 @@ def getFullPolyominoSet(field, n, polyominos, answer):
                     continue
 
                 getFullPolyominoSet(field, n, polyominos, answer)
+
                 deletePolyomino(field, polyomino["form"], i, j, d)
 
     polyominos.append(polyomino)
     return False
 
 
-def main(polyominos, polyominoSet, n, result):
+def getIdsList(bools, ids):
+    result = [ids.copy()]
+    for i, b in enumerate(bools):
+        if b:
+            tmp = copy.deepcopy(result)
+            for row in tmp:
+                row[i] *= -1
+                result.append(row)
+
+    return result
+
+
+def main(polyominos_hoge, polyominos, polyominoSet, n, result):
     s = sum(map(lambda x: x["count"], polyominoSet))
     if n * n == s:
         if random.randrange(1000) >= 20000:
             return
-        field = [[EMPTY_CELL for _ in range(n)] for _ in range(n)]
-        count = countFullPolyominoSet(field, n, polyominoSet.copy())
-        if count != 0:
-            uniqueCount = functools.reduce(operator.floordiv, map(lambda x: 4 // x["rotate"], polyominoSet), count)
-            result[frozenset(map(lambda x: x["id"], polyominoSet))] = uniqueCount // 4
+
+        testPolyomino = getIdsList(list(map(lambda x: x["hasMirrored"], polyominoSet)), list(map(lambda x: x["id"], polyominoSet)))
+
+        for ids in testPolyomino:
+            testPolyominoSet = list(map(lambda x: polyominos_hoge[x], ids))
+
+            field = [[EMPTY_CELL for _ in range(n)] for _ in range(n)]
+            count = countFullPolyominoSet(field, n, testPolyominoSet)
+            if count != 0:
+                uniqueCount = functools.reduce(operator.floordiv, map(lambda x: 4 // x["rotate"], polyominoSet), count)
+                result[frozenset(map(lambda x: x["id"], polyominoSet))] = uniqueCount // 4
 
         return
 
@@ -118,29 +137,30 @@ def main(polyominos, polyominoSet, n, result):
 
     p = polyominos.pop()
     polyominoSet.append(p)
-    main(polyominos, polyominoSet, n, result)
+    main(polyominos_hoge, polyominos, polyominoSet, n, result)
 
     polyominoSet.pop()
-    main(polyominos, polyominoSet, n, result)
+    main(polyominos_hoge, polyominos, polyominoSet, n, result)
     polyominos.append(p)
 
 
-n = 4
+n = 5
 f = [[EMPTY_CELL for _ in range(n)] for _ in range(n)]
 polyominos = polyominoList.getPolyominos()
 
 # r = countFullPolyominoSet(f, n, [polyominos[0], polyominos[6], polyominos[10]])
 
 result = {}
-usePolyominos = list(filter(lambda x: x["rotate"] == 4, polyominoList.getPolyominos()))
-main(usePolyominos, [], n, result)
+usePolyominos = list(filter(lambda x: x["rotate"] == 4 and x["id"] > 0, polyominoList.getPolyominos().values()))
+# usePolyominos = list(filter(lambda x: x["id"] == 20 or x["id"] == 17 or x["id"] == 13 or x["id"] == 21 or x["id"] == 18, polyominoList.getPolyominos().values()))
+main(polyominoList.getPolyominos(), usePolyominos, [], n, result)
 minResult = list(filter(lambda x: x[1] == 2, result.items()))
 
 pieceCountMax = 0
 for r in minResult:
     f = [[EMPTY_CELL for _ in range(n)] for _ in range(n)]
     answer = []
-    getFullPolyominoSet(f, n, list(map(lambda x: polyominos[x - 1], r[0])), answer)
+    getFullPolyominoSet(f, n, list(map(lambda x: polyominos[x], r[0])), answer)
     pieceCount = len(r[0])
     pieceCountMax = pieceCount if pieceCountMax < pieceCount else pieceCountMax
 
@@ -148,14 +168,16 @@ for r in minResult:
     print("[%d] pattern %d" % (pieceCount, r[1]))
 
     for a in answer:
-        if max(a[0][0], a[0][-1], a[-1][0], a[-1][-1]) != a[0][0] or max(a[0][-1], a[-1][0], a[-1][-1]) != a[0][-1]:
-            continue
+        if max(a[0][0], a[0][-1], a[-1][0], a[-1][-1]) != a[0][0]:
+            pass
+            # continue
 
         print("-" * 10)
         for row in a:
             for cell in row:
                 print("%3d" % cell, end="")
             print()
+
 
 print("-" * 50)
 print(pieceCountMax)

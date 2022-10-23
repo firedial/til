@@ -127,8 +127,8 @@ def main(polyominos_hoge, polyominos, polyominoSet, n, result):
             field = [[EMPTY_CELL for _ in range(n)] for _ in range(n)]
             count = countFullPolyominoSet(field, n, testPolyominoSet)
             if count != 0:
-                uniqueCount = functools.reduce(operator.floordiv, map(lambda x: 4 // x["rotate"], polyominoSet), count)
-                result[frozenset(map(lambda x: x["id"], polyominoSet))] = uniqueCount // 4
+                uniqueCount = functools.reduce(operator.floordiv, map(lambda x: 4 // x["rotate"], testPolyominoSet), count)
+                result[frozenset(map(lambda x: x["id"], testPolyominoSet))] = uniqueCount // 4
 
         return
 
@@ -144,7 +144,7 @@ def main(polyominos_hoge, polyominos, polyominoSet, n, result):
     polyominos.append(p)
 
 
-n = 5
+n = 6
 f = [[EMPTY_CELL for _ in range(n)] for _ in range(n)]
 polyominos = polyominoList.getPolyominos()
 
@@ -166,11 +166,11 @@ for r in minResult:
 
     print("-" * 50)
     print("[%d] pattern %d" % (pieceCount, r[1]))
+    print(list(map(lambda x: polyominos[x], r[0])))
 
     for a in answer:
         if max(a[0][0], a[0][-1], a[-1][0], a[-1][-1]) != a[0][0]:
-            pass
-            # continue
+            continue
 
         print("-" * 10)
         for row in a:

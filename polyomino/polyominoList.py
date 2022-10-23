@@ -1,34 +1,34 @@
-poly = [
-    {"id": 1, "hasMirrored": False, "rotate": 1, "count": 1, "form": [(0, 0)]},
-    {"id": 2, "hasMirrored": False, "rotate": 2, "count": 2, "form": [(0, 0), (0, 1)]},
-    {"id": 3, "hasMirrored": False, "rotate": 2, "count": 3, "form": [(0, 0), (0, 1), (0, 2)]},
-    {"id": 4, "hasMirrored": False, "rotate": 4, "count": 3, "form": [(0, 0), (0, 1), (1, 0)]},
-    {"id": 5, "hasMirrored": False, "rotate": 2, "count": 4, "form": [(0, 0), (0, 1), (0, 2), (0, 3)]},
-    {"id": 6, "hasMirrored": False, "rotate": 1, "count": 4, "form": [(0, 0), (0, 1), (1, 0), (1, 1)]},
-    {"id": 7, "hasMirrored": True, "rotate": 4, "count": 4, "form": [(0, 0), (0, 1), (1, 0), (2, 0)]},
-    {"id": 8, "hasMirrored": True, "rotate": 2, "count": 4, "form": [(0, 0), (0, 1), (1, 1), (1, 2)]},
-    {"id": 9, "hasMirrored": False, "rotate": 4, "count": 4, "form": [(0, 0), (0, 1), (1, 1), (0, 2)]},
-    {"id": 10, "hasMirrored": True, "rotate": 2, "count": 4, "form": [(0, 0), (0, 1), (-1, 1), (-1, 2)]},
-    {"id": 11, "hasMirrored": True, "rotate": 4, "count": 4, "form": [(0, 0), (0, 1), (-1, 0), (-2, 0)]},
-    {"id": 12, "hasMirrored": False, "rotate": 2, "count": 5, "form": [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)]},
-    {"id": 13, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (-1, 0), (0, -1), (0, 1), (1, 1)]},
-    {"id": 14, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (1, 0), (0, -1), (0, 1), (-1, 1)]},
-    {"id": 15, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (1, 0), (1, 1), (1, 2), (1, 3)]},
-    {"id": 16, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (-1, 0), (-1, 1), (-1, 2), (-1, 3)]},
-    {"id": 17, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (0, 1), (0, 2), (-1, 1), (-1, 2)]},
-    {"id": 18, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (0, 1), (0, 2), (1, 1), (1, 2)]},
-    {"id": 19, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3)]},
-    {"id": 20, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (0, 1), (-1, 1), (-1, 2), (-1, 3)]},
-    {"id": 21, "hasMirrored": False, "rotate": 4, "count": 5, "form": [(0, 0), (0, 1), (0, 2), (-1, 2), (1, 2)]},
-    {"id": 22, "hasMirrored": False, "rotate": 4, "count": 5, "form": [(0, 0), (1, 0), (1, 1), (-1, 0), (-1, 1)]},
-    {"id": 23, "hasMirrored": False, "rotate": 4, "count": 5, "form": [(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)]},
-    {"id": 24, "hasMirrored": False, "rotate": 4, "count": 5, "form": [(0, 0), (1, 0), (1, 1), (2, 1), (2, 2)]},
-    {"id": 25, "hasMirrored": False, "rotate": 1, "count": 5, "form": [(0, 0), (1, 0), (0, 1), (-1, 0), (0, -1)]},
-    {"id": 26, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (1, 0), (1, 1), (1, -1), (1, -2)]},
-    {"id": 27, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (-1, 0), (-1, 1), (-1, -1), (-1, -2)]},
-    {"id": 28, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (1, 0), (1, 1), (1, 2), (2, 2)]},
-    {"id": 29, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (-1, 0), (-1, 1), (-1, 2), (-2, 2)]},
-]
+poly = {
+    1: {"id": 1, "hasMirrored": False, "rotate": 1, "count": 1, "form": [(0, 0)]},
+    2: {"id": 2, "hasMirrored": False, "rotate": 2, "count": 2, "form": [(0, 0), (0, 1)]},
+    3: {"id": 3, "hasMirrored": False, "rotate": 2, "count": 3, "form": [(0, 0), (0, 1), (0, 2)]},
+    4: {"id": 4, "hasMirrored": False, "rotate": 4, "count": 3, "form": [(0, 0), (0, 1), (1, 0)]},
+    5: {"id": 5, "hasMirrored": False, "rotate": 2, "count": 4, "form": [(0, 0), (0, 1), (0, 2), (0, 3)]},
+    6: {"id": 6, "hasMirrored": False, "rotate": 1, "count": 4, "form": [(0, 0), (0, 1), (1, 0), (1, 1)]},
+    7: {"id": 7, "hasMirrored": True, "rotate": 4, "count": 4, "form": [(0, 0), (0, 1), (1, 0), (2, 0)]},
+    -7: {"id": -7, "hasMirrored": True, "rotate": 4, "count": 4, "form": [(0, 0), (0, 1), (-1, 0), (-2, 0)]},
+    8: {"id": 8, "hasMirrored": True, "rotate": 2, "count": 4, "form": [(0, 0), (0, 1), (1, 1), (1, 2)]},
+    -8: {"id": -8, "hasMirrored": True, "rotate": 2, "count": 4, "form": [(0, 0), (0, 1), (-1, 1), (-1, 2)]},
+    9: {"id": 9, "hasMirrored": False, "rotate": 4, "count": 4, "form": [(0, 0), (0, 1), (1, 1), (0, 2)]},
+    10: {"id": 10, "hasMirrored": False, "rotate": 2, "count": 5, "form": [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)]},
+    11: {"id": 11, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (-1, 0), (0, -1), (0, 1), (1, 1)]},
+    -11: {"id": -11, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (1, 0), (0, -1), (0, 1), (-1, 1)]},
+    12: {"id": 12, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (1, 0), (1, 1), (1, 2), (1, 3)]},
+    -12: {"id": -12, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (-1, 0), (-1, 1), (-1, 2), (-1, 3)]},
+    13: {"id": 13, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (0, 1), (0, 2), (-1, 1), (-1, 2)]},
+    -13: {"id": -13, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (0, 1), (0, 2), (1, 1), (1, 2)]},
+    14: {"id": 14, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3)]},
+    -14: {"id": -14, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (0, 1), (-1, 1), (-1, 2), (-1, 3)]},
+    15: {"id": 15, "hasMirrored": False, "rotate": 4, "count": 5, "form": [(0, 0), (0, 1), (0, 2), (-1, 2), (1, 2)]},
+    16: {"id": 16, "hasMirrored": False, "rotate": 4, "count": 5, "form": [(0, 0), (1, 0), (1, 1), (-1, 0), (-1, 1)]},
+    17: {"id": 17, "hasMirrored": False, "rotate": 4, "count": 5, "form": [(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)]},
+    18: {"id": 18, "hasMirrored": False, "rotate": 4, "count": 5, "form": [(0, 0), (1, 0), (1, 1), (2, 1), (2, 2)]},
+    19: {"id": 19, "hasMirrored": False, "rotate": 1, "count": 5, "form": [(0, 0), (1, 0), (0, 1), (-1, 0), (0, -1)]},
+    20: {"id": 20, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (1, 0), (1, 1), (1, -1), (1, -2)]},
+    -20: {"id": -20, "hasMirrored": True, "rotate": 4, "count": 5, "form": [(0, 0), (-1, 0), (-1, 1), (-1, -1), (-1, -2)]},
+    21: {"id": 21, "hasMirrored": True, "rotate": 2, "count": 5, "form": [(0, 0), (1, 0), (1, 1), (1, 2), (2, 2)]},
+    -21: {"id": -21, "hasMirrored": True, "rotate": 2, "count": 5, "form": [(0, 0), (-1, 0), (-1, 1), (-1, 2), (-2, 2)]},
+}
 
 
 def printPolyomino(polyomino):
@@ -52,7 +52,7 @@ def getPolyominos():
 
 
 if __name__ == "__main__":
-    for p in poly:
+    for k, v in poly.items():
         print("-" * 10)
-        print(p["id"], p["count"], p["rotate"])
-        printPolyomino(p)
+        print(v["id"], v["count"], v["rotate"])
+        printPolyomino(v)

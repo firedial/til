@@ -29,7 +29,7 @@ def getPlaces(n, polyomino):
                     for cell in place:
                         hash[cell].append(frozenset(place))
 
-    return hash
+    return list(map(lambda x: set(x), hash))
 
 
 def main(countField, polyominosPlaces):
@@ -45,28 +45,44 @@ def main(countField, polyominosPlaces):
     if countField[minIndex] == FILL_CELL:
         return 1
 
+    # この二重ループで、対象のセルのパターンを全部試す
     for id, polyominoPlaces in polyominosPlaces.items():
         for place in polyominoPlaces[minIndex]:
+
             # 除去処理
             popedPolyominosPlaces = copy.deepcopy(polyominosPlaces)
-            nextCountField = copy.deepcopy(countField)
+            nextCountField = countField.copy()
             popedPolyominosPlaces.pop(id)
+
+            # ポリオミノを置く処理
             for cell in place:
+                # 置いたことを表す
                 nextCountField[cell] = FILL_CELL
 
-                for popedPolyominoPlaces in popedPolyominosPlaces.values():
-                    popedPolyominoPlaces[cell] = []
-                    nextCountField[cell] -= len(popedPolyominoPlaces[cell])
+                # 各ポリオミノと各セルに対して、除去する
+                for removeId, removePolyominoPlaces in polyominosPlaces.items():
+                    # すでにポップされている
+                    if removeId == id:
+                        continue
+
+                    for removePolyominoPlace in removePolyominoPlaces[cell]:
+                        for removeCell in removePolyominoPlace:
+                            popedPolyominosPlaces[removeId][removeCell].discard(removePolyominoPlace)
+
+            # 各セルに対して置ける個数を求める
+            for popedPolyominoPlace in popedPolyominosPlaces.values():
+                for index, place in enumerate(popedPolyominoPlace):
+                    countField[index] += len(place)
 
             count += main(nextCountField, popedPolyominosPlaces)
 
     return count
 
 
-n = 5
+n = 3
 allPolyominos = polyominoList.getPolyominos()
-# polyominos = {3: allPolyominos[3], 9: allPolyominos[9]}
-polyominos = allPolyominos
+polyominos = {3: allPolyominos[3], 9: allPolyominos[9]}
+# polyominos = allPolyominos
 countField = [0] * (n * n)
 polyominosPlaces = {}
 

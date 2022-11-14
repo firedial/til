@@ -91,12 +91,22 @@ def getIdsList(bools, ids):
     return result
 
 
-def makePattern(allPolyominos, n, polyominos, polyominoList):
+patternCount = 0
+
+
+def makePattern(fp, allPolyominos, n, polyominos, polyominoList):
+    global patternCount
     s = sum(map(lambda x: x["count"], polyominoList))
     if n * n == s:
         testPolyominoIdsList = getIdsList(list(map(lambda x: x["hasMirrored"], polyominoList)), list(map(lambda x: x["id"], polyominoList)))
 
         for ids in testPolyominoIdsList:
+            patternCount += 1
+            if patternCount < 0:
+                continue
+            fp.write("--- " + str(patternCount) + " ---")
+            fp.write("\n")
+
             testPolyominoSet = dict(map(lambda x: (x, allPolyominos[x]), ids))
 
             # 置くことができる場所を全て洗い出す
@@ -111,8 +121,10 @@ def makePattern(allPolyominos, n, polyominos, polyominoList):
                     field[index] += len(place)
 
             count = main(field, polyominosPlaces)
-            if count != 0:
-                print(ids, count // 4)
+            if count == 8:
+                fp.write("[ans] ")
+                fp.write(", ".join(map(lambda x: str(x), ids)))
+                fp.write("\n")
                 # uniqueCount = functools.reduce(operator.floordiv, map(lambda x: 4 // x["rotate"], testPolyominoSet), count)
                 # result[frozenset(map(lambda x: x["id"], testPolyominoSet))] = uniqueCount // 4
 
@@ -123,15 +135,17 @@ def makePattern(allPolyominos, n, polyominos, polyominoList):
 
     p = polyominos.pop()
     polyominoList.append(p)
-    makePattern(allPolyominos, n, polyominos, polyominoList)
+    makePattern(fp, allPolyominos, n, polyominos, polyominoList)
 
     polyominoList.pop()
-    makePattern(allPolyominos, n, polyominos, polyominoList)
+    makePattern(fp, allPolyominos, n, polyominos, polyominoList)
     polyominos.append(p)
 
 
-n = 3
+n = 4
 allPolyominos = polyominoList.getPolyominos()
 targetPolyominos = list(filter(lambda x: x["id"] > 0, polyominoList.getPolyominos().values()))
 
-makePattern(allPolyominos, n, targetPolyominos, [])
+fp = open("result.txt", mode="w")
+makePattern(fp, allPolyominos, n, targetPolyominos, [])
+fp.close()

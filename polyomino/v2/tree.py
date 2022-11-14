@@ -79,22 +79,59 @@ def main(countField, polyominosPlaces):
     return count
 
 
+def getIdsList(bools, ids):
+    result = [ids.copy()]
+    for i, b in enumerate(bools):
+        if b:
+            tmp = copy.deepcopy(result)
+            for row in tmp:
+                row[i] *= -1
+                result.append(row)
+
+    return result
+
+
+def makePattern(allPolyominos, n, polyominos, polyominoList):
+    s = sum(map(lambda x: x["count"], polyominoList))
+    if n * n == s:
+        testPolyominoIdsList = getIdsList(list(map(lambda x: x["hasMirrored"], polyominoList)), list(map(lambda x: x["id"], polyominoList)))
+
+        for ids in testPolyominoIdsList:
+            testPolyominoSet = dict(map(lambda x: (x, allPolyominos[x]), ids))
+
+            # 置くことができる場所を全て洗い出す
+            polyominosPlaces = {}
+            for testPolyomino in testPolyominoSet.values():
+                polyominosPlaces[testPolyomino["id"]] = getPlaces(n, testPolyomino)
+
+            # 各セルに対して置ける個数を求める
+            field = [0] * s
+            for polyominoPlace in polyominosPlaces.values():
+                for index, place in enumerate(polyominoPlace):
+                    field[index] += len(place)
+
+            count = main(field, polyominosPlaces)
+            if count != 0:
+                print(ids, count // 4)
+                # uniqueCount = functools.reduce(operator.floordiv, map(lambda x: 4 // x["rotate"], testPolyominoSet), count)
+                # result[frozenset(map(lambda x: x["id"], testPolyominoSet))] = uniqueCount // 4
+
+        return
+
+    if n * n < s or len(polyominos) == 0:
+        return
+
+    p = polyominos.pop()
+    polyominoList.append(p)
+    makePattern(allPolyominos, n, polyominos, polyominoList)
+
+    polyominoList.pop()
+    makePattern(allPolyominos, n, polyominos, polyominoList)
+    polyominos.append(p)
+
+
 n = 3
 allPolyominos = polyominoList.getPolyominos()
-polyominos = {3: allPolyominos[3], 9: allPolyominos[9]}
-# polyominos = allPolyominos
-countField = [0] * (n * n)
-polyominosPlaces = {}
+targetPolyominos = list(filter(lambda x: x["id"] > 0, polyominoList.getPolyominos().values()))
 
-# 置くことができる場所を全て洗い出す
-for polyomino in polyominos.values():
-    polyominosPlaces[polyomino["id"]] = getPlaces(n, polyomino)
-
-# 各セルに対して置ける個数を求める
-for polyominoPlace in polyominosPlaces.values():
-    for index, place in enumerate(polyominoPlace):
-        countField[index] += len(place)
-
-
-count = main(countField, polyominosPlaces)
-print(count)
+makePattern(allPolyominos, n, targetPolyominos, [])

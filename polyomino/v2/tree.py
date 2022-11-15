@@ -116,6 +116,8 @@ def makePattern(fp, allPolyominos, n, polyominos, polyominoList):
             print(datetime.datetime.now(), patternCount)
             fp.write("--- " + str(patternCount) + " ---")
             fp.write("\n")
+            fp.write(", ".join(map(lambda x: str(x), ids)))
+            fp.write("\n")
 
             testPolyominoSet = dict(map(lambda x: (x, allPolyominos[x]), ids))
 
@@ -131,12 +133,15 @@ def makePattern(fp, allPolyominos, n, polyominos, polyominoList):
                     field[index] += len(place)
 
             count = main(field, polyominosPlaces)
-            if count == 8:
-                fp.write("[ans] ")
-                fp.write(", ".join(map(lambda x: str(x), ids)))
-                fp.write("\n")
-                # uniqueCount = functools.reduce(operator.floordiv, map(lambda x: 4 // x["rotate"], testPolyominoSet), count)
-                # result[frozenset(map(lambda x: x["id"], testPolyominoSet))] = uniqueCount // 4
+            fp.write("count: " + str(count))
+            fp.write("\n")
+            fp.write("pattern[" + str(count // 4) + "]")
+            fp.write("\n")
+            # if count == 8:
+            #     fp.write("[ans] ")
+            #     fp.write("\n")
+            # uniqueCount = functools.reduce(operator.floordiv, map(lambda x: 4 // x["rotate"], testPolyominoSet), count)
+            # result[frozenset(map(lambda x: x["id"], testPolyominoSet))] = uniqueCount // 4
 
         return
 
@@ -152,7 +157,7 @@ def makePattern(fp, allPolyominos, n, polyominos, polyominoList):
     polyominos.append(p)
 
 
-n = 7
+n = 5
 allPolyominos = polyominoList.getPolyominos()
 targetPolyominos = list(filter(lambda x: x["id"] > 0 and x["hasMirrored"] and not x["hasBlock"] and not x["hasConcave"], polyominoList.getPolyominos().values()))
 print(list(map(lambda x: x["id"], targetPolyominos)))

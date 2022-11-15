@@ -1,6 +1,7 @@
 import polyominoList
 import copy
 import datetime
+import math
 
 FILL_CELL = 999999
 
@@ -30,7 +31,8 @@ def getPlaces(n, polyomino):
                     for cell in place:
                         hash[cell].append(frozenset(place))
 
-                mirroredPolyominoForm = map(lambda x: (x[0], -1 * x[1]), polyomino["form"])
+                mirroredPolyominoForm = list(map(lambda x: (x[0], -1 * x[1]), polyomino["form"]))
+                place = []
                 for dx, dy in mirroredPolyominoForm:
                     if d == 1:
                         dx, dy = -dy, dx
@@ -52,7 +54,17 @@ def getPlaces(n, polyomino):
     return list(map(lambda x: set(x), hash))
 
 
-def main(countField, polyominosPlaces):
+def printAns(ans):
+    n = math.isqrt(len(ans))
+    for index, id in enumerate(ans):
+        if index % n == 0:
+            print()
+        print("{:3d}".format(id), end="")
+
+    print()
+
+
+def main(countField, polyominosPlaces, ans):
     count = 0
 
     minIndex = countField.index(min(countField))
@@ -63,6 +75,7 @@ def main(countField, polyominosPlaces):
 
     # 最小値が埋まっているセルを表す数字であれば全部埋まっている
     if countField[minIndex] == FILL_CELL:
+        # printAns(ans)
         return 1
 
     # この二重ループで、対象のセルのパターンを全部試す
@@ -73,11 +86,13 @@ def main(countField, polyominosPlaces):
             popedPolyominosPlaces = copy.deepcopy(polyominosPlaces)
             nextCountField = countField.copy()
             popedPolyominosPlaces.pop(id)
+            nextAns = ans.copy()
 
             # ポリオミノを置く処理
             for cell in place:
                 # 置いたことを表す
                 nextCountField[cell] = FILL_CELL
+                nextAns[cell] = id
 
                 # 各ポリオミノと各セルに対して、除去する
                 for removeId, removePolyominoPlaces in polyominosPlaces.items():
@@ -94,7 +109,7 @@ def main(countField, polyominosPlaces):
                 for index, place in enumerate(popedPolyominoPlace):
                     countField[index] += len(place)
 
-            count += main(nextCountField, popedPolyominosPlaces)
+            count += main(nextCountField, popedPolyominosPlaces, nextAns)
 
     return count
 
@@ -132,7 +147,9 @@ def makePattern(fp, allPolyominos, n, polyominos, polyominoList):
                 for index, place in enumerate(polyominoPlace):
                     field[index] += len(place)
 
-            count = main(field, polyominosPlaces)
+            ans = [0] * s
+            count = main(field, polyominosPlaces, ans)
+            print(count)
             fp.write("count: " + str(count))
             fp.write("\n")
             fp.write("pattern[" + str(count // 4) + "]")
@@ -157,10 +174,11 @@ def makePattern(fp, allPolyominos, n, polyominos, polyominoList):
     polyominos.append(p)
 
 
-n = 5
+n = 3
 allPolyominos = polyominoList.getPolyominos()
 targetPolyominos = list(filter(lambda x: x["id"] > 0 and x["hasMirrored"] and not x["hasBlock"] and not x["hasConcave"], polyominoList.getPolyominos().values()))
-print(list(map(lambda x: x["id"], targetPolyominos)))
+targetPolyominoIds = [14, 12, 7, 5, 2]
+# targetPolyominos = list(filter(lambda x: x["id"] in targetPolyominoIds, targetPolyominos))
 
 fp = open("result.txt", mode="w")
 makePattern(fp, allPolyominos, n, targetPolyominos, [])

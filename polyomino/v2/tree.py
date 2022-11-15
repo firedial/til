@@ -152,7 +152,7 @@ def makePattern(fp, allPolyominos, n, polyominos, polyominoList):
             print(count)
             fp.write("count: " + str(count))
             fp.write("\n")
-            fp.write("pattern[" + str(count // 4) + "]")
+            fp.write("pattern[" + str(count // 8) + "]")
             fp.write("\n")
             # if count == 8:
             #     fp.write("[ans] ")
@@ -174,7 +174,7 @@ def makePattern(fp, allPolyominos, n, polyominos, polyominoList):
     polyominos.append(p)
 
 
-n = 3
+n = 5
 allPolyominos = polyominoList.getPolyominos()
 targetPolyominos = list(filter(lambda x: x["id"] > 0 and x["hasMirrored"] and not x["hasBlock"] and not x["hasConcave"], polyominoList.getPolyominos().values()))
 targetPolyominoIds = [14, 12, 7, 5, 2]

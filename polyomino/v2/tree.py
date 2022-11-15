@@ -1,5 +1,6 @@
 import polyominoList
 import copy
+import datetime
 
 FILL_CELL = 999999
 
@@ -12,6 +13,25 @@ def getPlaces(n, polyomino):
             for d in range(4):
                 place = []
                 for dx, dy in polyomino["form"]:
+                    if d == 1:
+                        dx, dy = -dy, dx
+                    elif d == 2:
+                        dx, dy = -dx, -dy
+                    elif d == 3:
+                        dx, dy = dy, -dx
+
+                    if not (0 <= (i + dx) < n):
+                        break
+                    if not (0 <= (j + dy) < n):
+                        break
+
+                    place.append((i + dx) * n + (j + dy))
+                else:
+                    for cell in place:
+                        hash[cell].append(frozenset(place))
+
+                mirroredPolyominoForm = map(lambda x: (x[0], -1 * x[1]), polyomino["form"])
+                for dx, dy in mirroredPolyominoForm:
                     if d == 1:
                         dx, dy = -dy, dx
                     elif d == 2:
@@ -79,18 +99,6 @@ def main(countField, polyominosPlaces):
     return count
 
 
-def getIdsList(bools, ids):
-    result = [ids.copy()]
-    for i, b in enumerate(bools):
-        if b:
-            tmp = copy.deepcopy(result)
-            for row in tmp:
-                row[i] *= -1
-                result.append(row)
-
-    return result
-
-
 patternCount = 0
 
 
@@ -98,12 +106,14 @@ def makePattern(fp, allPolyominos, n, polyominos, polyominoList):
     global patternCount
     s = sum(map(lambda x: x["count"], polyominoList))
     if n * n == s:
-        testPolyominoIdsList = getIdsList(list(map(lambda x: x["hasMirrored"], polyominoList)), list(map(lambda x: x["id"], polyominoList)))
+        testPolyominoIdsList = [list(map(lambda x: x["id"], polyominoList))]
 
         for ids in testPolyominoIdsList:
             patternCount += 1
             if patternCount < 0:
                 continue
+
+            print(datetime.datetime.now(), patternCount)
             fp.write("--- " + str(patternCount) + " ---")
             fp.write("\n")
 
@@ -142,9 +152,10 @@ def makePattern(fp, allPolyominos, n, polyominos, polyominoList):
     polyominos.append(p)
 
 
-n = 4
+n = 7
 allPolyominos = polyominoList.getPolyominos()
-targetPolyominos = list(filter(lambda x: x["id"] > 0, polyominoList.getPolyominos().values()))
+targetPolyominos = list(filter(lambda x: x["id"] > 0 and x["hasMirrored"] and not x["hasBlock"] and not x["hasConcave"], polyominoList.getPolyominos().values()))
+print(list(map(lambda x: x["id"], targetPolyominos)))
 
 fp = open("result.txt", mode="w")
 makePattern(fp, allPolyominos, n, targetPolyominos, [])

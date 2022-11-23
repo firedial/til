@@ -28,6 +28,13 @@ def printQr(qr):
         print()
 
 
+def printTile(t):
+    for i in range(FRAME_SIZE):
+        for j in range(FRAME_SIZE):
+            print(str(t[i][j]).zfill(2) + " ", end="")
+        print()
+
+
 def putPolyomino(polyomino, p, qr, afterQr, x, y, d, reflection):
 
     testPolyomino = [[BLANK for _ in range(FRAME_SIZE)] for _ in range(FRAME_SIZE)]
@@ -207,3 +214,8 @@ print()
 
 after2Qr = change(after, before, afterQr)
 printQr(after2Qr)
+
+print()
+printTile(before)
+print()
+printTile(after)

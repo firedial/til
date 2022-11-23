@@ -1,6 +1,6 @@
 from PIL import Image
+import itertools
 
-img = Image.open("test.png")
 
 UP = 40
 LEFT = 40
@@ -15,33 +15,12 @@ BLANK = 0
 assert SIZE == FRAME_SIZE * CELL_SIZE
 
 
-qr = [[0 for _ in range(SIZE)] for _ in range(SIZE)]
+def rotate(n, p, d, r):
+    rp = [[0 for _ in range(n)] for _ in range(n)]
+    center = n // 2
 
-
-def printQr(qr):
-    for i in range(SIZE):
-        for j in range(SIZE):
-            if qr[i][j] == 0:
-                print("■", end="")
-            else:
-                print("□", end="")
-        print()
-
-
-def printTile(t):
-    for i in range(FRAME_SIZE):
-        for j in range(FRAME_SIZE):
-            print(str(t[i][j]).zfill(2) + " ", end="")
-        print()
-
-
-def putPolyomino(polyomino, p, qr, afterQr, x, y, d, reflection):
-
-    testPolyomino = [[BLANK for _ in range(FRAME_SIZE)] for _ in range(FRAME_SIZE)]
-    center = FRAME_SIZE // 2
-
-    for i in range(FRAME_SIZE):
-        for j in range(FRAME_SIZE):
+    for i in range(n):
+        for j in range(n):
             dx = i - center
             dy = j - center
 
@@ -52,10 +31,42 @@ def putPolyomino(polyomino, p, qr, afterQr, x, y, d, reflection):
             if d == 3:
                 dx, dy = dy, -dx
 
-            if reflection:
+            if r:
                 dx, dy = dy, dx
 
-            testPolyomino[i][j] = polyomino[dx + center][dy + center]
+            rp[i][j] = p[dx + center][dy + center]
+
+    return rp
+
+
+def isSame(n, p, q):
+    for i in range(n):
+        for j in range(n):
+            if p[i][j] != q[i][j]:
+                return False
+
+    return True
+
+
+def printQr(fp, qr):
+    for i in range(SIZE):
+        for j in range(SIZE):
+            if qr[i][j] == 0:
+                fp.write("■")
+            else:
+                fp.write("□")
+        fp.write("\n")
+
+
+def printTile(t):
+    for i in range(FRAME_SIZE):
+        for j in range(FRAME_SIZE):
+            print(str(t[i][j]).zfill(2) + " ", end="")
+        print()
+
+
+def putPolyomino(polyomino, p, qr, afterQr, x, y, d, reflection):
+    testPolyomino = rotate(FRAME_SIZE, polyomino, d, reflection)
 
     # 置けるかどうかをチェックする
     count = 0
@@ -82,23 +93,7 @@ def putPolyomino(polyomino, p, qr, afterQr, x, y, d, reflection):
     if count != 0:
         return False
 
-    movedQr = [[0 for _ in range(SIZE)] for _ in range(SIZE)]
-    for i in range(SIZE):
-        for j in range(SIZE):
-            dx = i - 10
-            dy = j - 10
-
-            if d == 1:
-                dx, dy = -dy, dx
-            if d == 2:
-                dx, dy = -dx, -dy
-            if d == 3:
-                dx, dy = dy, -dx
-
-            if reflection:
-                dx, dy = dy, dx
-
-            movedQr[i][j] = qr[dx + 10][dy + 10]
+    movedQr = rotate(SIZE, qr, d, reflection)
 
     # 実際におく
     for i in range(FRAME_SIZE):
@@ -138,57 +133,6 @@ def getPolyomino(polyomino, p, n):
                 polyomino[i][j] = BLANK
 
 
-for i in range(SIZE):
-    for j in range(SIZE):
-        color = img.getpixel((LEFT + j * PIXEL, UP + i * PIXEL))
-        if color == 0:
-            qr[i][j] = 0
-        else:
-            qr[i][j] = 1
-
-
-def rotate(p, d):
-    testPolyomino = [[BLANK for _ in range(FRAME_SIZE)] for _ in range(FRAME_SIZE)]
-    center = FRAME_SIZE // 2
-
-    for i in range(FRAME_SIZE):
-        for j in range(FRAME_SIZE):
-            dx = i - center
-            dy = j - center
-
-            if d == 1:
-                dx, dy = -dy, dx
-            if d == 2:
-                dx, dy = -dx, -dy
-            if d == 3:
-                dx, dy = dy, -dx
-
-            testPolyomino[i][j] = p[dx + center][dy + center]
-
-    return testPolyomino
-
-
-p2 = [
-    [2, 24, 12, 12, 12, 12, 14],
-    [2, 24, 24, 24, 12, 14, 14],
-    [2, 2, 24, 27, 27, 27, 14],
-    [5, 28, 24, 27, 31, 31, 14],
-    [5, 28, 27, 27, 4, 31, 14],
-    [5, 28, 28, 4, 4, 31, 31],
-    [5, 5, 28, 28, 4, 4, 31],
-]
-
-p1 = [
-    [14, 5, 5, 5, 5, 31, 31],
-    [14, 5, 4, 31, 31, 31, 27],
-    [14, 4, 4, 31, 27, 27, 27],
-    [14, 14, 4, 4, 27, 2, 2],
-    [14, 28, 28, 28, 27, 24, 2],
-    [28, 28, 12, 24, 24, 24, 2],
-    [28, 12, 12, 12, 12, 24, 24],
-]
-
-
 def change(p1, p2, qr):
     numbers = set()
     for i in range(FRAME_SIZE):
@@ -204,18 +148,76 @@ def change(p1, p2, qr):
     return afterQr
 
 
-before = rotate(p1, 1)
-after = p2
+# 対象となる QR コード
+img = Image.open("test.png")
+qr = [[0 for _ in range(SIZE)] for _ in range(SIZE)]
 
-afterQr = change(before, after, qr)
-printQr(afterQr)
+# QR コードを符号化
+for i in range(SIZE):
+    for j in range(SIZE):
+        color = img.getpixel((LEFT + j * PIXEL, UP + i * PIXEL))
+        if color == 0:
+            qr[i][j] = 0
+        else:
+            qr[i][j] = 1
 
-print()
 
-after2Qr = change(after, before, afterQr)
-printQr(after2Qr)
+# 敷き詰めパターンの読み込み
+tiles = []
+path = "./result_27.txt"
+with open(path, mode="r") as fp:
+    lines = fp.readlines()
 
-print()
-printTile(before)
-print()
-printTile(after)
+    count = 0
+    tile = []
+    for line in lines:
+        count += 1
+        if count == 1:
+            continue
+
+        tile.append(list(map(lambda x: int(x), line[1:].strip().split("|"))))
+
+        if count == FRAME_SIZE + 1:
+            tiles.append(tile)
+            count = 0
+            tile = []
+
+        if len(tiles) == 16:
+            break
+
+tile1 = tiles[-1]
+tile2 = tiles[-1]
+
+for i in range(15):
+    for (d, r) in itertools.product(range(4), [True, False]):
+        if isSame(FRAME_SIZE, tile1, rotate(FRAME_SIZE, tiles[i], d, r)):
+            break
+    else:
+        tile2 = tiles[i]
+        break
+
+fp = open("./result.txt", mode="w", encoding="utf-8")
+
+for d in range(4):
+    before = rotate(FRAME_SIZE, tile1, d, False)
+    after = tile2
+    afterQr = change(before, after, qr)
+    printQr(fp, afterQr)
+    fp.write("\n")
+
+    before = rotate(FRAME_SIZE, tile2, d, False)
+    after = tile1
+    afterQr = change(before, after, qr)
+    printQr(fp, afterQr)
+    fp.write("\n")
+
+fp.close()
+
+# print()
+# after2Qr = change(after, before, afterQr)
+# printQr(after2Qr)
+
+# print()
+# printTile(before)
+# print()
+# printTile(after)

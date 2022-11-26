@@ -21,7 +21,7 @@ def makeFIle(n, ids, patternCount):
         ymax = max(map(lambda x: x[1], polyomino["form"]))
         ymin = min(map(lambda x: x[1], polyomino["form"]))
 
-        fp.write(str(xmax - xmin + 1) + " " + str(ymax - ymin + 1) + " " + str(polyomino["id"]))
+        fp.write(str(xmax - xmin + 1) + " " + str(ymax - ymin + 1) + " |" + str(polyomino["id"]).zfill(2))
         fp.write("\n")
         f = [[0 for _ in range(ymin, ymax + 1)] for _ in range(xmin, xmax + 1)]
 

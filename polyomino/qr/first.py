@@ -121,7 +121,10 @@ def movePiece(polyomino, p2, qr, afterQr):
             for d in range(4):
                 for reflection in [True, False]:
                     if putPolyomino(polyomino, p2, qr, afterQr, i, j, d, reflection):
-                        return
+                        if reflection:
+                            return 1
+                        else:
+                            return 0
 
 
 def getPolyomino(polyomino, p, n):
@@ -141,11 +144,12 @@ def change(p1, p2, qr):
 
     polyomino = [[BLANK for _ in range(FRAME_SIZE)] for _ in range(FRAME_SIZE)]
     afterQr = [[0 for _ in range(SIZE)] for _ in range(SIZE)]
+    reflectionCount = 0
     for n in numbers:
         getPolyomino(polyomino, p1, n)
-        movePiece(polyomino, p2, qr, afterQr)
+        reflectionCount += movePiece(polyomino, p2, qr, afterQr)
 
-    return afterQr
+    return (afterQr, reflectionCount)
 
 
 # 対象となる QR コード
@@ -164,7 +168,8 @@ for i in range(SIZE):
 
 # 敷き詰めパターンの読み込み
 tiles = []
-path = "./result_27.txt"
+id = 314
+path = "./result_" + str(314) + ".txt"
 with open(path, mode="r") as fp:
     lines = fp.readlines()
 
@@ -201,13 +206,17 @@ fp = open("./result.txt", mode="w", encoding="utf-8")
 for d in range(4):
     before = rotate(FRAME_SIZE, tile1, d, False)
     after = tile2
-    afterQr = change(before, after, qr)
+    (afterQr, reflectionCount) = change(before, after, qr)
+    fp.write(str(id) + " " + "A" + str(d) + " " + "r:" + str(reflectionCount))
+    fp.write("\n")
     printQr(fp, afterQr)
     fp.write("\n")
 
     before = rotate(FRAME_SIZE, tile2, d, False)
     after = tile1
-    afterQr = change(before, after, qr)
+    (afterQr, reflectionCount) = change(before, after, qr)
+    fp.write(str(id) + " " + "B" + str(d) + " " + "r:" + str(reflectionCount))
+    fp.write("\n")
     printQr(fp, afterQr)
     fp.write("\n")
 

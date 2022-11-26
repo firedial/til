@@ -152,6 +152,63 @@ def change(p1, p2, qr):
     return (afterQr, reflectionCount)
 
 
+def displayChange(id: int):
+    # 敷き詰めパターンの読み込み
+    tiles = []
+    path = "./result_" + str(id) + ".txt"
+    with open(path, mode="r") as fp:
+        lines = fp.readlines()
+
+        count = 0
+        tile = []
+        for line in lines:
+            count += 1
+            if count == 1:
+                continue
+
+            tile.append(list(map(lambda x: int(x), line[1:].strip().split("|"))))
+
+            if count == FRAME_SIZE + 1:
+                tiles.append(tile)
+                count = 0
+                tile = []
+
+            if len(tiles) == 16:
+                break
+
+    tile1 = tiles[-1]
+    tile2 = tiles[-1]
+
+    for i in range(15):
+        for (d, r) in itertools.product(range(4), [True, False]):
+            if isSame(FRAME_SIZE, tile1, rotate(FRAME_SIZE, tiles[i], d, r)):
+                break
+        else:
+            tile2 = tiles[i]
+            break
+
+    fp = open("./result.txt", mode="w", encoding="utf-8")
+
+    for d in range(4):
+        before = rotate(FRAME_SIZE, tile1, d, False)
+        after = tile2
+        (afterQr, reflectionCount) = change(before, after, qr)
+        fp.write(str(id) + " " + "A" + str(d) + " " + "r:" + str(reflectionCount))
+        fp.write("\n")
+        printQr(fp, afterQr)
+        fp.write("\n")
+
+        before = rotate(FRAME_SIZE, tile2, d, False)
+        after = tile1
+        (afterQr, reflectionCount) = change(before, after, qr)
+        fp.write(str(id) + " " + "B" + str(d) + " " + "r:" + str(reflectionCount))
+        fp.write("\n")
+        printQr(fp, afterQr)
+        fp.write("\n")
+
+    fp.close()
+
+
 # 対象となる QR コード
 img = Image.open("test.png")
 qr = [[0 for _ in range(SIZE)] for _ in range(SIZE)]
@@ -160,73 +217,9 @@ qr = [[0 for _ in range(SIZE)] for _ in range(SIZE)]
 for i in range(SIZE):
     for j in range(SIZE):
         color = img.getpixel((LEFT + j * PIXEL, UP + i * PIXEL))
-        if color == 0:
+        if color[0] == 0:
             qr[i][j] = 0
         else:
             qr[i][j] = 1
 
-
-# 敷き詰めパターンの読み込み
-tiles = []
-id = 314
-path = "./result_" + str(314) + ".txt"
-with open(path, mode="r") as fp:
-    lines = fp.readlines()
-
-    count = 0
-    tile = []
-    for line in lines:
-        count += 1
-        if count == 1:
-            continue
-
-        tile.append(list(map(lambda x: int(x), line[1:].strip().split("|"))))
-
-        if count == FRAME_SIZE + 1:
-            tiles.append(tile)
-            count = 0
-            tile = []
-
-        if len(tiles) == 16:
-            break
-
-tile1 = tiles[-1]
-tile2 = tiles[-1]
-
-for i in range(15):
-    for (d, r) in itertools.product(range(4), [True, False]):
-        if isSame(FRAME_SIZE, tile1, rotate(FRAME_SIZE, tiles[i], d, r)):
-            break
-    else:
-        tile2 = tiles[i]
-        break
-
-fp = open("./result.txt", mode="w", encoding="utf-8")
-
-for d in range(4):
-    before = rotate(FRAME_SIZE, tile1, d, False)
-    after = tile2
-    (afterQr, reflectionCount) = change(before, after, qr)
-    fp.write(str(id) + " " + "A" + str(d) + " " + "r:" + str(reflectionCount))
-    fp.write("\n")
-    printQr(fp, afterQr)
-    fp.write("\n")
-
-    before = rotate(FRAME_SIZE, tile2, d, False)
-    after = tile1
-    (afterQr, reflectionCount) = change(before, after, qr)
-    fp.write(str(id) + " " + "B" + str(d) + " " + "r:" + str(reflectionCount))
-    fp.write("\n")
-    printQr(fp, afterQr)
-    fp.write("\n")
-
-fp.close()
-
-# print()
-# after2Qr = change(after, before, afterQr)
-# printQr(after2Qr)
-
-# print()
-# printTile(before)
-# print()
-# printTile(after)
+displayChange(63)

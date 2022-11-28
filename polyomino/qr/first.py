@@ -48,10 +48,17 @@ def isSame(n, p, q):
     return True
 
 
-def printQr(fp, qr):
+def printQr(fp, qr1, qr2):
     for i in range(SIZE):
         for j in range(SIZE):
-            if qr[i][j] == 0:
+            if qr1[i][j] == 0:
+                fp.write("■")
+            else:
+                fp.write("□")
+
+        fp.write("        ")
+        for j in range(SIZE):
+            if qr2[i][j] == 0:
                 fp.write("■")
             else:
                 fp.write("□")
@@ -152,7 +159,7 @@ def change(p1, p2, qr):
     return (afterQr, reflectionCount)
 
 
-def displayChange(id: int):
+def getAfterQr(id: int, pattern: str, d: int, qr):
     # 敷き詰めパターンの読み込み
     tiles = []
     path = "./result_" + str(id) + ".txt"
@@ -187,39 +194,66 @@ def displayChange(id: int):
             tile2 = tiles[i]
             break
 
-    fp = open("./result.txt", mode="w", encoding="utf-8")
-
-    for d in range(4):
+    if pattern == "A":
         before = rotate(FRAME_SIZE, tile1, d, False)
         after = tile2
-        (afterQr, reflectionCount) = change(before, after, qr)
-        fp.write(str(id) + " " + "A" + str(d) + " " + "r:" + str(reflectionCount))
-        fp.write("\n")
-        printQr(fp, afterQr)
-        fp.write("\n")
-
+        return change(before, after, qr)
+    else:
         before = rotate(FRAME_SIZE, tile2, d, False)
         after = tile1
-        (afterQr, reflectionCount) = change(before, after, qr)
-        fp.write(str(id) + " " + "B" + str(d) + " " + "r:" + str(reflectionCount))
-        fp.write("\n")
-        printQr(fp, afterQr)
-        fp.write("\n")
+        return change(before, after, qr)
 
-    fp.close()
+
+def hasSquare(qr):
+    for (i, j) in itertools.product(range(SIZE - 2), range(SIZE - 2)):
+        for (p, q) in itertools.product(range(3), range(3)):
+            if qr[i + p][j + q] == 1:
+                break
+        else:
+            return True
+
+    return False
+
+
+def save(fp, title, qr1, qr2):
+    fp.write(title + "\n")
+    printQr(fp, qr1, qr2)
+    fp.write("\n")
 
 
 # 対象となる QR コード
 img = Image.open("test.png")
+whiteImg = Image.open("white.png")
 qr = [[0 for _ in range(SIZE)] for _ in range(SIZE)]
+whiteQr = [[0 for _ in range(SIZE)] for _ in range(SIZE)]
 
 # QR コードを符号化
 for i in range(SIZE):
     for j in range(SIZE):
         color = img.getpixel((LEFT + j * PIXEL, UP + i * PIXEL))
-        if color[0] == 0:
+        if color == 0:
             qr[i][j] = 0
         else:
             qr[i][j] = 1
 
-displayChange(63)
+        color = whiteImg.getpixel((LEFT + j * PIXEL, UP + i * PIXEL))
+        if color[0] == 0:
+            whiteQr[i][j] = 0
+        else:
+            whiteQr[i][j] = 1
+
+
+ids = [1446]
+
+fp = open("./result.txt", mode="w", encoding="utf-8")
+for id in ids:
+    for d in range(4):
+        for p in ["A", "B"]:
+            afterQr, r = getAfterQr(id, p, d, qr)
+            afterWhiteQr, r = getAfterQr(id, p, d, whiteQr)
+
+            if hasSquare(afterWhiteQr):
+                continue
+
+            save(fp, str(id) + p + str(d) + "r:" + str(r), afterWhiteQr, afterQr)
+fp.close()

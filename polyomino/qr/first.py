@@ -135,12 +135,20 @@ def movePiece(polyomino, p2, qr, afterQr):
 
 
 def getPolyomino(polyomino, p, n):
+    hasCorner = False
     for i in range(FRAME_SIZE):
         for j in range(FRAME_SIZE):
             if p[i][j] == n:
                 polyomino[i][j] = n
+                if i == 0 and j == 0:
+                    hasCorner = True
+                if i == FRAME_SIZE - 1 and j == 0:
+                    hasCorner = True
+                if i == 0 and j == FRAME_SIZE - 1:
+                    hasCorner = True
             else:
                 polyomino[i][j] = BLANK
+    return hasCorner
 
 
 def change(p1, p2, qr):
@@ -152,17 +160,22 @@ def change(p1, p2, qr):
     polyomino = [[BLANK for _ in range(FRAME_SIZE)] for _ in range(FRAME_SIZE)]
     afterQr = [[0 for _ in range(SIZE)] for _ in range(SIZE)]
     reflectionCount = 0
+    cornerReflectionCount = 0
     for n in numbers:
-        getPolyomino(polyomino, p1, n)
-        reflectionCount += movePiece(polyomino, p2, qr, afterQr)
+        hasCorner = getPolyomino(polyomino, p1, n)
+        isReflection = movePiece(polyomino, p2, qr, afterQr)
+        if isReflection:
+            reflectionCount += 1
+            if hasCorner:
+                cornerReflectionCount += 1
 
-    return (afterQr, reflectionCount)
+    return (afterQr, reflectionCount, cornerReflectionCount)
 
 
 def getAfterQr(id: int, pattern: str, d: int, qr):
     # 敷き詰めパターンの読み込み
     tiles = []
-    path = "./result_" + str(id) + ".txt"
+    path = "./result/r2000/result_" + str(id) + ".txt"
     with open(path, mode="r") as fp:
         lines = fp.readlines()
 
@@ -215,6 +228,57 @@ def hasSquare(qr):
     return False
 
 
+def hasL(qr):
+    l1 = [
+        [0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1],
+    ]
+    l2 = [
+        [0, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1],
+        [0, 0, 0, 0, 0, 0, 0],
+    ]
+    l3 = [
+        [1, 1, 1, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0],
+    ]
+    l4 = [
+        [0, 0, 0, 0, 0, 0, 0],
+        [1, 1, 1, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1, 1, 0],
+    ]
+
+    for x in [l1, l2, l3, l4]:
+        for (i, j) in itertools.product(range(SIZE - 6), range(SIZE - 6)):
+            for (p, q) in itertools.product(range(7), range(7)):
+                if x[p][q] == 1:
+                    continue
+                if qr[i + p][j + q] == 1:
+                    break
+            else:
+                return True
+
+    return False
+
+
 def save(fp, title, qr1, qr2):
     fp.write(title + "\n")
     printQr(fp, qr1, qr2)
@@ -243,7 +307,7 @@ for i in range(SIZE):
             whiteQr[i][j] = 1
 
 
-ids = [
+ids0 = [
     27,
     54,
     55,
@@ -285,6 +349,9 @@ ids = [
     444,
     451,
     482,
+]
+
+ids1000 = [
     1014,
     1022,
     1066,
@@ -344,20 +411,116 @@ ids = [
     1851,
 ]
 
+ids2000 = [
+    2007,
+    2025,
+    2029,
+    2034,
+    2049,
+    2053,
+    2060,
+    2079,
+    2080,
+    2082,
+    2087,
+    2108,
+    2118,
+    2122,
+    2148,
+    2165,
+    2171,
+    2175,
+    2177,
+    2185,
+    2190,
+    2194,
+    2199,
+    2200,
+    2202,
+    2227,
+    2243,
+    2244,
+    2245,
+    2255,
+    2258,
+    2281,
+    2289,
+    2339,
+    2342,
+    2351,
+    2385,
+    2400,
+    2475,
+    2481,
+    2501,
+    2519,
+    2534,
+    2539,
+    2547,
+    2550,
+    2562,
+    2590,
+    2591,
+    2592,
+    2596,
+    2607,
+    2610,
+    2613,
+    2617,
+    2619,
+    2621,
+    2626,
+    2630,
+    2634,
+    2665,
+    2688,
+    2706,
+    2710,
+    2717,
+    2723,
+    2748,
+    2763,
+    2815,
+    2816,
+    2818,
+    2832,
+    2835,
+    2836,
+    2854,
+    2855,
+    2870,
+    2888,
+    2891,
+    2896,
+    2903,
+    2904,
+    2912,
+    2918,
+    2930,
+    2941,
+    2947,
+    2959,
+    2960,
+]
 
 count = 0
 fp = open("./result.txt", mode="w", encoding="utf-8")
-for id in ids:
+for id in ids2000:
     for d in range(4):
         for p in ["A", "B"]:
-            afterQr, r = getAfterQr(id, p, d, qr)
-            afterWhiteQr, r = getAfterQr(id, p, d, whiteQr)
+            afterWhiteQr, r, cr = getAfterQr(id, p, d, whiteQr)
 
             if hasSquare(afterWhiteQr):
                 continue
+            if hasL(afterWhiteQr):
+                continue
+            # if cr == 0 or cr == 3:
+            #     continue
+
+            afterQr, r, cr = getAfterQr(id, p, d, qr)
 
             count += 1
-            save(fp, str(id) + p + str(d) + "r:" + str(r), afterWhiteQr, afterQr)
+            save(fp, str(id) + p + str(d) + " r:" + str(r) + " cr:" + str(cr), afterWhiteQr, afterQr)
 fp.close()
 
 print(count)

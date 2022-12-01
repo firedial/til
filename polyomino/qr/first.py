@@ -169,13 +169,13 @@ def change(p1, p2, qr):
             if hasCorner:
                 cornerReflectionCount += 1
 
-    return (afterQr, reflectionCount, cornerReflectionCount)
+    return (afterQr, reflectionCount, cornerReflectionCount, len(numbers))
 
 
 def getAfterQr(id: int, pattern: str, d: int, qr):
     # 敷き詰めパターンの読み込み
     tiles = []
-    path = "./result/r2000/result_" + str(id) + ".txt"
+    path = "./result/r4000/result_" + str(id) + ".txt"
     with open(path, mode="r") as fp:
         lines = fp.readlines()
 
@@ -503,24 +503,74 @@ ids2000 = [
     2960,
 ]
 
+ids4000 = [
+    4010,
+    4015,
+    4030,
+    4083,
+    4153,
+    4163,
+    4171,
+    4184,
+    4200,
+    4256,
+    4258,
+    4260,
+    4264,
+    4276,
+    4296,
+    4298,
+    4369,
+    4381,
+    4385,
+    4391,
+    4401,
+    4426,
+    4442,
+    4444,
+    4507,
+    4522,
+    4524,
+    4536,
+    4551,
+    4594,
+    4660,
+    4662,
+    4698,
+    4714,
+    4715,
+    4736,
+    4744,
+    4785,
+    4788,
+    4804,
+    4807,
+    4822,
+    4866,
+    4872,
+    4926,
+    4938,
+]
+
 count = 0
 fp = open("./result.txt", mode="w", encoding="utf-8")
-for id in ids2000:
+for id in ids4000:
     for d in range(4):
         for p in ["A", "B"]:
-            afterWhiteQr, r, cr = getAfterQr(id, p, d, whiteQr)
+            afterWhiteQr, r, cr, n = getAfterQr(id, p, d, whiteQr)
 
-            if hasSquare(afterWhiteQr):
-                continue
-            if hasL(afterWhiteQr):
-                continue
+            # if hasSquare(afterWhiteQr):
+            #     continue
+            # if hasL(afterWhiteQr):
+            #     continue
             # if cr == 0 or cr == 3:
             #     continue
 
-            afterQr, r, cr = getAfterQr(id, p, d, qr)
+            afterQr, r, cr, n = getAfterQr(id, p, d, qr)
 
             count += 1
-            save(fp, str(id) + p + str(d) + " r:" + str(r) + " cr:" + str(cr), afterWhiteQr, afterQr)
+            title = str(id) + p + str(d) + " n:" + str(n) + " r:" + str(r) + " cr:" + str(cr) + " square3: " + str(hasSquare(afterWhiteQr)) + " l7:" + str(hasL(afterWhiteQr))
+            save(fp, title, afterWhiteQr, afterQr)
 fp.close()
 
 print(count)

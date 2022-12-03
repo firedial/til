@@ -174,8 +174,9 @@ def change(p1, p2, qr):
 
 def getAfterQr(id: int, pattern: str, d: int, qr):
     # 敷き詰めパターンの読み込み
+    directoryName = (id // 1000) * 1000
     tiles = []
-    path = "./result/r4000/result_" + str(id) + ".txt"
+    path = "./result/r" + str(directoryName) + "/result_" + str(id) + ".txt"
     with open(path, mode="r") as fp:
         lines = fp.readlines()
 
@@ -503,6 +504,73 @@ ids2000 = [
     2960,
 ]
 
+ids3000 = [
+    3038,
+    3043,
+    3047,
+    3084,
+    3088,
+    3092,
+    3098,
+    3134,
+    3161,
+    3315,
+    3323,
+    3333,
+    3339,
+    3340,
+    3347,
+    3369,
+    3382,
+    3391,
+    3394,
+    3412,
+    3419,
+    3427,
+    3455,
+    3463,
+    3468,
+    3474,
+    3486,
+    3501,
+    3518,
+    3547,
+    3550,
+    3557,
+    3568,
+    3574,
+    3578,
+    3579,
+    3587,
+    3664,
+    3667,
+    3676,
+    3680,
+    3710,
+    3721,
+    3725,
+    3727,
+    3737,
+    3748,
+    3754,
+    3790,
+    3792,
+    3800,
+    3802,
+    3861,
+    3874,
+    3887,
+    3898,
+    3912,
+    3927,
+    3930,
+    3939,
+    3942,
+    3950,
+    3962,
+    3966,
+]
+
 ids4000 = [
     4010,
     4015,
@@ -552,9 +620,15 @@ ids4000 = [
     4938,
 ]
 
+ids5000 = [
+    5011,
+    5047,
+    5068,
+]
+
 count = 0
 fp = open("./result.txt", mode="w", encoding="utf-8")
-for id in ids4000:
+for id in ids5000:
     for d in range(4):
         for p in ["A", "B"]:
             afterWhiteQr, r, cr, n = getAfterQr(id, p, d, whiteQr)
@@ -569,7 +643,7 @@ for id in ids4000:
             afterQr, r, cr, n = getAfterQr(id, p, d, qr)
 
             count += 1
-            title = str(id) + p + str(d) + " n:" + str(n) + " r:" + str(r) + " cr:" + str(cr) + " square3: " + str(hasSquare(afterWhiteQr)) + " l7:" + str(hasL(afterWhiteQr))
+            title = str(id) + p + str(d) + " n:" + str(n) + " r:" + str(r) + " cr:" + str(cr) + " square3:" + str(hasSquare(afterWhiteQr)) + " l7:" + str(hasL(afterWhiteQr))
             save(fp, title, afterWhiteQr, afterQr)
 fp.close()
 

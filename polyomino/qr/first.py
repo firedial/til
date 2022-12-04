@@ -350,6 +350,38 @@ ids0 = [
     444,
     451,
     482,
+    546,
+    592,
+    663,
+    679,
+    703,
+    711,
+    725,
+    744,
+    753,
+    764,
+    772,
+    776,
+    791,
+    804,
+    821,
+    827,
+    842,
+    847,
+    852,
+    875,
+    883,
+    884,
+    886,
+    896,
+    917,
+    924,
+    926,
+    943,
+    948,
+    962,
+    972,
+    982,
 ]
 
 ids1000 = [
@@ -628,7 +660,7 @@ ids5000 = [
 
 count = 0
 fp = open("./result.txt", mode="w", encoding="utf-8")
-for id in ids5000:
+for id in ids0:
     for d in range(4):
         for p in ["A", "B"]:
             afterWhiteQr, r, cr, n = getAfterQr(id, p, d, whiteQr)

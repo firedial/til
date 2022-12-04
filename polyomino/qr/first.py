@@ -201,8 +201,8 @@ def getAfterQr(id: int, pattern: str, d: int, qr):
     tile2 = tiles[-1]
 
     for i in range(15):
-        for (d, r) in itertools.product(range(4), [True, False]):
-            if isSame(FRAME_SIZE, tile1, rotate(FRAME_SIZE, tiles[i], d, r)):
+        for (d2, r) in itertools.product(range(4), [True, False]):
+            if isSame(FRAME_SIZE, tile1, rotate(FRAME_SIZE, tiles[i], d2, r)):
                 break
         else:
             tile2 = tiles[i]
@@ -660,7 +660,7 @@ ids5000 = [
 
 count = 0
 fp = open("./result.txt", mode="w", encoding="utf-8")
-for id in ids0:
+for id in ids0 + ids1000 + ids2000 + ids3000 + ids4000 + ids5000:
     for d in range(4):
         for p in ["A", "B"]:
             afterWhiteQr, r, cr, n = getAfterQr(id, p, d, whiteQr)

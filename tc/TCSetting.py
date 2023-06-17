@@ -2,14 +2,22 @@ class TCSetting:
     V_MAIN = 128
     V_HAND = 129
     V_BOOL = 130
+    V_FINISH = 131
     V_SPEND = 132
     V_MIN_TIME = 133
+    V_RETURN = 134
 
     def __init__(self, data):
         self.data = data
         self.v = [0 for _ in range(256)]
         self.commitedDiffTime = 0
         self.diffFloatTime = 0.0
+
+    def isFinished(self):
+        return self.v[self.V_FINISH] != 0
+
+    def setFinished(self):
+        self.v[self.V_FINISH] = 1
 
     def main(self):
         return self.v[self.V_MAIN]
@@ -39,7 +47,6 @@ class TCSetting:
     def turnStartProcess(self):
         self.commitedDiffTime = 0
         self.v[self.V_HAND] += 1
-        self.v[self.V_SPEND] = 0
         self.process(self.data["start"])
 
     def turnProcess(self, diffFloatTime: float):
@@ -48,6 +55,7 @@ class TCSetting:
         self.process(self.data["turn"])
 
     def turnEndProcess(self):
+        self.v[self.V_SPEND] = 0
         self.process(self.data["end"])
 
     def overProcess(self):
@@ -55,16 +63,23 @@ class TCSetting:
 
     def process(self, process):
         for c in process:
-            match c:
-                case (_, _, _, "if") | (_, _, _, _, _, "if"):
-                    if self.v[self.V_BOOL] != 0:
-                        self.eval(c[:-1])
-                case _:
-                    self.eval(c)
+            if self.v[self.V_RETURN]:
+                break
+
+            if c[-1] == "if":
+                if self.v[self.V_BOOL] != 0:
+                    self.eval(c[:-1])
+            else:
+                self.eval(c)
 
     def eval(self, c):
         v = lambda x: x if type(x) is int else self.v[int(x[1:])]
         match c:
+            case ("finish",):
+                self.v[self.V_FINISH] = 1
+                self.v[self.V_RETURN] = 1
+            case ("return",):
+                self.v[self.V_RETURN] = 1
             case (_, "<", _):
                 self.v[self.V_BOOL] = 1 if v(c[0]) < v(c[2]) else 0
             case (_, ">", _):

@@ -36,8 +36,7 @@ data = playerData[turn]
 data.turnStartProcess()
 
 while True:
-    time.sleep(0.1)
-    print(playerData[0].main(), playerData[1].main())
+    print("\r" + playerData[0].mainDisplay() + " " + playerData[1].mainDisplay(), end="")
 
     loopStartTime = time.perf_counter()
     data.turnProcess(loopStartTime - turnStartTime)

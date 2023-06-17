@@ -9,9 +9,19 @@ class TCSetting:
         self.data = data
         self.v = [0 for _ in range(256)]
         self.commitedDiffTime = 0
+        self.diffFloatTime = 0.0
 
     def main(self):
         return self.v[self.V_MAIN]
+
+    def mainDisplay(self):
+        colon = ":" if int(self.diffFloatTime * 2) % 2 == 0 else " "
+        if self.main() < 60:
+            return "00" + colon + str(self.main()).zfill(2)
+        elif self.main() < 3600:
+            return str(self.main() // 60).zfill(2) + colon + str(self.main() % 60).zfill(2)
+        else:
+            return str(self.main() // 3600).zfill(2) + colon + str((self.main() % 3600) // 60).zfill(2)
 
     def diffTime(self, diff: float):
         return (int(diff) // self.v[self.V_MIN_TIME]) * self.v[self.V_MIN_TIME]
@@ -33,6 +43,7 @@ class TCSetting:
         self.process(self.data["start"])
 
     def turnProcess(self, diffFloatTime: float):
+        self.diffFloatTime = diffFloatTime
         self.loopStartProcess(self.diffTime(diffFloatTime))
         self.process(self.data["turn"])
 

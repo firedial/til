@@ -13,22 +13,14 @@ class TCSetting:
     def main(self):
         return self.v[self.V_MAIN]
 
-    def handAdd(self):
-        self.v[self.V_HAND] += 1
-
-    def diffMain(self, diff: int):
-        self.v[self.V_MAIN] -= diff
-
     def diffTime(self, diff: float):
         return (int(diff) // self.v[self.V_MIN_TIME]) * self.v[self.V_MIN_TIME]
 
-    def setSpend(self, time: int):
-        self.v[self.V_SPEND] = time
-
     def loopStartProcess(self, diffTime: int):
-        self.setSpend(diffTime)
-        if diffTime - self.commitedDiffTime > 0:
-            self.diffMain(diffTime - self.commitedDiffTime)
+        self.v[self.V_SPEND] = diffTime
+        uncommitedDiffTime = diffTime - self.commitedDiffTime
+        if uncommitedDiffTime > 0:
+            self.v[self.V_MAIN] -= uncommitedDiffTime
             self.commitedDiffTime = diffTime
 
     def initProcess(self):
@@ -36,8 +28,8 @@ class TCSetting:
 
     def turnStartProcess(self):
         self.commitedDiffTime = 0
-        self.handAdd()
-        self.setSpend(0)
+        self.v[self.V_HAND] += 1
+        self.v[self.V_SPEND] = 0
         self.process(self.data["start"])
 
     def turnProcess(self, diffFloatTime: float):

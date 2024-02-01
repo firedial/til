@@ -12,9 +12,6 @@ class Card:
 
         object.__setattr__(self, "number", number)
 
-    def getNumber(self) -> int:
-        return self.number
-
 @dataclass
 class Tip:
     count: int
@@ -30,28 +27,29 @@ class Tip:
 
 @dataclass
 class OpenHand:
-    companies: list[tuple[int, bool]]
+    companies: dict[Card, tuple[int, bool]]
 
     def __init__(self):
-        object.__setattr__(self, "companies", [(0, False) for _ in range(6)])
+        object.__setattr__(self, "companies", {
+            Card(5): (0, False),
+            Card(6): (0, False),
+            Card(7): (0, False),
+            Card(8): (0, False),
+            Card(9): (0, False),
+            Card(10): (0, False),
+        })
 
     def addCard(self, card: Card) -> None:
-        self.companies[card.getNumber() - 5] = (self.companies[card.getNumber() - 5][0] + 1, self.companies[card.getNumber() - 5][1])
+        self.companies[card] = (self.companies[card][0] + 1, self.companies[card][1])
 
     def onMonopoly(self, card: Card) -> None:
-        self.companies[card.getNumber() - 5] = (self.companies[card.getNumber() - 5][0], True)
+        self.companies[card] = (self.companies[card][0], True)
 
     def offMonopoly(self, card: Card) -> None:
-        self.companies[card.getNumber() - 5] = (self.companies[card.getNumber() - 5][0], False)
+        self.companies[card] = (self.companies[card][0], False)
 
-    def getNonMonopolyNumbers(self) -> list[int]:
-        nonMonopolyNumbers = []
-        for index, company in enumerate(self.companies):
-            # not monopoly
-            if not company[1]:
-                nonMonopolyNumbers.append(index + 5)
-
-        return nonMonopolyNumbers
+    def getNonMonopolyCards(self) -> list[Card]:
+        return list(dict((filter(lambda company: not company[1][1], self.companies.items()))))
 
 @dataclass
 class Player:
@@ -67,8 +65,8 @@ class Player:
         object.__setattr__(self, "closedHand", cards)
         object.__setattr__(self, "tip", Tip(10))
 
-    def getNonMonopolyNumbers(self) -> list[int]:
-        return self.openHand.getNonMonopolyNumbers()
+    def getNonMonopolyCards(self) -> list[Card]:
+        return self.openHand.getNonMonopolyCards()
 
 @dataclass
 class OpenPlace:
@@ -139,7 +137,7 @@ class Game:
         else:
             return self.__getDiscardChoices()
 
-    def inputChoiceIndex(self, choiceIndex: int) -> list[str]:
+    def inputChoiceIndex(self, choiceIndex: int) -> None:
         choices = self.getChoices()
         if choiceIndex < 0 or choiceIndex >= len(choices):
             raise ValueError("Wrong choice index.")
@@ -149,7 +147,8 @@ class Game:
 
     def __getDrawChoices(self) -> list[str]:
         player = self.players[self.__getPlayerNumber()]
-        nonMonopolyNumbers = player.getNonMonopolyNumbers()
+        nonMonopolyCards = player.getNonMonopolyCards()
+
 
         return ["a", "c"]
 

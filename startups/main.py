@@ -44,6 +44,15 @@ class OpenHand:
     def offMonopoly(self, card: Card) -> None:
         self.companies[card.getNumber() - 5] = (self.companies[card.getNumber() - 5][0], False)
 
+    def getNonMonopolyNumbers(self) -> list[int]:
+        nonMonopolyNumbers = []
+        for index, company in enumerate(self.companies):
+            # not monopoly
+            if not company[1]:
+                nonMonopolyNumbers.append(index + 5)
+
+        return nonMonopolyNumbers
+
 @dataclass
 class Player:
     closedHand: list[Card]
@@ -57,6 +66,9 @@ class Player:
         object.__setattr__(self, "openHand", OpenHand())
         object.__setattr__(self, "closedHand", cards)
         object.__setattr__(self, "tip", Tip(10))
+
+    def getNonMonopolyNumbers(self) -> list[int]:
+        return self.openHand.getNonMonopolyNumbers()
 
 @dataclass
 class OpenPlace:
@@ -136,10 +148,16 @@ class Game:
         self.turnCount += 1
 
     def __getDrawChoices(self) -> list[str]:
+        player = self.players[self.__getPlayerNumber()]
+        nonMonopolyNumbers = player.getNonMonopolyNumbers()
+
         return ["a", "c"]
 
     def __getDiscardChoices(self) -> list[str]:
         return ["b"]
+
+    def __getPlayerNumber(self) -> int:
+        return (self.turnCount % (self.playerCount * 2)) // 2
 
 game = Game(3)
 game.inputChoiceIndex(1)

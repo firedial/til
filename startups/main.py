@@ -103,6 +103,7 @@ class Game:
     players: list[Player]
     deck: Deck
     turnCount: int
+    record: str
 
     def __init__(self, playerCount: int):
         if playerCount < 3 or playerCount > 7:
@@ -118,6 +119,7 @@ class Game:
         object.__setattr__(self, "players", players)
         object.__setattr__(self, "playerCount", playerCount)
         object.__setattr__(self, "turnCount", 0)
+        object.__setattr__(self, "record", "")
 
     def getChoices(self) -> list[str]:
         if self.turnCount % 2 == 0:
@@ -130,6 +132,7 @@ class Game:
         if choiceIndex < 0 or choiceIndex >= len(choices):
             raise ValueError("Wrong choice index.")
 
+        self.record += choices[choiceIndex]
         self.turnCount += 1
 
     def __getDrawChoices(self) -> list[str]:

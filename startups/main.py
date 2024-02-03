@@ -14,7 +14,7 @@ class Card:
         object.__setattr__(self, "number", number)
 
     def __str__(self) -> str:
-        return str(number % 10)
+        return str(self.number % 10)
 
 @dataclass
 class Tip:
@@ -61,6 +61,9 @@ class OpenHand:
     def addCard(self, card: Card) -> None:
         self.companies[card] = (self.companies[card][0] + 1, self.companies[card][1])
 
+    def getOpenHandByCard(self, card: Card) -> tuple[int, bool]:
+        return self.companies[card]
+
     def onMonopoly(self, card: Card) -> None:
         self.companies[card] = (self.companies[card][0], True)
 
@@ -75,7 +78,6 @@ class Player:
     closedHand: list[Card]
     openHand: OpenHand
     tip: Tip
-    drawCard: Card | None
 
     def __init__(self, cards: list[Card]):
         if len(cards) != 3:
@@ -89,17 +91,30 @@ class Player:
     def getTip(self) -> Tip:
         return self.tip
 
+    def getClosedHand(self) -> list[Card]:
+        return self.closedHand
+
     def addTip(self, tip: Tip) -> None:
         self.tip += tip
 
     def subTip(self, tip: Tip) -> None:
         self.tip -= tip
 
+    def abandonCard(self, abandonCard: Card, addCard: Card) -> None:
+        self.closedHand.remove(abandonCard)
+        self.closedHand.append(addCard)
+
+    def addOpenHand(self, card: Card) -> None:
+        self.openHand.addCard(card)
+
     def getNonMonopolyCards(self) -> list[Card]:
         return self.openHand.getNonMonopolyCards()
 
-    def setDrawCard(self, card: Card) -> None:
-        self.drawCard = card
+    def getOpenHandCountByCard(self, card: Card) -> tuple[int, bool]:
+        return self.openHand.getOpenHandByCard(card)[0]
+
+    def turnMonopolyByCard(self, card: Card, isMonopoly: bool) -> None:
+        self.OpenHand.onMonopoly(card) if isMonopoly else self.OpenHand.offMonopoly(card)
 
 class Stock:
     card: Card
@@ -158,6 +173,8 @@ class Market:
     def putOneTip(self, nonMonopolyCards: list[Card]) -> None:
         map(lambda stock: stock.addOneTip(), filter(lambda stock: stock.getCard() in nonMonopolyCards, self.market))
 
+    def addStock(self, card: Card) -> None:
+        self.market.append(Stock(card))
 
 @dataclass
 class Deck:
@@ -202,6 +219,10 @@ class Game:
     market: Market
     turnCount: int
     record: str
+
+    beforeDrawnCard: Card | None
+    isBeforeDrawnDeck: bool
+
     DRAW_STRING: ClassVar[str] = "ddd"
 
     def __init__(self, playerCount: int):
@@ -219,6 +240,9 @@ class Game:
         object.__setattr__(self, "players", players)
         object.__setattr__(self, "playerCount", playerCount)
         object.__setattr__(self, "turnCount", 0)
+        object.__setattr__(self, "recordDrawnCard", None)
+        object.__setattr__(self, "isBeforeDrawnDeck", False)
+
         object.__setattr__(self, "record", "")
 
     def getChoices(self) -> list[str]:
@@ -245,18 +269,50 @@ class Game:
             self.market.putOneTip(player.getNonMonopolyCards())
             # 山札の分1つ引いておく
             player.subTip(Tip(len(choices) - 1))
-            player.setDrawCard(self.deck.draw())
+            self.beforeDrawnCard = self.deck.draw()
+            self.isBeforeDrawnDeck = True
         else:
             # マーケットからドローする場合は、ドローしたチップをもらう
             stock = self.market.getByIndex(choiceIndex)
             player.addTip(stock.getTip())
-            player.setDrawCard(stock.getCard())
+            self.beforeDrawnCard = stock.getCard()
+            self.isBeforeDrawnDeck = False
 
         self.record += choices[choiceIndex]
         self.turnCount += 1
 
     def __inputDiscardChoices(self, choiceIndex: int) -> None:
-        pass
+        player = self.players[self.__getPlayerNumber()]
+        choices = self.getChoices()
+        if choiceIndex < 0 or choiceIndex >= len(choices):
+            raise ValueError("Wrong choice index.")
+
+        # ドローしたものをそのまま使わないときは手札の入れ替え
+        if choiceIndex != 3 and choiceIndex != 7:
+            player.abandonCard(Card(int(choices[choiceIndex][0])), self.beforeDrawnCard)
+
+        if choiceIndex < 4:
+            # 投資する場合
+            card = Card(int(choices[choiceIndex][0]))
+
+            # プレイヤーの場に追加
+            player.addOpenHand(card)
+
+            # 独禁チップの判定
+            counts = map(lambda player: player.getOpenHandCountByCard(card), self.players)
+            maxCount = max(counts)
+            maxPlayerCount = len(list(filter(lambda count: count == maxCount, counts)))
+            # 単独で最高値を持っていたら独禁チップを設定する
+            if maxPlayerCount == 1:
+                for index, player in enumerate(self.players):
+                    self.players[index].turnMonopolyByCard(card, counts[index] == maxCount)
+
+        else:
+            # 捨てる場合はマーケットに追加
+            self.market.addStock(Card(int(choices[choiceIndex][0])))
+
+        self.record += choices[choiceIndex]
+        self.turnCount += 1
 
     def __getDrawChoices(self) -> list[str]:
         player = self.players[self.__getPlayerNumber()]
@@ -269,13 +325,23 @@ class Game:
         return list(map(str, selectableStocks))
 
     def __getDiscardChoices(self) -> list[str]:
-        return ["b"]
+        player = self.players[self.__getPlayerNumber()]
+        cards = player.getClosedHand() + [self.beforeDrawnCard]
+
+        investCard = cards
+        # マーケットから引いた数字は捨てることができない
+        abandonCard = filter(lambda card: card != self.beforeDrawnCard, cards) if not self.isBeforeDrawnDeck else cards
+
+        return list(map(lambda card: str(card) + "i", investCard)) + list(map(lambda card: str(card) + "a", abandonCard))
 
     def __getPlayerNumber(self) -> int:
         return (self.turnCount % (self.playerCount * 2)) // 2
 
 game = Game(3)
+print(game.getChoices())
 game.inputChoiceIndex(0)
+print(game.getChoices())
 game.inputChoiceIndex(0)
+print(game.getChoices())
 game.inputChoiceIndex(0)
 print(game)

@@ -8,6 +8,10 @@ class Card:
     number: int
 
     def __init__(self, number: int):
+        # 0 は 10 とみなす
+        if number == 0:
+            number = 10
+
         if number < 5 or number > 10:
             raise ValueError("Wrong company number.")
 
@@ -36,13 +40,13 @@ class Tip:
         self.count += tip
 
     def __add__(self, other):
-        return self.__init__(self.count + other.count)
+        return Tip(self.count + other.count)
 
     def __sub__(self, other):
-        return self.__init__(self.count - other.count)
+        return Tip(self.count - other.count)
 
     def __str__(self) -> str:
-        return str(count)
+        return str(self.count)
 
 @dataclass
 class OpenHand:
@@ -72,6 +76,12 @@ class OpenHand:
 
     def getNonMonopolyCards(self) -> list[Card]:
         return list(dict((filter(lambda company: not company[1][1], self.companies.items()))))
+
+    def __str__(self) -> str:
+        s = ""
+        for card, hand in self.companies.items():
+            s += ("o" if hand[1] else "x") + str(card) + str(hand[0]) + ","
+        return s
 
 @dataclass
 class Player:
@@ -116,34 +126,16 @@ class Player:
     def turnMonopolyByCard(self, card: Card, isMonopoly: bool) -> None:
         self.OpenHand.onMonopoly(card) if isMonopoly else self.OpenHand.offMonopoly(card)
 
-class Stock:
-    card: Card
-    tip: Tip
-
-    def __init__(self, company: Card):
-        object.__setattr__(self, "company", company)
-        object.__setattr__(self, "value", Tip(0))
-
-    def getCard(self) -> Card:
-        return self.card
-
     def __str__(self) -> str:
-        return str(self.card) + str(self.Tip).zfill(2)
-
-@dataclass
-class Market:
-    market: list[Stock]
-
-    def __init__(self):
-        object.__setattr__(self, "market", [])
+        return str(self.openHand) + str(self.tip)
 
 class Stock:
     card: Card
     tip: Tip
 
     def __init__(self, company: Card):
-        object.__setattr__(self, "company", company)
-        object.__setattr__(self, "value", Tip(0))
+        object.__setattr__(self, "card", company)
+        object.__setattr__(self, "tip", Tip(0))
 
     def getCard(self) -> Card:
         return self.card
@@ -155,7 +147,7 @@ class Stock:
         self.tip += Tip(1)
 
     def __str__(self) -> str:
-        return str(self.card) + str(self.Tip).zfill(2)
+        return str(self.card) + str(self.tip).zfill(2)
 
 @dataclass
 class Market:
@@ -175,6 +167,12 @@ class Market:
 
     def addStock(self, card: Card) -> None:
         self.market.append(Stock(card))
+
+    def __str__(self) -> str:
+        s = ""
+        for stock in self.market:
+            s += str(stock) + ","
+        return s
 
 @dataclass
 class Deck:
@@ -337,11 +335,22 @@ class Game:
     def __getPlayerNumber(self) -> int:
         return (self.turnCount % (self.playerCount * 2)) // 2
 
+    def __str__(self) -> str:
+        s = ""
+        s += str(self.market) + "\n"
+        for player in self.players:
+            s += str(player) + "\n"
+
+        return s
+
 game = Game(3)
+print(game)
 print(game.getChoices())
 game.inputChoiceIndex(0)
+print(game)
 print(game.getChoices())
-game.inputChoiceIndex(0)
+game.inputChoiceIndex(5)
+print(game)
 print(game.getChoices())
 game.inputChoiceIndex(0)
 print(game)

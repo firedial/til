@@ -243,6 +243,9 @@ class Game:
 
         object.__setattr__(self, "record", "")
 
+    def hasDeck(self) -> bool:
+        return self.deck.remain() > 0
+
     def getChoices(self) -> list[str]:
         if self.turnCount % 2 == 0:
             return self.__getDrawChoices()
@@ -344,13 +347,14 @@ class Game:
         return s
 
 game = Game(3)
-print(game)
-print(game.getChoices())
-game.inputChoiceIndex(0)
-print(game)
-print(game.getChoices())
-game.inputChoiceIndex(5)
-print(game)
-print(game.getChoices())
-game.inputChoiceIndex(0)
-print(game)
+while game.hasDeck():
+    print(game)
+
+    choices = game.getChoices()
+    print(choices)
+    game.inputChoiceIndex(random.randint(0, len(choices) - 1))
+
+    choices = game.getChoices()
+    print(choices)
+    game.inputChoiceIndex(random.randint(0, len(choices) - 1))
+

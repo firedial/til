@@ -124,7 +124,7 @@ class Player:
         return self.openHand.getOpenHandByCard(card)[0]
 
     def turnMonopolyByCard(self, card: Card, isMonopoly: bool) -> None:
-        self.OpenHand.onMonopoly(card) if isMonopoly else self.OpenHand.offMonopoly(card)
+        self.openHand.onMonopoly(card) if isMonopoly else self.openHand.offMonopoly(card)
 
     def __str__(self) -> str:
         return str(self.openHand) + str(self.tip)
@@ -163,7 +163,7 @@ class Market:
         return self.market.pop(index)
 
     def putOneTip(self, nonMonopolyCards: list[Card]) -> None:
-        map(lambda stock: stock.addOneTip(), filter(lambda stock: stock.getCard() in nonMonopolyCards, self.market))
+        list(map(lambda stock: stock.addOneTip(), list(filter(lambda stock: stock.getCard() in nonMonopolyCards, self.market))))
 
     def addStock(self, card: Card) -> None:
         self.market.append(Stock(card))
@@ -246,6 +246,9 @@ class Game:
     def hasDeck(self) -> bool:
         return self.deck.remain() > 0
 
+    def getResult(self) -> list[int]:
+        pass
+
     def getChoices(self) -> list[str]:
         if self.turnCount % 2 == 0:
             return self.__getDrawChoices()
@@ -300,8 +303,8 @@ class Game:
             player.addOpenHand(card)
 
             # 独禁チップの判定
-            counts = map(lambda player: player.getOpenHandCountByCard(card), self.players)
-            maxCount = max(counts)
+            counts = list(map(lambda player: player.getOpenHandCountByCard(card), self.players))
+            maxCount = max(list(counts))
             maxPlayerCount = len(list(filter(lambda count: count == maxCount, counts)))
             # 単独で最高値を持っていたら独禁チップを設定する
             if maxPlayerCount == 1:
@@ -352,9 +355,13 @@ while game.hasDeck():
 
     choices = game.getChoices()
     print(choices)
-    game.inputChoiceIndex(random.randint(0, len(choices) - 1))
+    choiceIndex = random.randint(0, len(choices) - 1)
+    print(choiceIndex)
+    game.inputChoiceIndex(choiceIndex)
 
     choices = game.getChoices()
     print(choices)
-    game.inputChoiceIndex(random.randint(0, len(choices) - 1))
+    choiceIndex = random.randint(0, len(choices) - 1)
+    print(choiceIndex)
+    game.inputChoiceIndex(choiceIndex)
 

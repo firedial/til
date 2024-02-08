@@ -25,18 +25,12 @@ class Tip:
     count: int
 
     def __init__(self, count: int):
-        if count < 0 or count > 70:
-            raise ValueError("Wrong tip count.")
-
         object.__setattr__(self, "count", count)
 
     def getCount(self) -> int:
         return self.count
 
     def addCount(self, tip: int) -> None:
-        if self.count + tip > 70:
-            raise ValueError("Wrong tip count.")
-
         self.count += tip
 
     def __add__(self, other):
@@ -120,8 +114,11 @@ class Player:
     def getNonMonopolyCards(self) -> list[Card]:
         return self.openHand.getNonMonopolyCards()
 
-    def getOpenHandCountByCard(self, card: Card) -> tuple[int, bool]:
+    def getOpenHandCountByCard(self, card: Card) -> int:
         return self.openHand.getOpenHandByCard(card)[0]
+
+    def getAllHandCountByCard(self, card: Card) -> int:
+        return self.openHand.getOpenHandByCard(card)[0] + len(list(filter(lambda closedCard: closedCard == card, self.closedHand)))
 
     def turnMonopolyByCard(self, card: Card, isMonopoly: bool) -> None:
         self.openHand.onMonopoly(card) if isMonopoly else self.openHand.offMonopoly(card)
@@ -218,7 +215,7 @@ class Game:
     turnCount: int
     record: str
 
-    beforeDrawnCard: Card | None
+    beforeDrawnCard: Card
     isBeforeDrawnDeck: bool
 
     DRAW_STRING: ClassVar[str] = "ddd"
@@ -238,7 +235,7 @@ class Game:
         object.__setattr__(self, "players", players)
         object.__setattr__(self, "playerCount", playerCount)
         object.__setattr__(self, "turnCount", 0)
-        object.__setattr__(self, "recordDrawnCard", None)
+        object.__setattr__(self, "recordDrawnCard", Card(10))
         object.__setattr__(self, "isBeforeDrawnDeck", False)
 
         object.__setattr__(self, "record", "")
@@ -247,7 +244,30 @@ class Game:
         return self.deck.remain() > 0
 
     def getResult(self) -> list[int]:
-        pass
+        for card in [Card(5), Card(6), Card(7), Card(8), Card(9), Card(10)]:
+            counts = list(map(lambda player: player.getAllHandCountByCard(card), self.players))
+            maxCount = max(counts)
+            maxPlayerCount = len(list(filter(lambda count: count == maxCount, counts)))
+
+            # 最大数のプレイヤーが1人じゃないと何もしない
+            if maxPlayerCount != 1:
+                continue
+
+            # 最大数じゃない場合は-1をし、その分最大プレイヤーを+3する
+            addTip = Tip(0)
+            maxPlayerIndex = 0
+            for index, player in enumerate(self.players):
+                # 最大数を持っているプレイヤーのインデックスを記録
+                if counts[index] == maxPlayerCount:
+                    maxPlayerIndex = index
+                    continue
+
+                player.subTip(Tip(counts[index]))
+                addTip += Tip(counts[index] * 3)
+
+            self.players[maxPlayerIndex].addTip(addTip)
+
+        return list(map(lambda player: player.getTip(), self.players))
 
     def getChoices(self) -> list[str]:
         if self.turnCount % 2 == 0:
@@ -365,3 +385,4 @@ while game.hasDeck():
     print(choiceIndex)
     game.inputChoiceIndex(choiceIndex)
 
+print(game.getResult())

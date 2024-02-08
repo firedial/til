@@ -124,7 +124,7 @@ class Player:
         self.openHand.onMonopoly(card) if isMonopoly else self.openHand.offMonopoly(card)
 
     def __str__(self) -> str:
-        return str(self.openHand) + str(self.tip)
+        return str(self.openHand) + str(self.tip) + "," + str(self.closedHand[0]) + str(self.closedHand[1]) + str(self.closedHand[2])
 
 class Stock:
     card: Card
@@ -258,7 +258,7 @@ class Game:
             maxPlayerIndex = 0
             for index, player in enumerate(self.players):
                 # 最大数を持っているプレイヤーのインデックスを記録
-                if counts[index] == maxPlayerCount:
+                if counts[index] == maxCount:
                     maxPlayerIndex = index
                     continue
 
@@ -385,4 +385,5 @@ while game.hasDeck():
     print(choiceIndex)
     game.inputChoiceIndex(choiceIndex)
 
+print(game)
 print(game.getResult())

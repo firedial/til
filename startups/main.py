@@ -244,6 +244,8 @@ class Game:
         return self.deck.remain() > 0
 
     def getResult(self) -> list[int]:
+        threeTipCounts = [0 for _ in range(self.playerCount)]
+
         for card in [Card(5), Card(6), Card(7), Card(8), Card(9), Card(10)]:
             counts = list(map(lambda player: player.getAllHandCountByCard(card), self.players))
             maxCount = max(counts)
@@ -266,8 +268,26 @@ class Game:
                 addTip += Tip(counts[index] * 3)
 
             self.players[maxPlayerIndex].addTip(addTip)
+            threeTipCounts[maxPlayerIndex] += addTip.getCount()
 
-        return list(map(lambda player: player.getTip(), self.players))
+        # print(list(map(lambda player: player.getTip(), self.players)))
+        rankData = [
+            {
+                "index": i,
+                "tip": self.players[i].getTip().getCount(),
+                "three": threeTipCounts[i],
+            }
+            for i in range(self.playerCount)
+        ]
+
+        sortedRankData = sorted(sorted(sorted(rankData, key = lambda x: x["index"]), key = lambda x: x["three"]), key = lambda x: x["tip"])
+
+        rankPoints = [0 for _ in range(self.playerCount)]
+        rankPoints[sortedRankData[-1]["index"]] = 2 # 1位
+        rankPoints[sortedRankData[-2]["index"]] = 1 # 2位
+        rankPoints[sortedRankData[0]["index"]] = -1 # 最下位
+
+        return rankPoints
 
     def getChoices(self) -> list[str]:
         if self.turnCount % 2 == 0:

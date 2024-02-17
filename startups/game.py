@@ -307,7 +307,7 @@ class Game:
 
         return rankPoints
 
-    def getGameStatus(self) -> str:
+    def getGameStatus(self) -> dict:
         playerIndex = self.__getPlayerNumber()
         player = self.players[playerIndex]
 
@@ -368,6 +368,9 @@ class Game:
             return self.__getDrawChoices()
         else:
             return self.__getDiscardChoices()
+
+    def getPlayerIndex(self) -> int:
+        return self.__getPlayerNumber()
 
     def inputChoiceIndex(self, choiceIndex: int) -> None:
         if self.turnCount % 2 == 0:
@@ -466,6 +469,93 @@ class Game:
         s += "".join(self.record)
 
         return s
+
+@dataclass
+class OneGame:
+    playerChoiceFunctions: list
+    playerCount: int
+
+    def __init__(self, playerChoiceFunctions: list):
+        playerCount = len(playerChoiceFunctions)
+
+        object.__setattr__(self, "playerChoiceFunctions", playerChoiceFunctions)
+        object.__setattr__(self, "playerCount", playerCount)
+
+    def play(self) -> dict:
+        game = Game(self.playerCount)
+        while game.hasDeck():
+            playerIndex = game.getPlayerIndex()
+            game.inputChoiceIndex(self.playerChoiceFunctions[playerIndex](game.getGameStatus(), game.getChoices()))
+            game.inputChoiceIndex(self.playerChoiceFunctions[playerIndex](game.getGameStatus(), game.getChoices()))
+
+        return game.getResult()
+
+@dataclass
+class RoundGame:
+    playerCount: int
+    playerIndexes: list[int]
+    playerChoiceFunctions: list
+    points: list
+
+    def __init__(self, playerChoiceFunctions: list):
+        playerCount = len(playerChoiceFunctions)
+        playerIndexes = [i for i in range(playerCount)]
+        random.shuffle(playerIndexes)
+
+        points = [[0, 0, 0, 0, 0] for _ in range(playerCount)]
+
+        object.__setattr__(self, "playerCount", playerCount)
+        object.__setattr__(self, "playerIndexes", playerIndexes)
+        object.__setattr__(self, "playerChoiceFunctions", playerChoiceFunctions)
+        object.__setattr__(self, "points", points)
+
+    def play(self):
+        for _ in range(4):
+            game = OneGame([self.playerChoiceFunctions[playerIndex] for playerIndex in self.playerIndexes])
+            result = game.play()
+
+            minPlayerIndex = -1
+            for index, value in enumerate(result):
+                self.points[self.playerIndexes[index]][3] = value["rank"]
+                self.points[self.playerIndexes[index]][4] = self.playerIndexes[index]
+
+                if value["point"] == 2:
+                    self.points[self.playerIndexes[index]][0] += 1
+                elif value["point"] == 1:
+                    self.points[self.playerIndexes[index]][1] += 1
+                elif value["point"] == -1:
+                    self.points[self.playerIndexes[index]][2] += 1
+
+                if value["rank"] == self.playerCount:
+                    minPlayerIndex = index
+
+            # 最下位のプレイヤーを最初にする
+            while True:
+                if self.playerIndexes[0] == minPlayerIndex:
+                    break
+
+                self.playerIndexes.append(self.playerIndexes.pop(0))
+
+        totalResult = [
+            {"index": point[4], "point": point[0] * 2 + point[1] - point[2], "one": point[0], "two": point[1], "rank": self.playerCount - point[3]}
+            for point in self.points
+        ]
+        sortedTotalResult = sorted(sorted(sorted(sorted(totalResult, key = lambda x: ["rank"]), key = lambda x: x["two"]), key = lambda x: x["one"]), key = lambda x: x["point"])
+        sortedTotalResult.reverse()
+
+        return list(map(lambda result: result["index"], sortedTotalResult))
+
+game = RoundGame([
+    lambda x, y: 0,
+    lambda x, y: 0,
+    lambda x, y: 0,
+    lambda x, y: 0,
+    lambda x, y: 0,
+    lambda x, y: 0,
+    lambda x, y: 0,
+])
+print(game.play())
+exit()
 
 game = Game(3)
 while game.hasDeck():

@@ -288,10 +288,22 @@ class Game:
 
         sortedRankData = sorted(sorted(sorted(rankData, key = lambda x: x["index"]), key = lambda x: x["three"]), key = lambda x: x["tip"])
 
-        rankPoints = [0 for _ in range(self.playerCount)]
+        rankPoints = [{} for _ in range(self.playerCount)]
         rankPoints[sortedRankData[-1]["index"]] = 2 # 1位
         rankPoints[sortedRankData[-2]["index"]] = 1 # 2位
         rankPoints[sortedRankData[0]["index"]] = -1 # 最下位
+
+        for rank, playerIndex in enumerate(sortedRankData):
+            playerRank = self.playerCount - rank
+
+            if playerRank == self.playerCount: # 最下位
+                rankPoints[sortedRankData[rank]["index"]] = {"rank": playerRank, "point": -1}
+            elif playerRank == 1: # 1位
+                rankPoints[sortedRankData[rank]["index"]] = {"rank": playerRank, "point": 2}
+            elif playerRank == 2: # 2位
+                rankPoints[sortedRankData[rank]["index"]] = {"rank": playerRank, "point": 1}
+            else:
+                rankPoints[sortedRankData[rank]["index"]] = {"rank": playerRank, "point": 0}
 
         return rankPoints
 

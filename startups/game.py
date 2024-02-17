@@ -320,6 +320,7 @@ class Game:
             "playerCount": self.playerCount,
             "turnCount": self.turnCount,
             "phase": "draw" if self.turnCount % 2 == 0 else "discard",
+            "deckRemain": self.deck.remain(),
             "drawAction":
                 None if self.turnCount % 2 == 0
                 else {

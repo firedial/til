@@ -95,6 +95,9 @@ class Player:
     def getTip(self) -> Tip:
         return self.tip
 
+    def getOpenHand(self) -> OpenHand:
+        return self.openHand
+
     def getClosedHand(self) -> list[Card]:
         return self.closedHand
 
@@ -152,6 +155,9 @@ class Market:
 
     def __init__(self):
         object.__setattr__(self, "market", [])
+
+    def getAllStocks(self) -> list[Stock]:
+        return self.market
 
     def getSelectableStocks(self, nonMonopolyCards: list[Card]) -> list[Stock]:
         return list(filter(lambda stock: stock.getCard() in nonMonopolyCards, self.market))
@@ -213,7 +219,7 @@ class Game:
     deck: Deck
     market: Market
     turnCount: int
-    record: str
+    record: list[str]
 
     beforeDrawnCard: Card
     isBeforeDrawnDeck: bool
@@ -238,7 +244,7 @@ class Game:
         object.__setattr__(self, "recordDrawnCard", Card(10))
         object.__setattr__(self, "isBeforeDrawnDeck", False)
 
-        object.__setattr__(self, "record", "")
+        object.__setattr__(self, "record", [])
 
     def hasDeck(self) -> bool:
         return self.deck.remain() > 0
@@ -289,6 +295,61 @@ class Game:
 
         return rankPoints
 
+    def getGameStatus(self) -> str:
+        playerIndex = self.__getPlayerNumber()
+        player = self.players[playerIndex]
+
+        maskedRecord = []
+        # 他プレイヤーがドローした情報をマスクする
+        for index, choice in enumerate(self.record):
+            actionPlayerIndex = (index % (self.playerCount * 2)) // 2
+            if actionPlayerIndex == playerIndex:
+                # 自分の分はマスクしなくていい
+                maskedRecord.append(choice)
+                continue
+
+            if choice[-1] != "d":
+                # ドローじゃない場合はマスクしなくていい
+                maskedRecord.append(choice)
+                continue
+
+            maskedRecord.append("ddd")
+
+        return {
+            "playerIndex": playerIndex,
+            "playerCount": self.playerCount,
+            "turnCount": self.turnCount,
+            "phase": "draw" if self.turnCount % 2 == 0 else "discard",
+            "drawAction":
+                None if self.turnCount % 2 == 0
+                else {
+                    "pattern": "deck" if self.record[-1][-1] == "d" else "market",
+                    "card": self.record[-1][0],
+                },
+            "closedHand": list(map(str, player.getClosedHand())),
+            "market": list(map(
+                lambda stock: {
+                    "card": str(stock.getCard()),
+                    "tip": str(stock.getTip(),
+                )},
+                self.market.getAllStocks(),
+            )),
+            "players": list(map(
+                lambda player: {
+                    "openHands": {
+                        n: {
+                            "count": player.getOpenHand().getOpenHandByCard(Card(n))[0],
+                            "isMonopoly": player.getOpenHand().getOpenHandByCard(Card(n))[1],
+                        }
+                        for n in [5, 6, 7, 8, 9, 0]
+                    },
+                    "tip": str(player.getTip()),
+                },
+                self.players,
+            )),
+            "record": maskedRecord,
+        }
+
     def getChoices(self) -> list[str]:
         if self.turnCount % 2 == 0:
             return self.__getDrawChoices()
@@ -315,6 +376,8 @@ class Game:
             player.subTip(Tip(len(choices) - 1))
             self.beforeDrawnCard = self.deck.draw()
             self.isBeforeDrawnDeck = True
+
+            self.record.append(str(self.beforeDrawnCard) + "dd")
         else:
             # マーケットからドローする場合は、ドローしたチップをもらう
             stock = self.market.getByIndex(choiceIndex)
@@ -322,7 +385,8 @@ class Game:
             self.beforeDrawnCard = stock.getCard()
             self.isBeforeDrawnDeck = False
 
-        self.record += choices[choiceIndex]
+            self.record.append(choices[choiceIndex])
+
         self.turnCount += 1
 
     def __inputDiscardChoices(self, choiceIndex: int) -> None:
@@ -355,7 +419,7 @@ class Game:
             # 捨てる場合はマーケットに追加
             self.market.addStock(Card(int(choices[choiceIndex][0])))
 
-        self.record += choices[choiceIndex]
+        self.record.append(choices[choiceIndex])
         self.turnCount += 1
 
     def __getDrawChoices(self) -> list[str]:
@@ -386,12 +450,13 @@ class Game:
         s += str(self.market) + "\n"
         for player in self.players:
             s += str(player) + "\n"
+        s += "".join(self.record)
 
         return s
 
 game = Game(3)
 while game.hasDeck():
-    print(game)
+    print(game.getGameStatus())
 
     choices = game.getChoices()
     print(choices)
@@ -399,6 +464,7 @@ while game.hasDeck():
     print(choiceIndex)
     game.inputChoiceIndex(choiceIndex)
 
+    print(game.getGameStatus())
     choices = game.getChoices()
     print(choices)
     choiceIndex = random.randint(0, len(choices) - 1)

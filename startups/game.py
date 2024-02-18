@@ -361,6 +361,7 @@ class Game:
                 self.players,
             )),
             "record": maskedRecord,
+            "choices": self.getChoices(),
         }
 
     def getChoices(self) -> list[str]:
@@ -485,8 +486,8 @@ class OneGame:
         game = Game(self.playerCount)
         while game.hasDeck():
             playerIndex = game.getPlayerIndex()
-            game.inputChoiceIndex(self.playerChoiceFunctions[playerIndex](game.getGameStatus(), game.getChoices()))
-            game.inputChoiceIndex(self.playerChoiceFunctions[playerIndex](game.getGameStatus(), game.getChoices()))
+            game.inputChoiceIndex(self.playerChoiceFunctions[playerIndex](game.getGameStatus()))
+            game.inputChoiceIndex(self.playerChoiceFunctions[playerIndex](game.getGameStatus()))
 
         return game.getResult()
 

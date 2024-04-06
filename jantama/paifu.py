@@ -30,3 +30,7 @@ class Paifu:
 
         return False
 
+    @staticmethod
+    def isNewRound(action: dict) -> bool:
+        return action["type"] == 1 and action["result"]["name"] == ".lq.RecordNewRound"
+

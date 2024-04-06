@@ -11,7 +11,7 @@ class Paifu:
         return self.paifu["head"]["end_time"] - self.paifu["head"]["start_time"]
 
     @staticmethod
-    def isFinishRound(action: dict) -> bool:
+    def isFinishedRound(action: dict) -> bool:
         # 牌譜のタイプが1の時に記録されている(そして result のキーを持つ)
         if action["type"] != 1:
             return False

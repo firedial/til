@@ -1,6 +1,19 @@
 from dataclasses import dataclass
 
 @dataclass
+class Round:
+    tiles0: list[str]
+    tiles1: list[str]
+    tiles2: list[str]
+    tiles3: list[str]
+
+    def __init__(self, action: dict):
+        self.tiles0 = action["result"]["data"]["tiles0"]
+        self.tiles1 = action["result"]["data"]["tiles1"]
+        self.tiles2 = action["result"]["data"]["tiles2"]
+        self.tiles3 = action["result"]["data"]["tiles3"]
+
+@dataclass
 class Paifu:
     paifu: dict
 

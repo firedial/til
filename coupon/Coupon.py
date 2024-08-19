@@ -54,7 +54,10 @@ class Coupon():
             a *= Fraction(self.n + i, self.n)
 
 
-coupon = Coupon(6)
-result = coupon.getProbabilityList(Fraction(1, 1) - Fraction(1, 100))
+n = 6
+p = Fraction(1, 1) - Fraction(1, 100)
+
+coupon = Coupon(n)
+result = coupon.getProbabilityList(p)
 for i, r in enumerate(result):
-    print(i, float(r))
+    print(n + i, float(r))

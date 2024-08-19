@@ -20,6 +20,9 @@ class Coupon():
         ))
 
     def getProbabilityList(self, maxProb: Fraction) -> list[Fraction]:
+        if maxProb >= Fraction(1, 1):
+            raise Exception()
+
         # 最初の係数 [1, 0, 0, ..., 0] を作成
         cofficients = [Fraction(0, 1) for _ in range(self.n + 1)]
         cofficients[0] = Fraction(1, 1)

@@ -1,5 +1,6 @@
 from fractions import Fraction
 from math import factorial
+import sys
 
 
 class Coupon():
@@ -54,8 +55,8 @@ class Coupon():
             a *= Fraction(self.n + i, self.n)
 
 
-n = 6
-p = Fraction(1, 1) - Fraction(1, 100)
+n = int(sys.argv[1])
+p = Fraction(int(sys.argv[2]), int(sys.argv[3]))
 
 coupon = Coupon(n)
 result = coupon.getProbabilityList(p)

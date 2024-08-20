@@ -19,7 +19,7 @@ class Coupon():
             range(len(cofficients)),
         ))
 
-    def getProbabilityList(self, maxProb: Fraction) -> list[Fraction]:
+    def getProbabilityList(self, maxProb: Fraction) -> None:
         if maxProb >= Fraction(1, 1):
             raise Exception()
 
@@ -37,7 +37,6 @@ class Coupon():
         # 最初の先頭の係数を計算
         a = Fraction(factorial(self.n), pow(self.n, self.n))
 
-        probs = []
         i = 0
         while(True):
             # 係数と降べき乗とで内積をとる
@@ -45,12 +44,15 @@ class Coupon():
             for x, y in zip(cofficients, variables):
                 prob += x * y
 
-            # 先頭の係数をかけて結果を格納
-            probs.append(a * prob)
+            # 先頭の係数をかける
+            prob *= a
+
+            # 結果を出力
+            print(n + i, float(prob))
 
             # 指定した確率まで計算できたらループを抜ける
-            if a * prob > maxProb:
-                return probs
+            if prob > maxProb:
+                break
 
             # 次のループの準備
             i += 1
@@ -63,5 +65,3 @@ p = Fraction(int(sys.argv[2]), int(sys.argv[3]))
 
 coupon = Coupon(n)
 result = coupon.getProbabilityList(p)
-for i, r in enumerate(result):
-    print(n + i, float(r))

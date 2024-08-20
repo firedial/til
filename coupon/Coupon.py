@@ -6,7 +6,7 @@ import sys
 class Coupon():
     def __init__(self, n: int):
         if n <= 0:
-            raise Exception()
+            raise Exception("n is wrong")
 
         self.n = n
 
@@ -21,7 +21,7 @@ class Coupon():
 
     def getProbabilityList(self, maxProb: Fraction) -> None:
         if maxProb >= Fraction(1, 1):
-            raise Exception()
+            raise Exception("p is wrong")
 
         # 最初の係数 [1, 0, 0, ..., 0] を作成
         cofficients = [Fraction(0, 1) for _ in range(self.n + 1)]

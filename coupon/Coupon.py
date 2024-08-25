@@ -48,7 +48,7 @@ class Coupon():
             prob *= a
 
             # 結果を出力
-            print(n + i, float(prob))
+            print(n + i, format(float(prob), '.3g'))
 
             # 指定した確率まで計算できたらループを抜ける
             if prob > maxProb:

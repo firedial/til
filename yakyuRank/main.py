@@ -1,7 +1,7 @@
 from fractions import Fraction
 from dataclasses import dataclass
 from functools import reduce
-from math import ceil
+from math import ceil, floor
 from typing import Optional
 import json
 
@@ -255,17 +255,18 @@ result = [{
 } for i in range(TEAM_COUNT)]
 
 response = [{
-    "max": format(float(team["max"]), '.3g'),
-    "now": format(float(team["now"]), '.3g'),
-    "min": format(float(team["min"]), '.3g'),
-    "win1": format(float(team["win1"]), '.3g'),
-    "win2": format(float(team["win2"]), '.3g'),
-    "win3": format(float(team["win3"]), '.3g'),
-    "selfV": format(float(team["selfV"]), '.3g'),
+    "index": team["index"],
+    "max": floor(team["max"] * Fraction(1000)),
+    "now": floor(team["now"] * Fraction(1000)),
+    "min": floor(team["min"] * Fraction(1000)),
+    "win1": floor(team["win1"] * Fraction(1000)),
+    "win2": floor(team["win2"] * Fraction(1000)),
+    "win3": floor(team["win3"] * Fraction(1000)),
+    "selfV": floor(team["selfV"] * Fraction(1000)),
     "canSelfV": team["selfV"] < team["max"],
-    "lose1": format(float(team["lose1"]), '.3g'),
-    "lose2": format(float(team["lose2"]), '.3g'),
-    "lose3": format(float(team["lose3"]), '.3g'),
+    "lose1": floor(team["lose1"] * Fraction(1000)),
+    "lose2": floor(team["lose2"] * Fraction(1000)),
+    "lose3": floor(team["lose3"] * Fraction(1000)),
     "win1Magic": table.teams[team["index"]].getWinningCountToProbability(team["win1"]),
     "win2Magic": table.teams[team["index"]].getWinningCountToProbability(team["win2"]),
     "win3Magic": table.teams[team["index"]].getWinningCountToProbability(team["win3"]),

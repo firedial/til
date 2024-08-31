@@ -247,11 +247,11 @@ result = [{
     "min": table.teams[i].getMinWin(),
     "win1": table.getMaxWin1(i),
     "win2": table.getMaxWin2(i),
-    # "win3": table.getMaxWin3(i),
+    "win3": table.getMaxWin3(i),
     "selfV": table.getSelfVictory(i),
     "lose1": dualTable.getMaxWin1(i),
     "lose2": dualTable.getMaxWin2(i),
-    # "lose3": dualTable.getMaxWin3(i),
+    "lose3": dualTable.getMaxWin3(i),
 } for i in range(TEAM_COUNT)]
 
 response = [{
@@ -260,18 +260,18 @@ response = [{
     "min": format(float(team["min"]), '.3g'),
     "win1": format(float(team["win1"]), '.3g'),
     "win2": format(float(team["win2"]), '.3g'),
-    # "win3": format(float(team["win3"]), '.3g'),
+    "win3": format(float(team["win3"]), '.3g'),
     "selfV": format(float(team["selfV"]), '.3g'),
     "canSelfV": team["selfV"] < team["max"],
     "lose1": format(float(team["lose1"]), '.3g'),
     "lose2": format(float(team["lose2"]), '.3g'),
-    # "lose3": format(float(team["lose3"]), '.3g'),
+    "lose3": format(float(team["lose3"]), '.3g'),
     "win1Magic": table.teams[team["index"]].getWinningCountToProbability(team["win1"]),
     "win2Magic": table.teams[team["index"]].getWinningCountToProbability(team["win2"]),
-    # "win3Magic": table.teams[team["index"]].getWinningCountToProbability(team["win3"]),
+    "win3Magic": table.teams[team["index"]].getWinningCountToProbability(team["win3"]),
     "lose1Magic": dualTable.teams[team["index"]].getWinningCountToProbability(team["lose1"]),
     "lose2Magic": dualTable.teams[team["index"]].getWinningCountToProbability(team["lose2"]),
-    # "lose3Magic": dualTable.teams[team["index"]].getWinningCountToProbability(team["lose3"]),
+    "lose3Magic": dualTable.teams[team["index"]].getWinningCountToProbability(team["lose3"]),
 } for team in result]
 
 print(json.dumps(response))

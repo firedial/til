@@ -98,6 +98,9 @@ class Game:
     def getAllRemainLose(self): # Self
         return Game(self.win, self.lose + self.remain, self.draw, 0)
 
+    def getDualGame(self): # Self
+        return Game(self.lose, self.win, self.draw, self.remain)
+
 
 @dataclass(frozen=True)
 class Team:
@@ -124,6 +127,9 @@ class Team:
 
     def getReplacedIndexGame(self, index: int, game: Game): # Self
         return Team(tuple(self.opponents[:index] + (game, ) + self.opponents[index + 1:]))
+
+    def getDualTeam(self): # Self
+        return Team(tuple(map(lambda game: game.getDualGame(), self.opponents)))
 
 
 @dataclass(frozen=True)
@@ -207,11 +213,31 @@ class Table:
 
         return win
 
+    def getDualTable(self): # Self
+        return Table(tuple(map(lambda team: team.getDualTeam(), self.teams)))
+
     def __transform(self, index: int): # Self
         return Table(tuple(map(lambda team: team.getDeletedIndexOpponent(index), self.teams[:index] + self.teams[index + 1:])))
 
 
 table = Table(tuple(Team(tuple(Game(opponent["w"], opponent["l"], opponent["d"], opponent["r"]) for opponent in team)) for team in originalTable))
+dualTable = table.getDualTable()
+
+result = [{
+    "max": table.teams[i].getMaxWin(),
+    "now": table.teams[i].getNowWin(),
+    "min": table.teams[i].getMinWin(),
+    "win1": table.getMaxWin1(i),
+    "win2": table.getMaxWin2(i),
+    "win3": table.getMaxWin3(i),
+    "selfV": table.getSelfVictory(i),
+    "lose1": dualTable.getMaxWin1(i),
+    "lose2": dualTable.getMaxWin2(i),
+    "lose3": dualTable.getMaxWin3(i),
+} for i in range(TEAM_COUNT)]
+
+print(result)
+exit()
 
 for i in range(TEAM_COUNT):
     print("-------------------")

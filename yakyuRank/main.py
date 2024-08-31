@@ -1,7 +1,6 @@
 from fractions import Fraction
 from dataclasses import dataclass
 from functools import reduce
-import copy
 
 
 # 2024/8/26 終了時点

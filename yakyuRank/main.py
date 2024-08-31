@@ -269,9 +269,9 @@ response = [{
     "win1Magic": table.teams[team["index"]].getWinningCountToProbability(team["win1"]),
     "win2Magic": table.teams[team["index"]].getWinningCountToProbability(team["win2"]),
     "win3Magic": table.teams[team["index"]].getWinningCountToProbability(team["win3"]),
-    "lose1Magic": dualTable.teams[team["index"]].getWinningCountToProbability(team["lose1"]),
-    "lose2Magic": dualTable.teams[team["index"]].getWinningCountToProbability(team["lose2"]),
-    "lose3Magic": dualTable.teams[team["index"]].getWinningCountToProbability(team["lose3"]),
+    "lose1Magic": (lambda x: -1 * x if x is not None else None)(dualTable.teams[team["index"]].getWinningCountToProbability(team["lose1"])),
+    "lose2Magic": (lambda x: -1 * x if x is not None else None)(dualTable.teams[team["index"]].getWinningCountToProbability(team["lose2"])),
+    "lose3Magic": (lambda x: -1 * x if x is not None else None)(dualTable.teams[team["index"]].getWinningCountToProbability(team["lose3"])),
 } for team in result]
 
-print(json.dumps(response))
+print(json.dumps(sorted(response, key = lambda x: x['now'], reverse = True)))

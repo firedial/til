@@ -6,7 +6,7 @@ import copy
 
 # 2024/8/26 終了時点
 
-table = [
+originalTable = [
     [ # 広島
         {"w": 0, "l": 0, "d": 0, "r": 0},
         {"w": 8, "l": 8, "d": 3, "r": 6},
@@ -93,10 +93,10 @@ class Game:
     def getProbability(self) -> Fraction:
         return Fraction(self.win, self.win + self.lose)
 
-    def getAllRemainWin(self) -> Fraction:
+    def getAllRemainWin(self): # Self
         return Game(self.win + self.remain, self.lose, self.draw, 0)
 
-    def getAllRemainLose(self) -> Fraction:
+    def getAllRemainLose(self): # Self
         return Game(self.win, self.lose + self.remain, self.draw, 0)
 
 
@@ -116,8 +116,12 @@ class Team:
     def getMinWin(self) -> Fraction:
         return reduce(lambda x, y: x + y, self.opponents, Game(0, 0, 0, 0)).getAllRemainLose().getProbability()
 
+    def getLoseIndexOpponent(self, index: int): # Self
+        game = self.opponents[index]
+        return Team(tuple((self.opponents[:index] + (Game(game.win, game.lose + game.remain, game.draw, 0), ) + self.opponents[index + 1:])))
+
     def getDeletedIndexOpponent(self, index: int): # Self
-        return Team(tuple(self.opponents[:index] + self.opponents[index + 1:-1] + [self.opponents[index] + self.opponents[-1]]))
+        return Team(tuple(self.opponents[:index] + self.opponents[index + 1:-1] + (self.opponents[index] + self.opponents[-1], )))
 
     def getReplacedIndexGame(self, index: int, game: Game): # Self
         return Team(tuple(self.opponents[:index] + (game, ) + self.opponents[index + 1:]))
@@ -129,6 +133,18 @@ class Table:
 
     def __init__(self, teams: tuple[Team, ...]) -> None:
         object.__setattr__(self, "teams", teams)
+
+    def getSelfVictory(self, index: int) -> Fraction:
+        win = Fraction(0, 1)
+        for i, team in enumerate(self.teams):
+            if i == index:
+                continue
+
+            p = team.getLoseIndexOpponent(index).getMaxWin()
+            if p > win:
+                win = p
+
+        return win
 
     def getMaxWin1(self, index: int) -> Fraction:
         win = Fraction(0, 1)
@@ -196,7 +212,7 @@ class Table:
         return Table(tuple(map(lambda team: team.getDeletedIndexOpponent(index), self.teams[:index] + self.teams[index + 1:])))
 
 
-table = Table([Team([Game(opponent["w"], opponent["l"], opponent["d"], opponent["r"]) for opponent in team]) for team in table])
+table = Table(tuple(Team(tuple(Game(opponent["w"], opponent["l"], opponent["d"], opponent["r"]) for opponent in team)) for team in originalTable))
 
 for i in range(TEAM_COUNT):
     print("-------------------")
@@ -207,6 +223,7 @@ for i in range(TEAM_COUNT):
     print("win1:", format(float(table.getMaxWin1(i)), '.3g'))
     print("win2:", format(float(table.getMaxWin2(i)), '.3g'))
     print("win3:", format(float(table.getMaxWin3(i)), '.3g'))
+    print("selfV:", format(float(table.getSelfVictory(i)), '.3g'))
     print("-------------------")
 
 

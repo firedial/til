@@ -4,66 +4,7 @@ from functools import reduce
 from math import ceil, floor
 from typing import Optional
 import json
-
-
-# 2024/8/26 終了時点
-
-originalTable = [
-    [ # 広島
-        {"w": 0, "l": 0, "d": 0, "r": 0},
-        {"w": 8, "l": 8, "d": 3, "r": 6},
-        {"w": 11, "l": 10, "d": 1, "r": 3},
-        {"w": 13, "l": 6, "d": 0, "r": 6},
-        {"w": 7, "l": 11, "d": 1, "r": 6},
-        {"w": 11, "l": 5, "d": 0, "r": 9},
-        {"w": 10, "l": 8, "d": 0, "r": 0},
-    ],
-    [ # 巨人
-        {"w": 8, "l": 8, "d": 3, "r": 6},
-        {"w": 0, "l": 0, "d": 0, "r": 0},
-        {"w": 10, "l": 10, "d": 1, "r": 4},
-        {"w": 12, "l": 6, "d": 0, "r": 7},
-        {"w": 12, "l": 9, "d": 1, "r": 3},
-        {"w": 12, "l": 7, "d": 0, "r": 6},
-        {"w": 8, "l": 9, "d": 1, "r": 0},
-    ],
-    [ # 阪神
-        {"w": 10, "l": 11, "d": 1, "r": 3},
-        {"w": 10, "l": 10, "d": 1, "r": 4},
-        {"w": 0, "l": 0, "d": 0, "r": 0},
-        {"w": 9, "l": 8, "d": 1, "r": 7},
-        {"w": 11, "l": 7, "d": 3, "r": 4},
-        {"w": 11, "l": 8, "d": 0, "r": 6},
-        {"w": 7, "l": 11, "d": 0, "r": 0},
-    ],
-    [ # DeNA
-        {"w": 6, "l": 13, "d": 0, "r": 6},
-        {"w": 6, "l": 12, "d": 0, "r": 7},
-        {"w": 8, "l": 9, "d": 1, "r": 7},
-        {"w": 0, "l": 0, "d": 0, "r": 0},
-        {"w": 12, "l": 7, "d": 1, "r": 5},
-        {"w": 14, "l": 9, "d": 0, "r": 2},
-        {"w": 11, "l": 7, "d": 0, "r": 0},
-    ],
-    [ # 中日
-        {"w": 11, "l": 7, "d": 1, "r": 6},
-        {"w": 9, "l": 12, "d": 1, "r": 3},
-        {"w": 7, "l": 11, "d": 3, "r": 4},
-        {"w": 7, "l": 12, "d": 1, "r": 5},
-        {"w": 0, "l": 0, "d": 0, "r": 0},
-        {"w": 9, "l": 9, "d": 2, "r": 5},
-        {"w": 7, "l": 11, "d": 0, "r": 0},
-    ],
-    [ # ヤクルト
-        {"w": 5, "l": 11, "d": 0, "r": 9},
-        {"w": 7, "l": 12, "d": 0, "r": 6},
-        {"w": 8, "l": 11, "d": 0, "r": 6},
-        {"w": 9, "l": 14, "d": 0, "r": 2},
-        {"w": 9, "l": 9, "d": 2, "r": 5},
-        {"w": 0, "l": 0, "d": 0, "r": 0},
-        {"w": 9, "l": 7, "d": 2, "r": 0},
-    ],
-]
+import gameResult
 
 
 TEAM_COUNT = 6
@@ -237,6 +178,7 @@ class Table:
         return Table(tuple(map(lambda team: team.getDeletedIndexOpponent(index), self.teams[:index] + self.teams[index + 1:])))
 
 
+originalTable = gameResult.originalTable
 table = Table(tuple(Team(tuple(Game(opponent["w"], opponent["l"], opponent["d"], opponent["r"]) for opponent in team)) for team in originalTable))
 dualTable = table.getDualTable()
 

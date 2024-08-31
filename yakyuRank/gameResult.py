@@ -118,5 +118,28 @@ pacific2024 = [
     ],
 ]
 
+
+centralSetting = [
+    {"name": "C", "color": "#BC0011"},
+    {"name": "G", "color": "#FF7820"},
+    {"name": "T", "color": "#FFE100"},
+    {"name": "DB", "color": "#0093C9"},
+    {"name": "D", "color": "#003595"},
+    {"name": "S", "color": "#96c800"},
+]
+
+pacificSetting = [
+    {"name": "H", "color": "#000000"},
+    {"name": "F", "color": "#01609A"},
+    {"name": "M", "color": "#CCCCCC"},
+    {"name": "E", "color": "#870010"},
+    {"name": "B", "color": "#AA9010"},
+    {"name": "L", "color": "#00215B"},
+]
+
+
 # originalTable = central2024
 originalTable = pacific2024
+
+# setting = centralSetting
+setting = pacificSetting

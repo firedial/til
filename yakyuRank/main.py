@@ -179,6 +179,8 @@ class Table:
 
 
 originalTable = gameResult.originalTable
+setting = gameResult.setting
+
 table = Table(tuple(Team(tuple(Game(opponent["w"], opponent["l"], opponent["d"], opponent["r"]) for opponent in team)) for team in originalTable))
 dualTable = table.getDualTable()
 
@@ -198,6 +200,8 @@ result = [{
 
 response = [{
     "index": team["index"],
+    "name": setting[team["index"]]["name"],
+    "color": setting[team["index"]]["color"],
     "max": floor(team["max"] * Fraction(1000)),
     "now": floor(team["now"] * Fraction(1000)),
     "min": floor(team["min"] * Fraction(1000)),

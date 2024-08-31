@@ -1,6 +1,9 @@
 from fractions import Fraction
 from dataclasses import dataclass
 from functools import reduce
+from math import ceil
+from typing import Optional
+import json
 
 
 # 2024/8/26 終了時点
@@ -118,6 +121,20 @@ class Team:
     def getMinWin(self) -> Fraction:
         return reduce(lambda x, y: x + y, self.opponents, Game(0, 0, 0, 0)).getAllRemainLose().getProbability()
 
+    def getWinningCountToProbability(self, probability: Fraction) -> Optional[int]:
+        # 全部勝っても到達できない場合
+        reduced = reduce(lambda x, y: x + y, self.opponents, Game(0, 0, 0, 0))
+        if Fraction(reduced.win + reduced.remain, reduced.win + reduced.lose + reduced.remain) < probability:
+            return None
+
+        count = probability * Fraction(reduced.win + reduced.lose + reduced.remain) - Fraction(reduced.win)
+
+        # 確定している場合
+        if count < 0:
+            return None
+
+        return ceil(count)
+
     def getLoseIndexOpponent(self, index: int): # Self
         game = self.opponents[index]
         return Team(tuple((self.opponents[:index] + (Game(game.win, game.lose + game.remain, game.draw, 0), ) + self.opponents[index + 1:])))
@@ -224,31 +241,37 @@ table = Table(tuple(Team(tuple(Game(opponent["w"], opponent["l"], opponent["d"],
 dualTable = table.getDualTable()
 
 result = [{
+    "index": i,
     "max": table.teams[i].getMaxWin(),
     "now": table.teams[i].getNowWin(),
     "min": table.teams[i].getMinWin(),
     "win1": table.getMaxWin1(i),
     "win2": table.getMaxWin2(i),
-    "win3": table.getMaxWin3(i),
+    # "win3": table.getMaxWin3(i),
     "selfV": table.getSelfVictory(i),
     "lose1": dualTable.getMaxWin1(i),
     "lose2": dualTable.getMaxWin2(i),
-    "lose3": dualTable.getMaxWin3(i),
+    # "lose3": dualTable.getMaxWin3(i),
 } for i in range(TEAM_COUNT)]
 
-print(result)
-exit()
+response = [{
+    "max": format(float(team["max"]), '.3g'),
+    "now": format(float(team["now"]), '.3g'),
+    "min": format(float(team["min"]), '.3g'),
+    "win1": format(float(team["win1"]), '.3g'),
+    "win2": format(float(team["win2"]), '.3g'),
+    # "win3": format(float(team["win3"]), '.3g'),
+    "selfV": format(float(team["selfV"]), '.3g'),
+    "canSelfV": team["selfV"] < team["max"],
+    "lose1": format(float(team["lose1"]), '.3g'),
+    "lose2": format(float(team["lose2"]), '.3g'),
+    # "lose3": format(float(team["lose3"]), '.3g'),
+    "win1Magic": table.teams[team["index"]].getWinningCountToProbability(team["win1"]),
+    "win2Magic": table.teams[team["index"]].getWinningCountToProbability(team["win2"]),
+    # "win3Magic": table.teams[team["index"]].getWinningCountToProbability(team["win3"]),
+    "lose1Magic": dualTable.teams[team["index"]].getWinningCountToProbability(team["lose1"]),
+    "lose2Magic": dualTable.teams[team["index"]].getWinningCountToProbability(team["lose2"]),
+    # "lose3Magic": dualTable.teams[team["index"]].getWinningCountToProbability(team["lose3"]),
+} for team in result]
 
-for i in range(TEAM_COUNT):
-    print("-------------------")
-    print("max:", format(float(table.teams[i].getMaxWin()), '.3g'))
-    print("now:", format(float(table.teams[i].getNowWin()), '.3g'))
-    print("min:", format(float(table.teams[i].getMinWin()), '.3g'))
-
-    print("win1:", format(float(table.getMaxWin1(i)), '.3g'))
-    print("win2:", format(float(table.getMaxWin2(i)), '.3g'))
-    print("win3:", format(float(table.getMaxWin3(i)), '.3g'))
-    print("selfV:", format(float(table.getSelfVictory(i)), '.3g'))
-    print("-------------------")
-
-
+print(json.dumps(response))

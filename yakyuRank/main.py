@@ -178,7 +178,7 @@ class Table:
         return Table(tuple(map(lambda team: team.getDeletedIndexOpponent(index), self.teams[:index] + self.teams[index + 1:])))
 
 
-def getResult(originalTable, setting):
+def getResult(originalTable, setting) -> str:
     table = Table(tuple(Team(tuple(Game(opponent["w"], opponent["l"], opponent["d"], opponent["r"]) for opponent in team)) for team in originalTable))
     dualTable = table.getDualTable()
 
@@ -219,6 +219,6 @@ def getResult(originalTable, setting):
         "lose3Magic": (lambda x: -1 * x if x is not None else None)(dualTable.teams[team["index"]].getWinningCountToProbability(team["lose3"])),
     } for team in result]
 
-    print(json.dumps(sorted(response, key = lambda x: x['now'], reverse = True)))
+    return json.dumps(sorted(response, key = lambda x: x['now'], reverse = True))
 
-getResult(gameResult.originalTable, gameResult.setting)
+print(getResult(gameResult.originalTable, gameResult.setting))

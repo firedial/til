@@ -178,47 +178,47 @@ class Table:
         return Table(tuple(map(lambda team: team.getDeletedIndexOpponent(index), self.teams[:index] + self.teams[index + 1:])))
 
 
-originalTable = gameResult.originalTable
-setting = gameResult.setting
+def getResult(originalTable, setting):
+    table = Table(tuple(Team(tuple(Game(opponent["w"], opponent["l"], opponent["d"], opponent["r"]) for opponent in team)) for team in originalTable))
+    dualTable = table.getDualTable()
 
-table = Table(tuple(Team(tuple(Game(opponent["w"], opponent["l"], opponent["d"], opponent["r"]) for opponent in team)) for team in originalTable))
-dualTable = table.getDualTable()
+    result = [{
+        "index": i,
+        "max": table.teams[i].getMaxWin(),
+        "now": table.teams[i].getNowWin(),
+        "min": table.teams[i].getMinWin(),
+        "win1": table.getMaxWin1(i),
+        "win2": table.getMaxWin2(i),
+        "win3": table.getMaxWin3(i),
+        "selfV": table.getSelfVictory(i),
+        "lose1": dualTable.getMaxWin1(i),
+        "lose2": dualTable.getMaxWin2(i),
+        "lose3": dualTable.getMaxWin3(i),
+    } for i in range(TEAM_COUNT)]
 
-result = [{
-    "index": i,
-    "max": table.teams[i].getMaxWin(),
-    "now": table.teams[i].getNowWin(),
-    "min": table.teams[i].getMinWin(),
-    "win1": table.getMaxWin1(i),
-    "win2": table.getMaxWin2(i),
-    "win3": table.getMaxWin3(i),
-    "selfV": table.getSelfVictory(i),
-    "lose1": dualTable.getMaxWin1(i),
-    "lose2": dualTable.getMaxWin2(i),
-    "lose3": dualTable.getMaxWin3(i),
-} for i in range(TEAM_COUNT)]
+    response = [{
+        "index": team["index"],
+        "name": setting[team["index"]]["name"],
+        "color": setting[team["index"]]["color"],
+        "max": floor(team["max"] * Fraction(1000)),
+        "now": floor(team["now"] * Fraction(1000)),
+        "min": floor(team["min"] * Fraction(1000)),
+        "win1": floor(team["win1"] * Fraction(1000)),
+        "win2": floor(team["win2"] * Fraction(1000)),
+        "win3": floor(team["win3"] * Fraction(1000)),
+        "selfV": floor(team["selfV"] * Fraction(1000)),
+        "canSelfV": team["selfV"] < team["max"],
+        "lose1": floor((Fraction(1) - team["lose1"]) * Fraction(1000)),
+        "lose2": floor((Fraction(1) - team["lose2"]) * Fraction(1000)),
+        "lose3": floor((Fraction(1) - team["lose3"]) * Fraction(1000)),
+        "win1Magic": table.teams[team["index"]].getWinningCountToProbability(team["win1"]),
+        "win2Magic": table.teams[team["index"]].getWinningCountToProbability(team["win2"]),
+        "win3Magic": table.teams[team["index"]].getWinningCountToProbability(team["win3"]),
+        "lose1Magic": (lambda x: -1 * x if x is not None else None)(dualTable.teams[team["index"]].getWinningCountToProbability(team["lose1"])),
+        "lose2Magic": (lambda x: -1 * x if x is not None else None)(dualTable.teams[team["index"]].getWinningCountToProbability(team["lose2"])),
+        "lose3Magic": (lambda x: -1 * x if x is not None else None)(dualTable.teams[team["index"]].getWinningCountToProbability(team["lose3"])),
+    } for team in result]
 
-response = [{
-    "index": team["index"],
-    "name": setting[team["index"]]["name"],
-    "color": setting[team["index"]]["color"],
-    "max": floor(team["max"] * Fraction(1000)),
-    "now": floor(team["now"] * Fraction(1000)),
-    "min": floor(team["min"] * Fraction(1000)),
-    "win1": floor(team["win1"] * Fraction(1000)),
-    "win2": floor(team["win2"] * Fraction(1000)),
-    "win3": floor(team["win3"] * Fraction(1000)),
-    "selfV": floor(team["selfV"] * Fraction(1000)),
-    "canSelfV": team["selfV"] < team["max"],
-    "lose1": floor((Fraction(1) - team["lose1"]) * Fraction(1000)),
-    "lose2": floor((Fraction(1) - team["lose2"]) * Fraction(1000)),
-    "lose3": floor((Fraction(1) - team["lose3"]) * Fraction(1000)),
-    "win1Magic": table.teams[team["index"]].getWinningCountToProbability(team["win1"]),
-    "win2Magic": table.teams[team["index"]].getWinningCountToProbability(team["win2"]),
-    "win3Magic": table.teams[team["index"]].getWinningCountToProbability(team["win3"]),
-    "lose1Magic": (lambda x: -1 * x if x is not None else None)(dualTable.teams[team["index"]].getWinningCountToProbability(team["lose1"])),
-    "lose2Magic": (lambda x: -1 * x if x is not None else None)(dualTable.teams[team["index"]].getWinningCountToProbability(team["lose2"])),
-    "lose3Magic": (lambda x: -1 * x if x is not None else None)(dualTable.teams[team["index"]].getWinningCountToProbability(team["lose3"])),
-} for team in result]
+    print(json.dumps(sorted(response, key = lambda x: x['now'], reverse = True)))
 
-print(json.dumps(sorted(response, key = lambda x: x['now'], reverse = True)))
+getResult(gameResult.originalTable, gameResult.setting)

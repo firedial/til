@@ -84,9 +84,6 @@ class Team:
     def getDeletedIndexOpponent(self, index: int): # Self
         return Team(tuple(self.opponents[:index] + self.opponents[index + 1:-1] + (self.opponents[index] + self.opponents[-1], )))
 
-    def getReplacedIndexGame(self, index: int, game: Game): # Self
-        return Team(tuple(self.opponents[:index] + (game, ) + self.opponents[index + 1:]))
-
     def getReplacedIndexGameWithWinLose(self, index: int, win: int, lose: int): # Self
         game = self.opponents[index]
         return Team(tuple(self.opponents[:index] + (Game(game.win + win, game.lose + lose, game.draw + game.remain - win - lose, 0), ) + self.opponents[index + 1:]))
@@ -145,31 +142,25 @@ class Table:
         transformedTable = self.__transform(index)
         count = len(transformedTable.teams)
 
-        for i in range(count):
-            for j in range(i + 1, count):
-                for k in range(j + 1, count):
-                    gameIJ = transformedTable.teams[i].opponents[j]
-                    gameJK = transformedTable.teams[j].opponents[k]
-                    gameKI = transformedTable.teams[k].opponents[i]
+        for t1, t2, t3 in itertools.combinations(range(count), 3):
+            iterWin3 = self.__iterWin3(
+                transformedTable.teams[t1].opponents[t2].remain,
+                transformedTable.teams[t1].opponents[t3].remain,
+                transformedTable.teams[t2].opponents[t3].remain,
+            )
 
-                    rIJ = gameIJ.remain
-                    rJK = gameJK.remain
-                    rKI = gameKI.remain
-                    for wI in range(rIJ + 1):
-                        for lI in range(rIJ - wI + 1):
-                            for wJ in range(rJK + 1):
-                                for lJ in range(rJK - wJ + 1):
-                                    for wK in range(rKI + 1):
-                                        for lK in range(rKI - wK + 1):
+            for w12, w13, w21, w23, w31, w32 in iterWin3:
+                minProbability = min(
+                    transformedTable.teams[t1].getReplacedIndexGameWithWinLose(t2, w12, w21).getMaxWin(),
+                    transformedTable.teams[t1].getReplacedIndexGameWithWinLose(t3, w13, w31).getMaxWin(),
+                    transformedTable.teams[t2].getReplacedIndexGameWithWinLose(t1, w21, w12).getMaxWin(),
+                    transformedTable.teams[t2].getReplacedIndexGameWithWinLose(t3, w23, w32).getMaxWin(),
+                    transformedTable.teams[t3].getReplacedIndexGameWithWinLose(t1, w31, w13).getMaxWin(),
+                    transformedTable.teams[t3].getReplacedIndexGameWithWinLose(t2, w32, w23).getMaxWin(),
+                )
 
-                                            minProbability = min(
-                                                transformedTable.teams[i].getReplacedIndexGame(j, Game(gameIJ.win + wI, gameIJ.lose + lI, gameIJ.draw + rIJ - wI - lI, 0)).getReplacedIndexGame(k, Game(gameKI.lose + lK, gameKI.win + wK, gameKI.draw + rKI - wK - lK, 0)).getMaxWin(),
-                                                transformedTable.teams[j].getReplacedIndexGame(k, Game(gameJK.win + wJ, gameJK.lose + lJ, gameJK.draw + rJK - wJ - lJ, 0)).getReplacedIndexGame(i, Game(gameIJ.lose + lI, gameIJ.win + wI, gameIJ.draw + rIJ - wI - lI, 0)).getMaxWin(),
-                                                transformedTable.teams[k].getReplacedIndexGame(i, Game(gameKI.win + wK, gameKI.lose + lK, gameKI.draw + rKI - wK - lK, 0)).getReplacedIndexGame(j, Game(gameJK.lose + lJ, gameJK.win + lJ, gameJK.draw + rJK - wJ - lJ, 0)).getMaxWin(),
-                                            )
-
-                    if minProbability > win:
-                        win = minProbability
+            if minProbability > win:
+                win = minProbability
 
         return win
 
@@ -187,6 +178,12 @@ class Table:
 
         return result
 
+    def __iterWin3(self, remain12: int, remain13: int, remain23: int) -> list[tuple[int, int, int, int, int, int]]:
+        result = []
+        for wl12, wl13, wl23 in itertools.product(self.__iterWin2(remain12), self.__iterWin2(remain13), self.__iterWin2(remain23)):
+            result.append((wl12[0], wl13[0], wl12[1], wl23[0], wl13[1], wl23[1]))
+
+        return result
 
 def getResult(originalTable, setting) -> str:
     table = Table(tuple(Team(tuple(Game(opponent["w"], opponent["l"], opponent["d"], opponent["r"]) for opponent in team)) for team in originalTable))

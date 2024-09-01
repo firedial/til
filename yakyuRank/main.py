@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from functools import reduce
 from math import ceil, floor
 from typing import Optional
+import itertools
 import json
 import gameResult
 
@@ -86,6 +87,10 @@ class Team:
     def getReplacedIndexGame(self, index: int, game: Game): # Self
         return Team(tuple(self.opponents[:index] + (game, ) + self.opponents[index + 1:]))
 
+    def getReplacedIndexGameWithWinLose(self, index: int, win: int, lose: int): # Self
+        game = self.opponents[index]
+        return Team(tuple(self.opponents[:index] + (Game(game.win + win, game.lose + lose, game.draw + game.remain - win - lose, 0), ) + self.opponents[index + 1:]))
+
     def getDualTeam(self): # Self
         return Team(tuple(map(lambda game: game.getDualGame(), self.opponents)))
 
@@ -122,19 +127,16 @@ class Table:
         transformedTable = self.__transform(index)
         count = len(transformedTable.teams)
 
-        for i in range(count):
-            for j in range(i + 1, count):
-                game = transformedTable.teams[i].opponents[j]
-                r = game.remain
-                for w in range(r + 1):
-                    for l in range(r - w + 1):
-                        minProbability = min(
-                            transformedTable.teams[i].getReplacedIndexGame(j, Game(game.win + w, game.lose + l, game.draw + r - w - l, 0)).getMaxWin(),
-                            transformedTable.teams[j].getReplacedIndexGame(i, Game(game.lose + l, game.win + w, game.draw + r - w - l, 0)).getMaxWin(),
-                        )
+        for t1, t2 in itertools.combinations(range(count), 2):
+            game = transformedTable.teams[t1].opponents[t2]
+            for w12, w21 in self.__iterWin2(game.remain):
+                minProbability = min(
+                    transformedTable.teams[t1].getReplacedIndexGameWithWinLose(t2, w12, w21).getMaxWin(),
+                    transformedTable.teams[t2].getReplacedIndexGameWithWinLose(t1, w21, w12).getMaxWin(),
+                )
 
-                if minProbability > win:
-                    win = minProbability
+            if minProbability > win:
+                win = minProbability
 
         return win
 
@@ -176,6 +178,14 @@ class Table:
 
     def __transform(self, index: int): # Self
         return Table(tuple(map(lambda team: team.getDeletedIndexOpponent(index), self.teams[:index] + self.teams[index + 1:])))
+
+    def __iterWin2(self, remain: int) -> list[tuple[int, int]]:
+        result = []
+        for i in range(remain + 1):
+            for j in range(remain - i + 1):
+                result.append((i, j))
+
+        return result
 
 
 def getResult(originalTable, setting) -> str:

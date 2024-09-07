@@ -1,5 +1,20 @@
 import tkinter as tk
 import json
+import datetime
+import sys
+
+
+def getDisplayData(league: str, targetDate):
+    with open("data.txt") as f:
+        return sorted(
+            filter(
+                lambda data: data['league'] == league and datetime.datetime.strptime(data['date'], "%Y-%m-%d") <= targetDate,
+                map(lambda rawData: json.loads(rawData), f.readlines()),
+            ),
+            key = lambda x: x['date'],
+            reverse = True,
+        )[0]
+
 
 LEFT = 100
 TOP = 100
@@ -15,13 +30,16 @@ canvas = tk.Canvas(root, bg = "white")
 # Canvasを配置
 canvas.pack(fill = tk.BOTH, expand = True)
 
-pacificOriginalData = '[{"index": 0, "name": "H", "color": "#000000", "max": 707, "now": 640, "min": 521, "win1": 637, "win2": 598, "win3": 535, "selfV": 592, "canSelfV": true, "lose1": 262, "lose2": 385, "lose3": 421, "win1Magic": 17, "win2Magic": 11, "win3Magic": 2, "lose1Magic": null, "lose2Magic": null, "lose3Magic": null}, {"index": 1, "name": "F", "color": "#01609A", "max": 637, "now": 554, "min": 451, "win1": 707, "win2": 591, "win3": 535, "selfV": 664, "canSelfV": false, "lose1": 262, "lose2": 385, "lose3": 421, "win1Magic": null, "win2Magic": 19, "win3Magic": 12, "lose1Magic": null, "lose2Magic": null, "lose3Magic": null}, {"index": 2, "name": "M", "color": "#CCCCCC", "max": 605, "now": 526, "min": 437, "win1": 707, "win2": 592, "win3": 550, "selfV": 692, "canSelfV": false, "lose1": 262, "lose2": 385, "lose3": 421, "win1Magic": null, "win2Magic": 22, "win3Magic": 16, "lose1Magic": null, "lose2Magic": null, "lose3Magic": null}, {"index": 3, "name": "E", "color": "#870010", "max": 600, "now": 500, "min": 400, "win1": 707, "win2": 598, "win3": 591, "selfV": 671, "canSelfV": false, "lose1": 262, "lose2": 385, "lose3": 437, "win1Magic": null, "win2Magic": 28, "win3Magic": 27, "lose1Magic": null, "lose2Magic": null, "lose3Magic": -23}, {"index": 4, "name": "B", "color": "#AA9010", "max": 564, "now": 469, "min": 385, "win1": 707, "win2": 598, "win3": 591, "selfV": 650, "canSelfV": false, "lose1": 262, "lose2": 400, "lose3": 451, "win1Magic": null, "win2Magic": null, "win3Magic": null, "lose1Magic": null, "lose2Magic": -23, "lose3Magic": -16}, {"index": 5, "name": "L", "color": "#00215B", "max": 439, "now": 318, "min": 262, "win1": 707, "win2": 598, "win3": 591, "selfV": 671, "canSelfV": false, "lose1": 385, "lose2": 421, "lose3": 451, "win1Magic": null, "win2Magic": null, "win3Magic": null, "lose1Magic": -8, "lose2Magic": -3, "lose3Magic": null}]'
-centralOriginalData = '[{"index": 0, "name": "C", "color": "#BC0011", "max": 652, "now": 559, "min": 442, "win1": 635, "win2": 576, "win3": 546, "selfV": 591, "canSelfV": true, "lose1": 338, "lose2": 374, "lose3": 407, "win1Magic": 27, "win2Magic": 19, "win3Magic": 15, "lose1Magic": null, "lose2Magic": null, "lose3Magic": null}, {"index": 1, "name": "G", "color": "#FF7820", "max": 635, "now": 553, "min": 452, "win1": 652, "win2": 576, "win3": 546, "selfV": 608, "canSelfV": true, "lose1": 338, "lose2": 374, "lose3": 407, "win1Magic": null, "win2Magic": 17, "win3Magic": 13, "lose1Magic": null, "lose2Magic": null, "lose3Magic": null}, {"index": 2, "name": "T", "color": "#FFE100", "max": 598, "now": 517, "min": 430, "win1": 652, "win2": 591, "win3": 546, "selfV": 630, "canSelfV": false, "lose1": 338, "lose2": 374, "lose3": 407, "win1Magic": null, "win2Magic": 22, "win3Magic": 16, "lose1Magic": null, "lose2Magic": null, "lose3Magic": null}, {"index": 3, "name": "DB", "color": "#0093C9", "max": 595, "now": 500, "min": 404, "win1": 652, "win2": 591, "win3": 576, "selfV": 608, "canSelfV": false, "lose1": 338, "lose2": 374, "lose3": 430, "win1Magic": null, "win2Magic": 27, "win3Magic": 25, "lose1Magic": null, "lose2Magic": null, "lose3Magic": -24}, {"index": 4, "name": "D", "color": "#003595", "max": 540, "now": 446, "min": 370, "win1": 652, "win2": 591, "win3": 576, "selfV": 613, "canSelfV": false, "lose1": 338, "lose2": 404, "lose3": 446, "win1Magic": null, "win2Magic": null, "win3Magic": null, "lose1Magic": null, "lose2Magic": -19, "lose3Magic": -13}, {"index": 5, "name": "S", "color": "#96c800", "max": 532, "now": 419, "min": 338, "win1": 652, "win2": 591, "win3": 576, "selfV": 594, "canSelfV": false, "lose1": 370, "lose2": 407, "lose3": 446, "win1Magic": null, "win2Magic": null, "win3Magic": null, "lose1Magic": -23, "lose2Magic": -18, "lose3Magic": -12}]'
+date = datetime.datetime.strptime(sys.argv[1], "%Y-%m-%d")
+centralOriginalData = getDisplayData('central', date)
+pacificOriginalData = getDisplayData('pacific', date)
 
-originalData = pacificOriginalData
-# originalData = centralOriginalData
-
-data = json.loads(originalData)
+if sys.argv[2] == 'central':
+    data = centralOriginalData['displayData']
+elif sys.argv[2] == 'pacific':
+    data = pacificOriginalData['displayData']
+else:
+    raise Exception('league is wrong')
 
 for i, team in enumerate(data):
     left = LEFT

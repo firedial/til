@@ -138,6 +138,9 @@ pacificSetting = [
     {"name": "L", "color": "#00215B", "index": 5},
 ]
 
+OTHER_TEAM_NAME = '_'
+LAST_INDEX = 6
+
 def getData(initGameResult, resultFileName, setting, beforeTargetDate = None):
     mapping = dict([(team["name"], team["index"]) for team in setting])
 
@@ -151,26 +154,29 @@ def getData(initGameResult, resultFileName, setting, beforeTargetDate = None):
                     continue
 
             t1 = mapping[row[1]]
-            t2 = mapping[row[2]]
+            t2 = LAST_INDEX if row[2] == OTHER_TEAM_NAME else mapping[row[2]]
 
             if row[3] == 'w':
                 initGameResult[t1][t2]['w'] += 1
                 initGameResult[t1][t2]['r'] -= 1
 
-                initGameResult[t2][t1]['l'] += 1
-                initGameResult[t2][t1]['r'] -= 1
+                if t2 != LAST_INDEX:
+                    initGameResult[t2][t1]['l'] += 1
+                    initGameResult[t2][t1]['r'] -= 1
             elif row[3] == 'l':
                 initGameResult[t1][t2]['l'] += 1
                 initGameResult[t1][t2]['r'] -= 1
 
-                initGameResult[t2][t1]['w'] += 1
-                initGameResult[t2][t1]['r'] -= 1
+                if t2 != LAST_INDEX:
+                    initGameResult[t2][t1]['w'] += 1
+                    initGameResult[t2][t1]['r'] -= 1
             elif row[3] == 'd':
                 initGameResult[t1][t2]['d'] += 1
                 initGameResult[t1][t2]['r'] -= 1
 
-                initGameResult[t2][t1]['d'] += 1
-                initGameResult[t2][t1]['r'] -= 1
+                if t2 != LAST_INDEX:
+                    initGameResult[t2][t1]['d'] += 1
+                    initGameResult[t2][t1]['r'] -= 1
 
     return {"result": initGameResult, "setting": setting}
 

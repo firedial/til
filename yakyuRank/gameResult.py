@@ -1,4 +1,5 @@
-
+import csv
+import datetime
 
 # 2024/9/6 終了時点
 
@@ -120,26 +121,61 @@ pacific2024 = [
 
 
 centralSetting = [
-    {"name": "C", "color": "#BC0011"},
-    {"name": "G", "color": "#FF7820"},
-    {"name": "T", "color": "#FFE100"},
-    {"name": "DB", "color": "#0093C9"},
-    {"name": "D", "color": "#003595"},
-    {"name": "S", "color": "#96c800"},
+    {"name": "C", "color": "#BC0011", "index": 0},
+    {"name": "G", "color": "#FF7820", "index": 1},
+    {"name": "T", "color": "#FFE100", "index": 2},
+    {"name": "DB", "color": "#0093C9", "index": 3},
+    {"name": "D", "color": "#003595", "index": 4},
+    {"name": "S", "color": "#96c800", "index": 5},
 ]
 
 pacificSetting = [
-    {"name": "H", "color": "#000000"},
-    {"name": "F", "color": "#01609A"},
-    {"name": "M", "color": "#CCCCCC"},
-    {"name": "E", "color": "#870010"},
-    {"name": "B", "color": "#AA9010"},
-    {"name": "L", "color": "#00215B"},
+    {"name": "H", "color": "#000000", "index": 0},
+    {"name": "F", "color": "#01609A", "index": 1},
+    {"name": "M", "color": "#CCCCCC", "index": 2},
+    {"name": "E", "color": "#870010", "index": 3},
+    {"name": "B", "color": "#AA9010", "index": 4},
+    {"name": "L", "color": "#00215B", "index": 5},
 ]
 
+def getData(initGameResult, resultFileName, setting, beforeTargetDate = None):
+    mapping = dict([(team["name"], team["index"]) for team in setting])
 
-originalTable = central2024
-# originalTable = pacific2024
+    with open(resultFileName) as f:
+        for row in csv.reader(f):
+            if beforeTargetDate is not None:
+                # beforeTageDate に設定された以前のものだけを集計する
+                before = datetime.datetime.strptime(beforeTargetDate, "%Y-%m-%d")
+                target = datetime.datetime.strptime(row[0], "%Y-%m-%d")
+                if before < target:
+                    continue
 
-setting = centralSetting
-# setting = pacificSetting
+            t1 = mapping[row[1]]
+            t2 = mapping[row[2]]
+
+            if row[3] == 'w':
+                initGameResult[t1][t2]['w'] += 1
+                initGameResult[t1][t2]['r'] -= 1
+
+                initGameResult[t2][t1]['l'] += 1
+                initGameResult[t2][t1]['r'] -= 1
+            elif row[3] == 'l':
+                initGameResult[t1][t2]['l'] += 1
+                initGameResult[t1][t2]['r'] -= 1
+
+                initGameResult[t2][t1]['w'] += 1
+                initGameResult[t2][t1]['r'] -= 1
+            elif row[3] == 'd':
+                initGameResult[t1][t2]['d'] += 1
+                initGameResult[t1][t2]['r'] -= 1
+
+                initGameResult[t2][t1]['d'] += 1
+                initGameResult[t2][t1]['r'] -= 1
+
+    return {"result": initGameResult, "setting": setting}
+
+def getCentralData(beforeTargetDate = None):
+    return getData(central2024, './result/centralResult.csv', centralSetting, beforeTargetDate)
+
+def getPacificData(beforeTargetDate = None):
+    return getData(pacific2024, './result/pacificResult.csv', pacificSetting, beforeTargetDate)

@@ -185,7 +185,7 @@ class Table:
 
         return result
 
-def getResult(originalTable, setting) -> str:
+def getResult(originalTable, setting):
     table = Table(tuple(Team(tuple(Game(opponent["w"], opponent["l"], opponent["d"], opponent["r"]) for opponent in team)) for team in originalTable))
     dualTable = table.getDualTable()
 
@@ -226,6 +226,26 @@ def getResult(originalTable, setting) -> str:
         "lose3Magic": (lambda x: -1 * x if x is not None else None)(dualTable.teams[team["index"]].getWinningCountToProbability(team["lose3"])),
     } for team in result]
 
-    return json.dumps(sorted(response, key = lambda x: x['now'], reverse = True))
+    return sorted(response, key = lambda x: x['now'], reverse = True)
 
-print(getResult(gameResult.originalTable, gameResult.setting))
+date = '2024-09-08'
+with open("data.txt", mode='a') as f:
+    centralData = gameResult.getCentralData(date)
+    pacificData = gameResult.getPacificData(date)
+    centralResult = getResult(centralData["result"], centralData["setting"])
+    pacificResult = getResult(centralData["result"], pacificData["setting"])
+
+    centralDisplayData = {
+        'league': 'central',
+        'date': date,
+        'displayData': centralResult,
+    }
+
+    pacificDisplayData = {
+        'league': 'pacific',
+        'date': date,
+        'displayData': pacificResult,
+    }
+
+    f.write(json.dumps(centralDisplayData) + '\n')
+    f.write(json.dumps(pacificDisplayData) + '\n')

@@ -6,6 +6,7 @@ from typing import Optional
 import itertools
 import json
 import gameResult
+import sys
 
 
 TEAM_COUNT = 6
@@ -228,7 +229,7 @@ def getResult(originalTable, setting):
 
     return sorted(response, key = lambda x: x['now'], reverse = True)
 
-date = '2024-09-08'
+date = sys.argv[1]
 with open("data.txt", mode='a') as f:
     centralData = gameResult.getCentralData(date)
     pacificData = gameResult.getPacificData(date)

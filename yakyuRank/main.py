@@ -133,8 +133,8 @@ class Table:
                     transformedTable.teams[t2].getReplacedIndexGameWithWinLose(t1, w21, w12).getMaxWin(),
                 )
 
-            if minProbability > win:
-                win = minProbability
+                if minProbability > win:
+                    win = minProbability
 
         return win
 
@@ -160,8 +160,8 @@ class Table:
                     transformedTable.teams[t3].getReplacedIndexGameWithWinLose(t2, w32, w23).getMaxWin(),
                 )
 
-            if minProbability > win:
-                win = minProbability
+                if minProbability > win:
+                    win = minProbability
 
         return win
 

@@ -229,24 +229,25 @@ def getResult(originalTable, setting):
 
     return sorted(response, key = lambda x: x['now'], reverse = True)
 
-date = sys.argv[1]
-with open("data.txt", mode='a') as f:
-    centralData = gameResult.getCentralData(date)
-    pacificData = gameResult.getPacificData(date)
-    centralResult = getResult(centralData["result"], centralData["setting"])
-    pacificResult = getResult(pacificData["result"], pacificData["setting"])
+if __name__ == '__main__':
+    date = sys.argv[1]
+    with open("data.txt", mode='a') as f:
+        centralData = gameResult.getCentralData(date)
+        pacificData = gameResult.getPacificData(date)
+        centralResult = getResult(centralData["result"], centralData["setting"])
+        pacificResult = getResult(pacificData["result"], pacificData["setting"])
 
-    centralDisplayData = {
-        'league': 'central',
-        'date': date,
-        'displayData': centralResult,
-    }
+        centralDisplayData = {
+            'league': 'central',
+            'date': date,
+            'displayData': centralResult,
+        }
 
-    pacificDisplayData = {
-        'league': 'pacific',
-        'date': date,
-        'displayData': pacificResult,
-    }
+        pacificDisplayData = {
+            'league': 'pacific',
+            'date': date,
+            'displayData': pacificResult,
+        }
 
-    f.write(json.dumps(centralDisplayData) + '\n')
-    f.write(json.dumps(pacificDisplayData) + '\n')
+        f.write(json.dumps(centralDisplayData) + '\n')
+        f.write(json.dumps(pacificDisplayData) + '\n')

@@ -234,7 +234,7 @@ with open("data.txt", mode='a') as f:
     centralData = gameResult.getCentralData(date)
     pacificData = gameResult.getPacificData(date)
     centralResult = getResult(centralData["result"], centralData["setting"])
-    pacificResult = getResult(centralData["result"], pacificData["setting"])
+    pacificResult = getResult(pacificData["result"], pacificData["setting"])
 
     centralDisplayData = {
         'league': 'central',

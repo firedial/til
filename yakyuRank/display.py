@@ -1,12 +1,15 @@
+from fractions import Fraction
+from math import ceil, floor
 import tkinter as tk
 import json
 import datetime
 import sys
+import gameResult
 
 
-def getDisplayData(league: str, targetDate):
+def getDisplayData(league: str, targetDate, setting):
     with open("data.txt") as f:
-        return sorted(
+        originalData = sorted(
             filter(
                 lambda data: data['league'] == league and datetime.datetime.strptime(data['date'], "%Y-%m-%d") <= targetDate,
                 map(lambda rawData: json.loads(rawData), f.readlines()),
@@ -14,6 +17,21 @@ def getDisplayData(league: str, targetDate):
             key = lambda x: x['date'],
             reverse = True,
         )[0]
+
+    # チーム設定の付加
+    for team, teamSetting in zip(originalData["displayData"], setting):
+        team["setting"] = teamSetting
+
+    # 並び替え
+    originalData["displayData"] = sorted(originalData["displayData"], key = lambda x: Fraction(x['now']), reverse = True)
+
+    # データの加工
+    for team, teamSetting in zip(originalData["displayData"], setting):
+        for key, value in team.items():
+            if key in ["max", "min", "now", "win1", "win2", "win3", "lose1", "lose2", "lose3", "selfV"]:
+                team[key] = floor(float(Fraction(value) * Fraction(1000)))
+
+    return originalData
 
 
 def display(data):
@@ -33,11 +51,11 @@ def display(data):
     for i, team in enumerate(data):
         left = LEFT
         top = TOP + i * DIFF
-        color = team["color"]
+        color = team["setting"]["color"]
 
         # ベースとなる線
         canvas.create_line(left, top, left + 1000 * WIDTH_RATE, top, fill = color, width = 3)
-        canvas.create_text(left - 10, top, text = team["name"], font=("", 12), fill = color)
+        canvas.create_text(left - 10, top, text = team["setting"]["name"], font=("", 12), fill = color)
 
         # 最大値
         canvas.create_line(left + (1000 - team["max"]) * WIDTH_RATE, top - 10, left + (1000 - team["max"]) * WIDTH_RATE, top + 10, fill = color, width = 3)
@@ -125,9 +143,9 @@ def display(data):
 date = datetime.datetime.strptime(sys.argv[1], "%Y-%m-%d")
 
 if sys.argv[2] == 'central':
-    data = getDisplayData('central', date)['displayData']
+    data = getDisplayData('central', date, gameResult.centralSetting)['displayData']
 elif sys.argv[2] == 'pacific':
-    data = getDisplayData('pacific', date)['displayData']
+    data = getDisplayData('pacific', date, gameResult.pacificSetting)['displayData']
 else:
     raise Exception('league is wrong')
 

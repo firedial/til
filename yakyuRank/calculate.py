@@ -229,10 +229,8 @@ def getResult(originalTable):
 if __name__ == '__main__':
     date = sys.argv[1]
     with open("data.txt", mode='a') as f:
-        centralData = gameResult.getCentralData(date)
-        pacificData = gameResult.getPacificData(date)
-        centralResult = getResult(centralData["result"])
-        pacificResult = getResult(pacificData["result"])
+        centralResult = getResult(gameResult.getCentralData(date)["result"])
+        pacificResult = getResult(gameResult.getPacificData(date)["result"])
 
         centralDisplayData = {
             'league': 'central',

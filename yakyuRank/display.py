@@ -140,13 +140,14 @@ def display(data):
     root.mainloop()
 
 
-date = datetime.datetime.strptime(sys.argv[1], "%Y-%m-%d")
+if __name__ == '__main__':
+    date = datetime.datetime.strptime(sys.argv[1], "%Y-%m-%d")
 
-if sys.argv[2] == 'central':
-    data = getDisplayData('central', date, gameResult.centralSetting)['displayData']
-elif sys.argv[2] == 'pacific':
-    data = getDisplayData('pacific', date, gameResult.pacificSetting)['displayData']
-else:
-    raise Exception('league is wrong')
+    if sys.argv[2] == 'central':
+        data = getDisplayData('central', date, gameResult.centralSetting)['displayData']
+    elif sys.argv[2] == 'pacific':
+        data = getDisplayData('pacific', date, gameResult.pacificSetting)['displayData']
+    else:
+        raise Exception('league is wrong')
 
-display(data)
+    display(data)

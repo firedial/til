@@ -186,7 +186,7 @@ class Table:
 
         return result
 
-def getResult(originalTable, setting):
+def getResult(originalTable):
     table = Table(tuple(Team(tuple(Game(opponent["w"], opponent["l"], opponent["d"], opponent["r"]) for opponent in team)) for team in originalTable))
     dualTable = table.getDualTable()
 
@@ -205,20 +205,17 @@ def getResult(originalTable, setting):
     } for i in range(TEAM_COUNT)]
 
     response = [{
-        "index": team["index"],
-        "name": setting[team["index"]]["name"],
-        "color": setting[team["index"]]["color"],
-        "max": floor(team["max"] * Fraction(1000)),
-        "now": floor(team["now"] * Fraction(1000)),
-        "min": floor(team["min"] * Fraction(1000)),
-        "win1": floor(team["win1"] * Fraction(1000)),
-        "win2": floor(team["win2"] * Fraction(1000)),
-        "win3": floor(team["win3"] * Fraction(1000)),
-        "selfV": floor(team["selfV"] * Fraction(1000)),
+        "max": str(team["max"]),
+        "now": str(team["now"]),
+        "min": str(team["min"]),
+        "win1": str(team["win1"]),
+        "win2": str(team["win2"]),
+        "win3": str(team["win3"]),
+        "selfV": str(team["selfV"]),
         "canSelfV": team["selfV"] < team["max"],
-        "lose1": floor((Fraction(1) - team["lose1"]) * Fraction(1000)),
-        "lose2": floor((Fraction(1) - team["lose2"]) * Fraction(1000)),
-        "lose3": floor((Fraction(1) - team["lose3"]) * Fraction(1000)),
+        "lose1": str((Fraction(1) - team["lose1"])),
+        "lose2": str((Fraction(1) - team["lose2"])),
+        "lose3": str((Fraction(1) - team["lose3"])),
         "win1Magic": table.teams[team["index"]].getWinningCountToProbability(team["win1"]),
         "win2Magic": table.teams[team["index"]].getWinningCountToProbability(team["win2"]),
         "win3Magic": table.teams[team["index"]].getWinningCountToProbability(team["win3"]),
@@ -227,15 +224,15 @@ def getResult(originalTable, setting):
         "lose3Magic": (lambda x: -1 * x if x is not None else None)(dualTable.teams[team["index"]].getWinningCountToProbability(team["lose3"])),
     } for team in result]
 
-    return sorted(response, key = lambda x: x['now'], reverse = True)
+    return response
 
 if __name__ == '__main__':
     date = sys.argv[1]
     with open("data.txt", mode='a') as f:
         centralData = gameResult.getCentralData(date)
         pacificData = gameResult.getPacificData(date)
-        centralResult = getResult(centralData["result"], centralData["setting"])
-        pacificResult = getResult(pacificData["result"], pacificData["setting"])
+        centralResult = getResult(centralData["result"])
+        pacificResult = getResult(pacificData["result"])
 
         centralDisplayData = {
             'league': 'central',

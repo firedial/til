@@ -179,40 +179,75 @@ for r in result:
     if len(r) == 0:
         continue
 
-    # 清老頭と天和が複合していた場合は、四暗刻単騎に複合している
-    if frozenset([yaku.CHINROTO, yaku.TENHO]) <= r:
-        if yaku.SUANKOTANKI not in r:
-            # 含んでいなかったらカウントしない
+    # 三元牌の全てあったら大三元になるのでカウントしない
+    if frozenset([yaku.HAKU, yaku.HATSU, yaku.CHUN]) <= r:
+        # カウントしない
+        continue
+
+    # 立直、門前清自摸和、対々和なら、四暗刻か四暗刻単騎になるのでカウントしない
+    if frozenset([yaku.REACH, yaku.MENZEN, yaku.TOITOI]) <= r:
+        # カウントしない
+        continue
+
+    # 純全帯幺九、対々和なら、清老頭になるのでカウントしない
+    # 上の IMPOSSIBLE_COMBINES ではじいていた
+    # if frozenset([yaku.JUNCHAN, yaku.TOITOI]) <= r:
+    #     # カウントしない
+    #     continue
+
+    # 裏ドラがある場合は、立直をしている
+    if frozenset([yaku.URADORA]) <= r:
+        if yaku.REACH not in r:
+            # カウントしない
             continue
 
-    # 清老頭と地和が複合していた場合は、四暗刻単騎か四暗刻に複合している
-    if frozenset([yaku.CHINROTO, yaku.CHIHO]) <= r:
-        if yaku.SUANKOTANKI not in r and yaku.SUANKOTANKI not in r:
-            # 含んでいなかったらカウントしない
+    # 一発がある場合は、立直をしている
+    if frozenset([yaku.IPPATSU]) <= r:
+        if yaku.REACH not in r:
+            # カウントしない
             continue
 
-    # 字一色と天和が複合していた場合は、四暗刻単騎に複合している
-    if frozenset([yaku.TSUISO, yaku.TENHO]) <= r:
-        if yaku.SUANKOTANKI not in r:
-            # 含んでいなかったらカウントしない
+    # 立直と三槓子がある場合は、三暗刻がついている
+    if frozenset([yaku.REACH, yaku.SANKANTSU]) <= r:
+        if yaku.SANANKO not in r:
+            # カウントしない
             continue
 
-    # 字一色と地和が複合していた場合は、四暗刻単騎か四暗刻に複合している
-    if frozenset([yaku.TSUISO, yaku.CHIHO]) <= r:
-        if yaku.SUANKOTANKI not in r and yaku.SUANKOTANKI not in r:
-            # 含んでいなかったらカウントしない
+    yakuhaiCount = len(list(filter(lambda x: x in [yaku.HAKU, yaku.HATSU, yaku.CHUN, yaku.JIFUU, yaku.BAHUU], list(r))))
+    # 三色同順がある場合は、役牌は最大2つまで
+    if frozenset([yaku.SANJUN]) <= r:
+        if yakuhaiCount > 2:
+            # カウントしない
             continue
 
-    # 大四喜と天和が複合していた場合は、四暗刻単騎に複合している
-    if frozenset([yaku.DAISUSHI, yaku.TENHO]) <= r:
-        if yaku.SUANKOTANKI not in r:
-            # 含んでいなかったらカウントしない
+    # 三色同刻がある場合は、役牌は最大2つまで
+    if frozenset([yaku.SANJUN]) <= r:
+        if yakuhaiCount > 2:
+            # カウントしない
             continue
 
-    # 大四喜と地和が複合していた場合は、四暗刻単騎か四暗刻に複合している
-    if frozenset([yaku.DAISUSHI, yaku.CHIHO]) <= r:
-        if yaku.SUANKOTANKI not in r and yaku.SUANKOTANKI not in r:
-            # 含んでいなかったらカウントしない
+    # 一気通貫がある場合は、役牌は最大1つまで
+    if frozenset([yaku.SANJUN]) <= r:
+        if yakuhaiCount > 1:
+            # カウントしない
+            continue
+
+    # 役牌4つある場合は、対々和と混一色が確定する(雀頭が字牌だと字一色になるので数牌)
+    if yakuhaiCount == 4:
+        if not frozenset([yaku.TOITOI, yaku.HONITSU]) <= r:
+            # カウントしない
+            continue
+
+    # 小三元がある場合は、三元牌の2つが役牌になっている
+    if frozenset([yaku.SHOSANGEN]) <= r:
+        if not frozenset([yaku.HAKU, yaku.HATSU]) <= r and not frozenset([yaku.HATSU, yaku.CHUN]) <= r and not frozenset([yaku.CHUN, yaku.HAKU]) <= r:
+            # カウントしない
+            continue
+
+    # 混老頭がある場合は、対々和になっている
+    if frozenset([yaku.HONRO]) <= r:
+        if yaku.TOITOI not in r:
+            # カウントしない
             continue
 
     lastResult.add(r)

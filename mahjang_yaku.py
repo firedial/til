@@ -49,6 +49,76 @@ SUANKOTANKI = 48
 KOKUSHIJUSAN = 49
 DAISUSHI = 50
 
+YAKUINFO = {
+    MENZEN: {
+        "name": "門前清自摸和",
+    },
+    REACH: {
+        "name": "立直",
+    },
+    CHANKAN: {
+        "name": "槍槓",
+    },
+    RINSHAN: {
+        "name": "嶺上開花",
+    },
+    HAITEI: {
+        "name": "海底撈月",
+    },
+    HOUTEI: {
+        "name": "河底撈魚",
+    },
+    HAKU: {
+        "name": "役牌白",
+    },
+    #...
+    TENHO: {
+        "name": "天和",
+    },
+    CHIHO: {
+        "name": "地和",
+    },
+    DAISANGEN: {
+        "name": "大三元",
+    },
+    SUANKO: {
+        "name": "四暗刻",
+    },
+    TSUISO: {
+        "name": "字一色",
+    },
+    RYUISO: {
+        "name": "緑一色",
+    },
+    CHINROTO: {
+        "name": "清老頭",
+    },
+    KOKUSHI: {
+        "name": "国士無双",
+    },
+    SHOSUSHI: {
+        "name": "小四喜",
+    },
+    SUKANTSU: {
+        "name": "四槓子",
+    },
+    CHUREN: {
+        "name": "九蓮宝燈",
+    },
+    JUNCHUREN: {
+        "name": "純正九蓮宝燈",
+    },
+    SUANKOTANKI: {
+        "name": "四暗刻単騎",
+    },
+    KOKUSHIJUSAN: {
+        "name": "国士無双十三面待ち",
+    },
+    DAISUSHI: {
+        "name": "大四喜",
+    },
+}
+
 YAKUS = [
     MENZEN,
     REACH,
@@ -268,12 +338,18 @@ for r in result:
 
 
 
-# print(result)
-print(len(result))
-print(remove)
 lastResult = result - remove
-print(len(lastResult))
-print(lastResult)
+
+for p in lastResult:
+    for yaku in p:
+        print(YAKUINFO[yaku]["name"] + ",", end="")
+    print()
+
+# print(result)
+# print(len(result))
+# print(remove)
+# print(len(lastResult))
+# print(lastResult)
 
 # print(c)
 # print(CONDITIONS)

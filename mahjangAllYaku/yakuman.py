@@ -172,3 +172,25 @@ for p in lastResult:
     print()
 
 print(len(lastResult))
+
+import csv
+real = set()
+with open('data.csv') as f:
+    csvreader = csv.reader(f)
+    for i, row in enumerate(csvreader):
+        s = (row[0][2:-1] + "0")[::-1]
+        y = set()
+        for bi, b in enumerate(s):
+            if bi >= 35 and bi <= 50 and bi != 46 and b == "1":
+                y.add(bi)
+
+        if len(y) != 0:
+            real.add(frozenset(y))
+
+
+for p in lastResult - real:
+    for y in p:
+        print(yaku.YAKUINFO[y]["name"] + ",", end="")
+    print()
+
+print(len(lastResult - real))

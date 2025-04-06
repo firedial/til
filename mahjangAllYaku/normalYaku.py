@@ -180,6 +180,7 @@ for r in result:
         continue
 
     # 三元牌の全てあったら大三元になるのでカウントしない
+    # @todo 何故かリストに入ってきちゃっている
     if frozenset([yaku.HAKU, yaku.HATSU, yaku.CHUN]) <= r:
         # カウントしない
         continue
@@ -189,21 +190,26 @@ for r in result:
         # カウントしない
         continue
 
+    # ダブル立直、門前清自摸和、対々和なら、四暗刻か四暗刻単騎になるのでカウントしない
+    if frozenset([yaku.DOUBLE, yaku.MENZEN, yaku.TOITOI]) <= r:
+        # カウントしない
+        continue
+
     # 純全帯幺九、対々和なら、清老頭になるのでカウントしない
     # 上の IMPOSSIBLE_COMBINES ではじいていた
     # if frozenset([yaku.JUNCHAN, yaku.TOITOI]) <= r:
     #     # カウントしない
     #     continue
 
-    # 裏ドラがある場合は、立直をしている
+    # 裏ドラがある場合は、立直かダブル立直をしている
     if frozenset([yaku.URADORA]) <= r:
-        if yaku.REACH not in r:
+        if yaku.REACH not in r and yaku.DOUBLE not in r:
             # カウントしない
             continue
 
-    # 一発がある場合は、立直をしている
+    # 一発がある場合は、立直かダブル立直をしている
     if frozenset([yaku.IPPATSU]) <= r:
-        if yaku.REACH not in r:
+        if yaku.REACH not in r and yaku.DOUBLE not in r:
             # カウントしない
             continue
 
@@ -213,7 +219,9 @@ for r in result:
             # カウントしない
             continue
 
-    yakuhaiCount = len(list(filter(lambda x: x in [yaku.HAKU, yaku.HATSU, yaku.CHUN, yaku.JIFUU, yaku.BAHUU], list(r))))
+    sangenCount = len(list(filter(lambda x: x in [yaku.HAKU, yaku.HATSU, yaku.CHUN], list(r))))
+    hasKaze = not (len(list(filter(lambda x: x in [yaku.JIFUU, yaku.BAHUU], list(r)))) == 0)
+    yakuhaiCount = sangenCount + (1 if hasKaze else 0) # ダブ東とダブ南の考慮
     # 三色同順がある場合は、役牌は最大2つまで
     if frozenset([yaku.SANJUN]) <= r:
         if yakuhaiCount > 2:
@@ -221,22 +229,23 @@ for r in result:
             continue
 
     # 三色同刻がある場合は、役牌は最大2つまで
-    if frozenset([yaku.SANJUN]) <= r:
+    if frozenset([yaku.SANDO]) <= r:
         if yakuhaiCount > 2:
             # カウントしない
             continue
 
     # 一気通貫がある場合は、役牌は最大1つまで
-    if frozenset([yaku.SANJUN]) <= r:
+    if frozenset([yaku.ITTSU]) <= r:
         if yakuhaiCount > 1:
             # カウントしない
             continue
 
     # 役牌4つある場合は、対々和と混一色が確定する(雀頭が字牌だと字一色になるので数牌)
-    if yakuhaiCount == 4:
-        if not frozenset([yaku.TOITOI, yaku.HONITSU]) <= r:
-            # カウントしない
-            continue
+    # 今の判定方法だと、三元牌全部と風牌になるので大三元確定する
+    # if yakuhaiCount == 4:
+    #     if not frozenset([yaku.HONITSU]) <= r:
+    #         # カウントしない
+    #         continue
 
     # 小三元がある場合は、三元牌の2つが役牌になっている
     if frozenset([yaku.SHOSANGEN]) <= r:
@@ -244,17 +253,42 @@ for r in result:
             # カウントしない
             continue
 
-    # 混老頭がある場合は、対々和になっている
+    # 混老頭がある場合は、対々和か七対子になっている
     if frozenset([yaku.HONRO]) <= r:
-        if yaku.TOITOI not in r:
+        if yaku.TOITOI not in r and yaku.CHITOI not in r:
             # カウントしない
             continue
 
     lastResult.add(r)
 
-for p in lastResult:
+# for p in lastResult:
+#     for y in p:
+#         print(yaku.YAKUINFO[y]["name"] + ",", end="")
+#     print()
+
+print(len(lastResult))
+
+
+import csv
+real = set()
+with open('data.csv') as f:
+    csvreader = csv.reader(f)
+    for i, row in enumerate(csvreader):
+        s = (row[0][2:-1] + "0")[::-1]
+        y = set()
+        for bi, b in enumerate(s):
+            if bi <= 33 and b == "1":
+                y.add(bi)
+
+        if len(y) != 0:
+            real.add(frozenset(y))
+
+
+for p in real - lastResult:
     for y in p:
         print(yaku.YAKUINFO[y]["name"] + ",", end="")
     print()
 
-print(len(lastResult))
+print(len(lastResult - real))
+print(len(real - lastResult))
+

@@ -81,7 +81,112 @@ YAKUINFO = {
         "kind": YAKU_KIND_YAKU,
         "name": "役牌白",
     },
-    #...
+    HATSU: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "役牌發",
+    },
+    CHUN: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "役牌中",
+    },
+    JIFUU: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "役牌:自風牌",
+    },
+    BAHUU: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "役牌:場風牌",
+    },
+    TANYAO: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "断幺九",
+    },
+    IPEKO: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "一盃口",
+    },
+    PINFU: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "平和",
+    },
+    CHANTA: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "混全帯幺九",
+    },
+    ITTSU: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "一気通貫",
+    },
+    SANJUN: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "三色同順",
+    },
+    DOUBLE: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "ダブル立直",
+    },
+    SANDO: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "三色同刻",
+    },
+    SANKANTSU: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "三槓子",
+    },
+    TOITOI: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "対々和",
+    },
+    SANANKO: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "三暗刻",
+    },
+    SHOSANGEN: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "小三元",
+    },
+    HONRO: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "混老頭",
+    },
+    CHITOI: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "七対子",
+    },
+    JUNCHAN: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "純全帯幺九",
+    },
+    HONITSU: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "混一色",
+    },
+    RYANPEKO: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "二盃口",
+    },
+    CHINITSU: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "清一色",
+    },
+    IPPATSU: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "一発",
+    },
+    DORA: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "ドラ",
+    },
+    AKADORA: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "赤ドラ",
+    },
+    URADORA: {
+        "kind": YAKU_KIND_YAKU,
+        "name": "裏ドラ",
+    },
+
+
     TENHO: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "天和",

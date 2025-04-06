@@ -325,6 +325,8 @@ lastResult = set()
 remove = set()
 # need 条件での除去
 for r in result:
+    if len(r) == 0:
+        remove.add(r)
     for key, condition in CONDITIONS.items():
         if key <= r:
             if len(condition["need"]) == 0:
@@ -344,6 +346,8 @@ for p in lastResult:
     for yaku in p:
         print(YAKUINFO[yaku]["name"] + ",", end="")
     print()
+
+print(len(lastResult))
 
 # print(result)
 # print(len(result))

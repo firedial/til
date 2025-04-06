@@ -9,6 +9,7 @@ IMPOSSIBLE_COMBINE = frozenset([
     frozenset([yaku.CHANKAN, yaku.RINSHAN]),
     frozenset([yaku.CHANKAN, yaku.HAITEI]),
     frozenset([yaku.CHANKAN, yaku.HOUTEI]),
+    frozenset([yaku.CHANKAN, yaku.TOITOI]),
     frozenset([yaku.RINSHAN, yaku.HAITEI]),
     frozenset([yaku.RINSHAN, yaku.HOUTEI]),
     frozenset([yaku.RINSHAN, yaku.CHITOI]),
@@ -69,6 +70,7 @@ IMPOSSIBLE_COMBINE = frozenset([
     frozenset([yaku.CHANTA, yaku.HONRO]),
     frozenset([yaku.CHANTA, yaku.CHITOI]),
     frozenset([yaku.CHANTA, yaku.JUNCHAN]),
+    frozenset([yaku.CHANTA, yaku.CHINITSU]),
     frozenset([yaku.CHANTA, yaku.AKADORA]),
     frozenset([yaku.ITTSU, yaku.SANJUN]),
     frozenset([yaku.ITTSU, yaku.SANDO]),
@@ -179,6 +181,11 @@ for r in result:
     if len(r) == 0:
         continue
 
+    # ドラと赤ドラだけ
+    if r <= frozenset([yaku.DORA, yaku.AKADORA]):
+        # カウントしない
+        continue
+
     # 三元牌の全てあったら大三元になるのでカウントしない
     # @todo 何故かリストに入ってきちゃっている
     if frozenset([yaku.HAKU, yaku.HATSU, yaku.CHUN]) <= r:
@@ -194,6 +201,30 @@ for r in result:
     if frozenset([yaku.DOUBLE, yaku.MENZEN, yaku.TOITOI]) <= r:
         # カウントしない
         continue
+
+    # 立直、嶺上開花なら、門前清自摸和になるのでカウントしない
+    if frozenset([yaku.REACH, yaku.RINSHAN]) <= r:
+        if yaku.MENZEN not in r:
+            # カウントしない
+            continue
+
+    # ダブル立直、嶺上開花なら、門前清自摸和になるのでカウントしない
+    if frozenset([yaku.DOUBLE, yaku.RINSHAN]) <= r:
+        if yaku.MENZEN not in r:
+            # カウントしない
+            continue
+
+    # 立直、海底撈月なら、門前清自摸和になるのでカウントしない
+    if frozenset([yaku.REACH, yaku.HAITEI]) <= r:
+        if yaku.MENZEN not in r:
+            # カウントしない
+            continue
+
+    # ダブル立直、海底撈月なら、門前清自摸和になるのでカウントしない
+    if frozenset([yaku.DOUBLE, yaku.HAITEI]) <= r:
+        if yaku.MENZEN not in r:
+            # カウントしない
+            continue
 
     # 純全帯幺九、対々和なら、清老頭になるのでカウントしない
     # 上の IMPOSSIBLE_COMBINES ではじいていた
@@ -220,23 +251,41 @@ for r in result:
             continue
 
     sangenCount = len(list(filter(lambda x: x in [yaku.HAKU, yaku.HATSU, yaku.CHUN], list(r))))
-    hasKaze = not (len(list(filter(lambda x: x in [yaku.JIFUU, yaku.BAHUU], list(r)))) == 0)
+    hasKaze = len(list(filter(lambda x: x in [yaku.JIFUU, yaku.BAHUU], list(r)))) != 0
     yakuhaiCount = sangenCount + (1 if hasKaze else 0) # ダブ東とダブ南の考慮
-    # 三色同順がある場合は、役牌は最大2つまで
+    # 三色同順がある場合は、役牌は最大1つまで
     if frozenset([yaku.SANJUN]) <= r:
-        if yakuhaiCount > 2:
+        if yakuhaiCount > 1:
             # カウントしない
             continue
 
-    # 三色同刻がある場合は、役牌は最大2つまで
+    # 三色同刻がある場合は、役牌は最大1つまで
     if frozenset([yaku.SANDO]) <= r:
-        if yakuhaiCount > 2:
+        if yakuhaiCount > 1:
             # カウントしない
             continue
 
     # 一気通貫がある場合は、役牌は最大1つまで
     if frozenset([yaku.ITTSU]) <= r:
         if yakuhaiCount > 1:
+            # カウントしない
+            continue
+
+    # 一盃口がある場合は、役牌は最大2つまで
+    if frozenset([yaku.IPEKO]) <= r:
+        if yakuhaiCount > 2:
+            # カウントしない
+            continue
+
+    # 一気通貫と一盃口がある場合は、役牌はない
+    if frozenset([yaku.ITTSU, yaku.IPEKO]) <= r:
+        if yakuhaiCount > 0:
+            # カウントしない
+            continue
+
+    # 三色同順と一盃口がある場合は、役牌はない
+    if frozenset([yaku.SANJUN, yaku.IPEKO]) <= r:
+        if yakuhaiCount > 0:
             # カウントしない
             continue
 
@@ -256,6 +305,12 @@ for r in result:
     # 混老頭がある場合は、対々和か七対子になっている
     if frozenset([yaku.HONRO]) <= r:
         if yaku.TOITOI not in r and yaku.CHITOI not in r:
+            # カウントしない
+            continue
+
+    # 七対子、清一色、断幺九の場合は、平和がつく
+    if frozenset([yaku.CHITOI, yaku.CHINITSU, yaku.TANYAO]) <= r:
+        if yaku.PINFU not in r:
             # カウントしない
             continue
 
@@ -284,11 +339,43 @@ with open('data.csv') as f:
             real.add(frozenset(y))
 
 
-for p in real - lastResult:
+for p in lastResult - real:
+    if yaku.SANKANTSU in p:
+        continue
+    if yaku.IPPATSU in p:
+        continue
+    if yaku.RINSHAN in p:
+        continue
+    if yaku.HOUTEI in p:
+        continue
+    if yaku.HAITEI in p:
+        continue
+    if yaku.DORA in p:
+        continue
+    if yaku.URADORA in p:
+        continue
+    if yaku.CHANKAN in p:
+        continue
+    if yaku.SANDO in p:
+        continue
+    if yaku.DOUBLE in p:
+        continue
+    if yaku.RYANPEKO in p:
+        continue
+    if yaku.REACH in p:
+        continue
+    if yaku.MENZEN in p:
+        continue
+    if yaku.AKADORA in p:
+        continue
+    if yaku.SHOSANGEN in p:
+        continue
+
     for y in p:
         print(yaku.YAKUINFO[y]["name"] + ",", end="")
     print()
 
+print(len(lastResult))
 print(len(lastResult - real))
 print(len(real - lastResult))
 

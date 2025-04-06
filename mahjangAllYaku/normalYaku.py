@@ -308,11 +308,10 @@ for r in result:
             # カウントしない
             continue
 
-    # 七対子、清一色、断幺九の場合は、平和がつく
+    # 七対子、清一色、断幺九の場合は、二盃口がつくのでカウントしない
     if frozenset([yaku.CHITOI, yaku.CHINITSU, yaku.TANYAO]) <= r:
-        if yaku.PINFU not in r:
-            # カウントしない
-            continue
+        # カウントしない
+        continue
 
     lastResult.add(r)
 

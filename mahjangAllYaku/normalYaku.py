@@ -174,6 +174,43 @@ def search(c):
     search(nextC)
 
 
+def trans(c):
+    if yaku.HAKU in c and yaku.HATSU not in c and yaku.CHUN not in c:
+        pass
+    elif yaku.HAKU not in c and yaku.HATSU in c and yaku.CHUN not in c:
+        c.remove(yaku.HATSU)
+        c.add(yaku.HAKU)
+    elif yaku.HAKU not in c and yaku.HATSU not in c and yaku.CHUN in c:
+        c.remove(yaku.CHUN)
+        c.add(yaku.HAKU)
+    elif yaku.HAKU in c and yaku.HATSU in c and yaku.CHUN not in c:
+        pass
+    elif yaku.HAKU in c and yaku.HATSU not in c and yaku.CHUN in c:
+        c.remove(yaku.CHUN)
+        c.add(yaku.HATSU)
+    elif yaku.HAKU not in c and yaku.HATSU in c and yaku.CHUN in c:
+        c.remove(yaku.CHUN)
+        c.add(yaku.HAKU)
+
+    if yaku.JIFUU in c and yaku.BAHUU not in c:
+        pass
+    if yaku.JIFUU not in c and yaku.BAHUU in c:
+        c.remove(yaku.BAHUU)
+        c.add(yaku.JIFUU)
+    if yaku.JIFUU in c and yaku.BAHUU in c:
+        c.remove(yaku.BAHUU)
+
+    if yaku.DORA in c:
+        c.remove(yaku.DORA)
+
+    if yaku.URADORA in c:
+        c.remove(yaku.URADORA)
+
+    # if yaku.AKADORA in c:
+    #     c.remove(yaku.AKADORA)
+
+    return c
+
 c = {i: YAKU_NONE for i in NORMAL_YAKUS}
 result = set()
 search(c)
@@ -426,7 +463,7 @@ for r in result:
     #         # カウントしない
     #         continue
 
-    lastResult.add(r)
+    lastResult.add(frozenset(trans(set(r))))
 
 # for p in lastResult:
 #     for y in p:
@@ -448,7 +485,7 @@ with open('data.csv') as f:
                 y.add(bi)
 
         if len(y) != 0:
-            real.add(frozenset(y))
+            real.add(frozenset(trans(y)))
 
 
 for p in lastResult - real:

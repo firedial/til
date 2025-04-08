@@ -10,9 +10,12 @@ IMPOSSIBLE_COMBINE = frozenset([
     frozenset([yaku.CHANKAN, yaku.HAITEI]),
     frozenset([yaku.CHANKAN, yaku.HOUTEI]),
     frozenset([yaku.CHANKAN, yaku.TOITOI]),
+    frozenset([yaku.CHANKAN, yaku.CHITOI]),
+    frozenset([yaku.CHANKAN, yaku.RYANPEKO]),
     frozenset([yaku.RINSHAN, yaku.HAITEI]),
     frozenset([yaku.RINSHAN, yaku.HOUTEI]),
     frozenset([yaku.RINSHAN, yaku.CHITOI]),
+    frozenset([yaku.RINSHAN, yaku.RYANPEKO]),
     frozenset([yaku.RINSHAN, yaku.IPPATSU]),
     frozenset([yaku.HAITEI, yaku.HOUTEI]),
     frozenset([yaku.HAKU, yaku.TANYAO]),
@@ -373,6 +376,55 @@ for r in result:
         if yaku.HONITSU not in r:
             # カウントしない
             continue
+
+    # 純全帯幺九と清一色と三暗刻は不可能
+    if frozenset([yaku.JUNCHAN, yaku.CHINITSU, yaku.SANANKO]) <= r:
+        # カウントしない
+        continue
+
+    # 純全帯幺九と清一色と三槓子は不可能
+    if frozenset([yaku.JUNCHAN, yaku.CHINITSU, yaku.SANKANTSU]) <= r:
+        # カウントしない
+        continue
+
+    # 三色同順と一盃口と嶺上開花は同時にできない
+    if frozenset([yaku.SANJUN, yaku.IPEKO, yaku.RINSHAN]) <= r:
+        # カウントしない
+        continue
+
+    # 一気通貫と一盃口と嶺上開花は同時にできない
+    if frozenset([yaku.ITTSU, yaku.IPEKO, yaku.RINSHAN]) <= r:
+        # カウントしない
+        continue
+
+    # 立直と門前清自摸和と役牌3つあれば三暗刻になる
+    if frozenset([yaku.REACH, yaku.MENZEN]) <= r and yakuhaiCount == 3:
+        if yaku.SANANKO not in r:
+            # カウントしない
+            continue
+
+    # 槍槓と一盃口と役牌2つは同時に成り立たない
+    if frozenset([yaku.CHANKAN, yaku.IPEKO]) <= r and yakuhaiCount == 2:
+        # カウントしない
+        continue
+
+    # 平和と清一色と純全帯幺九があれば一盃口か二盃口が必ずつく
+    if frozenset([yaku.PINFU, yaku.CHINITSU, yaku.JUNCHAN]) <= r:
+        if yaku.IPEKO not in r and yaku.RYANPEKO not in r:
+            # カウントしない
+            continue
+
+    # 平和と混一色と純全帯幺九があれば一盃口か二盃口が必ずつく
+    if frozenset([yaku.PINFU, yaku.HONITSU, yaku.JUNCHAN]) <= r:
+        if yaku.IPEKO not in r and yaku.RYANPEKO not in r:
+            # カウントしない
+            continue
+
+    # # 立直と門前清自摸和と三色同刻あれば三暗刻になる
+    # if frozenset([yaku.REACH, yaku.MENZEN, yaku.SANDO]) <= r:
+    #     if yaku.SANANKO not in r:
+    #         # カウントしない
+    #         continue
 
     lastResult.add(r)
 

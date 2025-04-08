@@ -313,6 +313,25 @@ for r in result:
         # カウントしない
         continue
 
+    # ダブル立直の場合、海底撈月か河底撈魚と一発は同時に起こらない
+    if frozenset([yaku.DOUBLE, yaku.IPPATSU, yaku.HAITEI]) <= r:
+        # カウントしない
+        continue
+    if frozenset([yaku.DOUBLE, yaku.IPPATSU, yaku.HOUTEI]) <= r:
+        # カウントしない
+        continue
+
+    # ダブル立直の場合、一発と三槓子は同時に起こらない
+    if frozenset([yaku.DOUBLE, yaku.IPPATSU, yaku.SANKANTSU]) <= r:
+        # カウントしない
+        continue
+
+    # 小三元に風牌がついていた場合、混一色が必ずつく
+    if frozenset([yaku.SHOSANGEN, yaku.JIFUU]) <= r or frozenset([yaku.SHOSANGEN, yaku.BAHUU]) <= r:
+        if yaku.HONITSU not in r:
+            # カウントしない
+            continue
+
     lastResult.add(r)
 
 # for p in lastResult:

@@ -250,6 +250,24 @@ for r in result:
             # カウントしない
             continue
 
+    # ダブル立直と三槓子がある場合は、三暗刻がついている
+    if frozenset([yaku.DOUBLE, yaku.SANKANTSU]) <= r:
+        if yaku.SANANKO not in r:
+            # カウントしない
+            continue
+
+    # 立直と対々和がある場合は、三暗刻がついている
+    if frozenset([yaku.REACH, yaku.TOITOI]) <= r:
+        if yaku.SANANKO not in r:
+            # カウントしない
+            continue
+
+    # ダブル立直と対々和がある場合は、三暗刻がついている
+    if frozenset([yaku.DOUBLE, yaku.TOITOI]) <= r:
+        if yaku.SANANKO not in r:
+            # カウントしない
+            continue
+
     sangenCount = len(list(filter(lambda x: x in [yaku.HAKU, yaku.HATSU, yaku.CHUN], list(r))))
     hasKaze = len(list(filter(lambda x: x in [yaku.JIFUU, yaku.BAHUU], list(r)))) != 0
     yakuhaiCount = sangenCount + (1 if hasKaze else 0) # ダブ東とダブ南の考慮
@@ -264,6 +282,30 @@ for r in result:
         if yakuhaiCount > 1:
             # カウントしない
             continue
+
+    # 三色同刻と役牌がある場合は、対々和がついている
+    if frozenset([yaku.SANDO]) <= r and yakuhaiCount == 1:
+        if yaku.TOITOI not in r:
+            # カウントしない
+            continue
+
+    # 三色同刻と役牌と門前清自摸和がある場合は、四暗刻か四暗刻単騎になる
+    if frozenset([yaku.SANDO, yaku.MENZEN]) <= r and yakuhaiCount == 1:
+        # カウントしない
+        continue
+
+    # 三色同刻と門前清自摸和がある場合は、三暗刻になる
+    if frozenset([yaku.SANDO, yaku.MENZEN]) <= r:
+        if yaku.SANANKO not in r:
+            # カウントしない
+            continue
+
+    # 立直と三色同刻と役牌がある場合は、三暗刻になる
+    # 立直と対々和となって、別条件で三暗刻判定になっている
+    # if frozenset([yaku.REACH, yaku.SANDO]) <= r and yakuhaiCount == 1:
+    #     if yaku.SANANKO not in r:
+    #         # カウントしない
+    #         continue
 
     # 一気通貫がある場合は、役牌は最大1つまで
     if frozenset([yaku.ITTSU]) <= r:

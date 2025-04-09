@@ -207,8 +207,9 @@ def trans(c):
     if yaku.URADORA in c:
         c.remove(yaku.URADORA)
 
-    # if yaku.AKADORA in c:
-    #     c.remove(yaku.AKADORA)
+    # 赤ドラが付けられることができる必要十分条件は、純全帯幺九、混全帯幺九、混老頭のいずれかではないことを用いる
+    if yaku.AKADORA in c:
+        c.remove(yaku.AKADORA)
 
     return c
 

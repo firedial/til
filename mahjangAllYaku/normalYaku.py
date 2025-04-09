@@ -15,10 +15,12 @@ IMPOSSIBLE_COMBINE = frozenset([
     frozenset([yaku.CHANKAN, yaku.RYANPEKO]),
     frozenset([yaku.RINSHAN, yaku.HAITEI]),
     frozenset([yaku.RINSHAN, yaku.HOUTEI]),
+    frozenset([yaku.RINSHAN, yaku.PINFU]),
     frozenset([yaku.RINSHAN, yaku.CHITOI]),
     frozenset([yaku.RINSHAN, yaku.RYANPEKO]),
     frozenset([yaku.RINSHAN, yaku.IPPATSU]),
     frozenset([yaku.HAITEI, yaku.HOUTEI]),
+    frozenset([yaku.HOUTEI, yaku.IPPATSU]),
     frozenset([yaku.HAKU, yaku.TANYAO]),
     frozenset([yaku.HAKU, yaku.PINFU]),
     frozenset([yaku.HAKU, yaku.CHITOI]),
@@ -469,6 +471,12 @@ for r in result:
     # 小三元と一盃口がある場合は混一色がつく
     if frozenset([yaku.SHOSANGEN, yaku.IPEKO]) <= r:
         if yaku.HONITSU not in r:
+            # カウントしない
+            continue
+
+    # 平和と海底撈月がある場合は門前清自摸和がつく
+    if frozenset([yaku.PINFU, yaku.HAITEI]) <= r:
+        if yaku.MENZEN not in r:
             # カウントしない
             continue
 

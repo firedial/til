@@ -5,6 +5,7 @@ NORMAL_YAKUS = list(dict(filter(lambda x: x[1]["kind"] == yaku.YAKU_KIND_YAKU, y
 IMPOSSIBLE_COMBINE = frozenset([
     frozenset([yaku.MENZEN, yaku.CHANKAN]),
     frozenset([yaku.MENZEN, yaku.HOUTEI]),
+    frozenset([yaku.MENZEN, yaku.TOITOI]),
     frozenset([yaku.REACH, yaku.DOUBLE]),
     frozenset([yaku.CHANKAN, yaku.RINSHAN]),
     frozenset([yaku.CHANKAN, yaku.HAITEI]),
@@ -232,16 +233,6 @@ for r in result:
         # カウントしない
         continue
 
-    # 立直、門前清自摸和、対々和なら、四暗刻か四暗刻単騎になるのでカウントしない
-    if frozenset([yaku.REACH, yaku.MENZEN, yaku.TOITOI]) <= r:
-        # カウントしない
-        continue
-
-    # ダブル立直、門前清自摸和、対々和なら、四暗刻か四暗刻単騎になるのでカウントしない
-    if frozenset([yaku.DOUBLE, yaku.MENZEN, yaku.TOITOI]) <= r:
-        # カウントしない
-        continue
-
     # 立直、嶺上開花なら、門前清自摸和になるのでカウントしない
     if frozenset([yaku.REACH, yaku.RINSHAN]) <= r:
         if yaku.MENZEN not in r:
@@ -434,8 +425,14 @@ for r in result:
         # カウントしない
         continue
 
-    # 立直と門前清自摸和と役牌3つあれば三暗刻になる
-    if frozenset([yaku.REACH, yaku.MENZEN]) <= r and yakuhaiCount == 3:
+    # 門前清自摸和と役牌3つあれば三暗刻になる
+    if frozenset([yaku.MENZEN]) <= r and yakuhaiCount == 3:
+        if yaku.SANANKO not in r:
+            # カウントしない
+            continue
+
+    # 立直と役牌4つあれば三暗刻になる
+    if frozenset([yaku.REACH]) <= r and yakuhaiCount == 4:
         if yaku.SANANKO not in r:
             # カウントしない
             continue
@@ -454,6 +451,23 @@ for r in result:
     # 平和と混一色と純全帯幺九があれば一盃口か二盃口が必ずつく
     if frozenset([yaku.PINFU, yaku.HONITSU, yaku.JUNCHAN]) <= r:
         if yaku.IPEKO not in r and yaku.RYANPEKO not in r:
+            # カウントしない
+            continue
+
+    # 門前清自摸和と三槓子つあれば三暗刻になる
+    if frozenset([yaku.MENZEN, yaku.SANKANTSU]) <= r:
+        if yaku.SANANKO not in r:
+            # カウントしない
+            continue
+
+    # ダブル立直と槍槓と一発は同時に発生しない
+    if frozenset([yaku.DOUBLE, yaku.CHANKAN, yaku.IPPATSU]) <= r:
+        # カウントしない
+        continue
+
+    # 小三元と一盃口がある場合は混一色がつく
+    if frozenset([yaku.SHOSANGEN, yaku.IPEKO]) <= r:
+        if yaku.HONITSU not in r:
             # カウントしない
             continue
 

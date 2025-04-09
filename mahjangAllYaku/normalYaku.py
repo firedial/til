@@ -480,6 +480,24 @@ for r in result:
             # カウントしない
             continue
 
+    # 一盃口と海底撈月がある場合は門前清自摸和がつく
+    if frozenset([yaku.IPEKO, yaku.HAITEI]) <= r:
+        if yaku.MENZEN not in r:
+            # カウントしない
+            continue
+
+    # 二盃口と海底撈月がある場合は門前清自摸和がつく
+    if frozenset([yaku.RYANPEKO, yaku.HAITEI]) <= r:
+        if yaku.MENZEN not in r:
+            # カウントしない
+            continue
+
+    # 一盃口と嶺上開花がある場合は門前清自摸和がつく
+    if frozenset([yaku.IPEKO, yaku.RINSHAN]) <= r:
+        if yaku.MENZEN not in r:
+            # カウントしない
+            continue
+
     # # 立直と門前清自摸和と三色同刻あれば三暗刻になる
     # if frozenset([yaku.REACH, yaku.MENZEN, yaku.SANDO]) <= r:
     #     if yaku.SANANKO not in r:

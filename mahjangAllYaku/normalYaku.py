@@ -498,6 +498,64 @@ for r in result:
             # カウントしない
             continue
 
+    # 立直と槍槓と役牌3つがある場合は三暗刻がつく
+    if frozenset([yaku.REACH, yaku.CHANKAN]) <= r and yakuhaiCount == 3:
+        if yaku.SANANKO not in r:
+            # カウントしない
+            continue
+
+    # ダブル立直と槍槓と役牌3つがある場合は三暗刻がつく
+    if frozenset([yaku.DOUBLE, yaku.CHANKAN]) <= r and yakuhaiCount == 3:
+        if yaku.SANANKO not in r:
+            # カウントしない
+            continue
+
+    # 立直と純全帯幺九と清一色がある場合は一盃口か二盃口がつく
+    if frozenset([yaku.REACH, yaku.JUNCHAN, yaku.CHINITSU]) <= r:
+        if yaku.IPEKO not in r and yaku.RYANPEKO not in r:
+            # カウントしない
+            continue
+
+    # ダブル立直と純全帯幺九と清一色がある場合は一盃口か二盃口がつく
+    if frozenset([yaku.DOUBLE, yaku.JUNCHAN, yaku.CHINITSU]) <= r:
+        if yaku.IPEKO not in r and yaku.RYANPEKO not in r:
+            # カウントしない
+            continue
+
+    # 一気通貫と嶺上開花と清一色は起こりえない(4枚使い出来ない)
+    if frozenset([yaku.ITTSU, yaku.RINSHAN, yaku.CHINITSU]) <= r:
+        # カウントしない
+        continue
+
+    # 純全帯幺九と嶺上開花と清一色は起こりえない(4枚使い出来ない)
+    if frozenset([yaku.JUNCHAN, yaku.RINSHAN, yaku.CHINITSU]) <= r:
+        # カウントしない
+        continue
+
+    # 混一色と平和と混全帯幺九は一盃口か二盃口かがつく
+    if frozenset([yaku.HONITSU, yaku.PINFU, yaku.CHANTA]) <= r:
+        if yaku.IPEKO not in r and yaku.RYANPEKO not in r:
+            # カウントしない
+            continue
+
+    # 門前清自摸和と純全帯幺九と清一色は一盃口か二盃口がつく
+    if frozenset([yaku.MENZEN, yaku.JUNCHAN, yaku.CHINITSU]) <= r:
+        if yaku.IPEKO not in r and yaku.RYANPEKO not in r:
+            # カウントしない
+            continue
+
+    # 三色同刻と立直と槍槓は必ず三暗刻がつく
+    if frozenset([yaku.SANDO, yaku.REACH, yaku.CHANKAN]) <= r:
+        if yaku.SANANKO not in r:
+            # カウントしない
+            continue
+
+    # 三色同刻と立直と槍槓は必ず三暗刻がつく
+    if frozenset([yaku.SANDO, yaku.DOUBLE, yaku.CHANKAN]) <= r:
+        if yaku.SANANKO not in r:
+            # カウントしない
+            continue
+
     # # 立直と門前清自摸和と三色同刻あれば三暗刻になる
     # if frozenset([yaku.REACH, yaku.MENZEN, yaku.SANDO]) <= r:
     #     if yaku.SANANKO not in r:

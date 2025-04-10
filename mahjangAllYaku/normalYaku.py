@@ -530,40 +530,42 @@ with open('data.csv') as f:
 
 
 for p in lastResult - real:
-    if yaku.SANKANTSU in p:
-        continue
-    if yaku.IPPATSU in p:
-        continue
-    if yaku.RINSHAN in p:
-        continue
-    if yaku.HOUTEI in p:
-        continue
-    if yaku.HAITEI in p:
-        continue
-    if yaku.DORA in p:
-        continue
-    if yaku.URADORA in p:
-        continue
-    if yaku.CHANKAN in p:
-        continue
-    if yaku.SANDO in p:
-        continue
-    if yaku.DOUBLE in p:
-        continue
-    if yaku.RYANPEKO in p:
-        continue
-    if yaku.REACH in p:
-        continue
-    if yaku.MENZEN in p:
-        continue
-    if yaku.AKADORA in p:
-        continue
-    if yaku.SHOSANGEN in p:
-        continue
+    # if yaku.SANKANTSU in p:
+    #     continue
+    # if yaku.IPPATSU in p:
+    #     continue
+    # if yaku.RINSHAN in p:
+    #     continue
+    # if yaku.HOUTEI in p:
+    #     continue
+    # if yaku.HAITEI in p:
+    #     continue
+    # if yaku.DORA in p:
+    #     continue
+    # if yaku.URADORA in p:
+    #     continue
+    # if yaku.CHANKAN in p:
+    #     continue
+    # if yaku.SANDO in p:
+    #     continue
+    # if yaku.DOUBLE in p:
+    #     continue
+    # if yaku.RYANPEKO in p:
+    #     continue
+    # if yaku.REACH in p:
+    #     continue
+    # if yaku.MENZEN in p:
+    #     continue
+    # if yaku.AKADORA in p:
+    #     continue
+    # if yaku.SHOSANGEN in p:
+    #     continue
 
+    bit = 0
     for y in p:
         print(yaku.YAKUINFO[y]["name"] + ",", end="")
-    print()
+        bit |= 1 << y
+    print("|b'" + bin(bit)[2:-1].zfill(64) + "'")
 
 print(len(lastResult))
 print(len(lastResult - real))

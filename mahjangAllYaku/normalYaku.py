@@ -213,6 +213,17 @@ def trans(c):
     if yaku.AKADORA in c:
         c.remove(yaku.AKADORA)
 
+    # 偶然役
+    # if yaku.IPPATSU in c:
+    #     c.remove(yaku.IPPATSU)
+    # if yaku.CHANKAN in c:
+    #     c.remove(yaku.CHANKAN)
+    # if yaku.RINSHAN in c:
+    #     c.remove(yaku.RINSHAN)
+
+    # if yaku.SANANKO in c and yaku.SANKANTSU in c:
+    #     c.remove(yaku.SANKANTSU)
+
     return c
 
 c = {i: YAKU_NONE for i in NORMAL_YAKUS}
@@ -221,6 +232,8 @@ search(c)
 
 lastResult = set()
 for r in result:
+    r = frozenset(trans(set(r)))
+
     # 役なし
     if len(r) == 0:
         continue
@@ -572,7 +585,7 @@ for r in result:
     #         # カウントしない
     #         continue
 
-    lastResult.add(frozenset(trans(set(r))))
+    lastResult.add(r)
 
 # for p in lastResult:
 #     for y in p:
@@ -596,6 +609,17 @@ with open('data.csv') as f:
         if len(y) != 0:
             real.add(frozenset(trans(y)))
 
+with open('myCheck.csv') as f:
+    csvreader = csv.reader(f)
+    for i, row in enumerate(csvreader):
+        s = (row[0][2:-1] + "0")[::-1]
+        y = set()
+        for bi, b in enumerate(s):
+            if bi <= 33 and b == "1":
+                y.add(bi)
+
+        # if len(y) != 0:
+        #     real.add(frozenset(trans(y)))
 
 for p in lastResult - real:
     # if yaku.SANKANTSU in p:
@@ -631,11 +655,109 @@ for p in lastResult - real:
 
     bit = 0
     for y in p:
-        print(yaku.YAKUINFO[y]["name"] + ",", end="")
+        print(yaku.YAKUINFO[y]["name"] + "|", end="")
         bit |= 1 << y
-    print("|b'" + bin(bit)[2:-1].zfill(64) + "'")
+    print(",b'" + bin(bit)[2:-1].zfill(64) + "'")
 
 print(len(lastResult))
 print(len(lastResult - real))
 print(len(real - lastResult))
 
+zatuResult = set()
+# 雑に除去するものを取得
+for p in lastResult - real:
+    # 三暗刻と三槓子があるなら三槓子を無視する
+    if yaku.SANANKO in p and yaku.SANKANTSU in p:
+        pt = set(p)
+        pt.remove(yaku.SANKANTSU)
+        if frozenset(pt) in real:
+            continue
+
+    # ダブル立直は立直とみなす
+    if yaku.DOUBLE in p:
+        pt = set(p)
+        pt.remove(yaku.DOUBLE)
+        pt.add(yaku.REACH)
+        if frozenset(pt) in real:
+            continue
+
+    # 三暗刻と三色同刻があるなら三色同刻を無視する
+    if yaku.SANANKO in p and yaku.SANDO in p:
+        pt = set(p)
+        pt.remove(yaku.SANDO)
+        if frozenset(pt) in real:
+            continue
+
+    # 嶺上開花を無視する
+    if yaku.RINSHAN in p:
+        pt = set(p)
+        pt.remove(yaku.RINSHAN)
+        if frozenset(pt) in real:
+            continue
+
+    # 槍槓を無視する
+    if yaku.CHANKAN in p:
+        pt = set(p)
+        pt.remove(yaku.CHANKAN)
+        if frozenset(pt) in real:
+            continue
+
+    # # 三暗刻と槍槓があるなら槍槓を無視する
+    # if yaku.SANANKO in p and yaku.CHANKAN in p:
+    #     pt = set(p)
+    #     pt.remove(yaku.CHANKAN)
+    #     if frozenset(pt) in real:
+    #         continue
+
+    # # 三槓子と槍槓があるなら槍槓を無視する
+    # if yaku.SANKANTSU in p and yaku.CHANKAN in p:
+    #     pt = set(p)
+    #     pt.remove(yaku.CHANKAN)
+    #     if frozenset(pt) in real:
+    #         continue
+
+    # # 三色同刻と槍槓があるなら槍槓を無視する
+    # if yaku.SANDO in p and yaku.CHANKAN in p:
+    #     pt = set(p)
+    #     pt.remove(yaku.CHANKAN)
+    #     if frozenset(pt) in real:
+    #         continue
+
+    # 海底撈月は無視する
+    if yaku.HAITEI in p:
+        pt = set(p)
+        pt.remove(yaku.HAITEI)
+        if frozenset(pt) in real:
+            continue
+
+    # 河底撈魚は無視する
+    if yaku.HOUTEI in p:
+        pt = set(p)
+        pt.remove(yaku.HOUTEI)
+        if frozenset(pt) in real:
+            continue
+
+    # 立直一発の一発は無視する
+    if yaku.REACH in p and yaku.IPPATSU in p:
+        pt = set(p)
+        pt.remove(yaku.IPPATSU)
+        if frozenset(pt) in real:
+            continue
+
+    # 面前は無視する
+    if yaku.MENZEN in p:
+        pt = set(p)
+        pt.remove(yaku.MENZEN)
+        if frozenset(pt) in real:
+            continue
+
+    zatuResult.add(p)
+
+for p in zatuResult:
+    bit = 0
+    for y in p:
+        print(yaku.YAKUINFO[y]["name"] + "|", end="")
+        bit |= 1 << y
+    print(",b'" + bin(bit)[2:-1].zfill(64) + "'")
+
+print(len(zatuResult))

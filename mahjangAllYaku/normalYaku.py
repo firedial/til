@@ -569,16 +569,6 @@ for r in result:
             # カウントしない
             continue
 
-    # 門前清自摸和と混一色と一盃口と平和と混全帯幺九は同時に満たさない(高得点法で三暗刻になる)
-    if frozenset([yaku.MENZEN, yaku.HONITSU, yaku.IPEKO, yaku.PINFU, yaku.CHANTA]) <= r:
-        # カウントしない
-        continue
-
-    # 門前清自摸和と一盃口と純全帯幺九と清一色と平和は同時に満たさない(高得点法で三暗刻になる)
-    if frozenset([yaku.MENZEN, yaku.IPEKO, yaku.JUNCHAN, yaku.CHINITSU, yaku.PINFU]) <= r:
-        # カウントしない
-        continue
-
     # # 立直と門前清自摸和と三色同刻あれば三暗刻になる
     # if frozenset([yaku.REACH, yaku.MENZEN, yaku.SANDO]) <= r:
     #     if yaku.SANANKO not in r:

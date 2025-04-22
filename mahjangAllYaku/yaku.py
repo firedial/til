@@ -190,61 +190,76 @@ YAKUINFO = {
     TENHO: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "天和",
+        "amount": 1,
     },
     CHIHO: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "地和",
+        "amount": 1,
     },
     DAISANGEN: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "大三元",
+        "amount": 1,
     },
     SUANKO: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "四暗刻",
+        "amount": 1,
     },
     TSUISO: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "字一色",
+        "amount": 1,
     },
     RYUISO: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "緑一色",
+        "amount": 1,
     },
     CHINROTO: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "清老頭",
+        "amount": 1,
     },
     KOKUSHI: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "国士無双",
+        "amount": 1,
     },
     SHOSUSHI: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "小四喜",
+        "amount": 1,
     },
     SUKANTSU: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "四槓子",
+        "amount": 1,
     },
     CHUREN: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "九蓮宝燈",
+        "amount": 1,
     },
     JUNCHUREN: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "純正九蓮宝燈",
+        "amount": 2,
     },
     SUANKOTANKI: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "四暗刻単騎",
+        "amount": 2,
     },
     KOKUSHIJUSAN: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "国士無双十三面待ち",
+        "amount": 2,
     },
     DAISUSHI: {
         "kind": YAKU_KIND_YAKUMAN,
         "name": "大四喜",
+        "amount": 2,
     },
 }

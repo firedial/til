@@ -164,12 +164,18 @@ for r in result:
             # 含んでいなかったらカウントしない
             continue
 
+    # 四槓子と四暗刻が複合していた場合は、四暗刻単騎になる
+    if frozenset([yaku.SUKANTSU, yaku.SUANKO]) <= r:
+        if yaku.SUANKOTANKI not in r:
+            # 含んでいなかったらカウントしない
+            continue
+
     lastResult.add(r)
 
-for p in lastResult:
-    for y in p:
-        print(yaku.YAKUINFO[y]["name"] + ",", end="")
-    print()
+# for p in lastResult:
+#     for y in p:
+#         print(yaku.YAKUINFO[y]["name"] + ",", end="")
+#     print()
 
 print(len(lastResult))
 
@@ -188,9 +194,23 @@ with open('data.csv') as f:
             real.add(frozenset(y))
 
 
-for p in lastResult - real:
-    for y in p:
-        print(yaku.YAKUINFO[y]["name"] + ",", end="")
-    print()
+for p in lastResult:
+    # if yaku.TENHO in p:
+    #     continue
+    # if yaku.CHIHO in p:
+    #     continue
+    # if yaku.SUKANTSU in p:
+    #     continue
 
-print(len(lastResult - real))
+    a = 0
+    bit = 0
+    for y in p:
+        a += yaku.YAKUINFO[y]["amount"]
+        print(yaku.YAKUINFO[y]["name"] + "|", end="")
+        bit |= 1 << y
+    print("," + str(a), end="")
+    print(",b'" + bin(bit)[2:-1].zfill(64) + "'")
+
+# print(len(lastResult - real))
+print(len(lastResult))
+print(len(real - lastResult))

@@ -36,6 +36,7 @@ IMPOSSIBLE_COMBINE = frozenset([
     frozenset([yaku.RYUISO, yaku.JUNCHUREN]),
     frozenset([yaku.RYUISO, yaku.KOKUSHI]),
     frozenset([yaku.RYUISO, yaku.KOKUSHIJUSAN]),
+    frozenset([yaku.SUKANTSU, yaku.SUANKO]),
     frozenset([yaku.SUKANTSU, yaku.CHUREN]),
     frozenset([yaku.SUKANTSU, yaku.JUNCHUREN]),
     frozenset([yaku.SUKANTSU, yaku.KOKUSHI]),
@@ -161,12 +162,6 @@ for r in result:
     # 大四喜と地和が複合していた場合は、四暗刻単騎か四暗刻に複合している
     if frozenset([yaku.DAISUSHI, yaku.CHIHO]) <= r:
         if yaku.SUANKOTANKI not in r and yaku.SUANKOTANKI not in r:
-            # 含んでいなかったらカウントしない
-            continue
-
-    # 四槓子と四暗刻が複合していた場合は、四暗刻単騎になる
-    if frozenset([yaku.SUKANTSU, yaku.SUANKO]) <= r:
-        if yaku.SUANKOTANKI not in r:
             # 含んでいなかったらカウントしない
             continue
 

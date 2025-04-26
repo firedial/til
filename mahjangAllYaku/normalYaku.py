@@ -203,6 +203,15 @@ def trans(c):
     if yaku.JIFUU in c and yaku.BAHUU in c:
         c.remove(yaku.BAHUU)
 
+    if yaku.JIFUU in c and yaku.SHOSANGEN not in c:
+        if yaku.HAKU not in c:
+            c.remove(yaku.JIFUU)
+            c.add(yaku.HAKU)
+        elif yaku.HATSU not in c:
+            c.remove(yaku.JIFUU)
+            c.add(yaku.HATSU)
+
+
     if yaku.DORA in c:
         c.remove(yaku.DORA)
 
@@ -652,6 +661,7 @@ for p in lastResult - real:
 print(len(lastResult))
 print(len(lastResult - real))
 print(len(real - lastResult))
+exit()
 
 zatuResult = set()
 # 雑に除去するものを取得

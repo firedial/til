@@ -10,6 +10,7 @@ IMPOSSIBLE_COMBINE = frozenset([
     frozenset([yaku.CHANKAN, yaku.RINSHAN]),
     frozenset([yaku.CHANKAN, yaku.HAITEI]),
     frozenset([yaku.CHANKAN, yaku.HOUTEI]),
+    frozenset([yaku.CHANKAN, yaku.DOUBLE]),
     frozenset([yaku.CHANKAN, yaku.TOITOI]),
     frozenset([yaku.CHANKAN, yaku.CHITOI]),
     frozenset([yaku.CHANKAN, yaku.RYANPEKO]),

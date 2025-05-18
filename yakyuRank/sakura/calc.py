@@ -290,9 +290,9 @@ def calc():
     dualTable = table.getDualTable()
     loseMin: dict[frozenset, WinningRate] = {}
     for t1s in t1ss:
-        loseMin[frozenset(t1s)] = table.getWin1(t1s[0])
+        loseMin[frozenset(t1s)] = dualTable.getWin1(t1s[0])
     for t2s in t2ss:
-        loseMin[frozenset(t2s)] = table.getWin2(t2s[0], t2s[1])
+        loseMin[frozenset(t2s)] = dualTable.getWin2(t2s[0], t2s[1])
     # for t3s in t3ss:
     #     loseMin[frozenset(t3s)] = table.getWin3(t3s[0], t3s[1], t3s[2])
 

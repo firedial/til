@@ -174,7 +174,7 @@ def getMaxWinT1(count: int, maxWin: dict, t1: int) -> WinningRate:
         if len(key) != count:
             continue
 
-        if t1 not in key:
+        if t1 in key:
             continue
 
         maxWinByT1 = max(maxWinByT1, value)
@@ -184,6 +184,15 @@ def getMaxWinT1(count: int, maxWin: dict, t1: int) -> WinningRate:
 
 def calc():
     games = [
+        Game(22, 16),
+        Game(21, 18),
+        Game(19, 17),
+        Game(21, 20),
+        Game(17, 20),
+        Game(13, 22),
+    ]
+
+    games1 = [
         Game(1, 1),
         Game(1, 1),
         Game(1, 1),
@@ -193,15 +202,15 @@ def calc():
     ]
 
     remains = [
-        Remain((0, 5, 5, 2, 1, 5, 1)),
-        Remain((5, 0, 5, 2, 1, 5, 1)),
-        Remain((5, 5, 0, 2, 1, 5, 1)),
-        Remain((2, 2, 2, 0, 1, 5, 1)),
-        Remain((1, 1, 1, 1, 0, 5, 1)),
-        Remain((5, 5, 5, 5, 5, 0, 1)),
+        Remain((0, 16, 17, 16, 18, 18, 18)),
+        Remain((16, 0, 16, 16, 17, 20, 18)),
+        Remain((17, 16, 0, 18, 17, 18, 18)),
+        Remain((16, 16, 18, 0, 17, 16, 18)),
+        Remain((18, 17, 17, 17, 0, 17, 18)),
+        Remain((18, 20, 18, 16, 17, 0, 18)),
     ]
 
-    remains = [
+    remains1 = [
         Remain((0, 25, 25, 25, 25, 25, 16)),
         Remain((25, 0, 25, 25, 25, 25, 16)),
         Remain((25, 25, 0, 25, 25, 25, 16)),
@@ -319,9 +328,9 @@ def calc():
                 "win1Magic": table.getWinMagic(t1, win1),
                 "win2Magic": table.getWinMagic(t1, win2),
                 "win3Magic": table.getWinMagic(t1, win3),
-                "lose1Magic": table.getWinMagic(t1, lose1),
-                "lose2Magic": table.getWinMagic(t1, lose2),
-                "lose3Magic": table.getWinMagic(t1, lose3),
+                "lose1Magic": dualTable.getWinMagic(t1, lose1),
+                "lose2Magic": dualTable.getWinMagic(t1, lose2),
+                "lose3Magic": dualTable.getWinMagic(t1, lose3),
             }
         )
 
@@ -354,6 +363,9 @@ def main():
     ], data))
 
 
-print(main())
+rs = main()
+for r in rs:
+    print(r)
+
 
 

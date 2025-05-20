@@ -2,6 +2,8 @@ import math
 from dataclasses import dataclass
 from fractions import Fraction
 import concurrent.futures
+import csv
+import datetime
 
 
 @dataclass(frozen=True)
@@ -182,43 +184,7 @@ def getMaxWinT1(count: int, maxWin: dict, t1: int) -> WinningRate:
     return maxWinByT1
 
 
-def calc():
-    games = [
-        Game(22, 16),
-        Game(21, 18),
-        Game(19, 17),
-        Game(21, 20),
-        Game(17, 20),
-        Game(13, 22),
-    ]
-
-    games1 = [
-        Game(1, 1),
-        Game(1, 1),
-        Game(1, 1),
-        Game(1, 1),
-        Game(1, 1),
-        Game(1, 1),
-    ]
-
-    remains = [
-        Remain((0, 16, 17, 16, 18, 18, 18)),
-        Remain((16, 0, 16, 16, 17, 20, 18)),
-        Remain((17, 16, 0, 18, 17, 18, 18)),
-        Remain((16, 16, 18, 0, 17, 16, 18)),
-        Remain((18, 17, 17, 17, 0, 17, 18)),
-        Remain((18, 20, 18, 16, 17, 0, 18)),
-    ]
-
-    remains1 = [
-        Remain((0, 25, 25, 25, 25, 25, 16)),
-        Remain((25, 0, 25, 25, 25, 25, 16)),
-        Remain((25, 25, 0, 25, 25, 25, 16)),
-        Remain((25, 25, 25, 0, 25, 25, 16)),
-        Remain((25, 25, 25, 25, 0, 25, 16)),
-        Remain((25, 25, 25, 25, 25, 0, 16)),
-    ]
-
+def calc(games: list[Game], remains: list[Remain]):
     t1ss = [
         [0],
         [1],
@@ -312,7 +278,6 @@ def calc():
 
         data.append(
             {
-                "league": "t",
                 "index": t1,
                 "max": winMax[frozenset([t1])].rate(),
                 "now": table.getNow(t1).rate(),
@@ -337,35 +302,121 @@ def calc():
     return data
 
 
+def getGameResult(targetDate: str, league: str):
+    teamData = {
+        "c": {"G": 0, "T": 1, "DB": 2, "C": 3, "Y": 4, "D": 5},
+        "p": {"H": 0, "F": 1, "M": 2, "E": 3, "B": 4, "L": 5},
+    }
+
+    games = [
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+    ]
+
+    remains = [
+        [0, 25, 25, 25, 25, 25, 18],
+        [25, 0, 25, 25, 25, 25, 18],
+        [25, 25, 0, 25, 25, 25, 18],
+        [25, 25, 25, 0, 25, 25, 18],
+        [25, 25, 25, 25, 0, 25, 18],
+        [25, 25, 25, 25, 25, 0, 18],
+    ]
+
+    targetDate = datetime.datetime.strptime(targetDate, "%Y-%m-%d")
+    with open("result.csv") as f:
+        for column in csv.reader(f):
+            resultDate = datetime.datetime.strptime(column[0], "%Y-%m-%d")
+            if targetDate < resultDate:
+                continue
+
+            if column[1] != league:
+                continue
+
+            t1 = teamData[league][column[2]]
+            t2 = teamData[league][column[3]]
+
+            remains[t1][t2] -= 1
+            remains[t2][t1] -= 1
+
+            gameResult = column[4]
+            if gameResult == "d":
+                pass
+            elif gameResult == "w":
+                games[t1][0] += 1 # 勝ち
+                games[t2][1] += 1 # 負け
+            elif gameResult == "l":
+                games[t1][1] += 1 # 負け
+                games[t2][0] += 1 # 勝ち
+            else:
+                raise Exception("game result is wrong")
+
+    return list(map(lambda x: Game(x[0], x[1]), games)), list(map(lambda x: Remain(tuple(x)), remains))
+
+def leagueMain(league: str):
+    # 試合結果に入っている日付
+    dateList = set()
+    with open("result.csv") as f:
+        for column in csv.reader(f):
+            if column[1] != league:
+                continue
+            dateList.add(column[0])
+
+    # 集計済みの日付
+    aggregatedDateList = set()
+    with open("data.csv") as f:
+        for column in csv.reader(f):
+            if column[1] != league:
+                continue
+            aggregatedDateList.add(column[0])
+
+    # 未集計の日付で集計していく
+    for targetDate in list(dateList - aggregatedDateList):
+        games, remains = getGameResult(targetDate, league)
+
+        # 全チーム1勝1負以上で集計対象にする
+        isOverZero = False
+        for game in games:
+            if game.win == 0 or game.lose == 0:
+                isOverZero = True
+                break
+        if isOverZero:
+            continue
+
+        result = calc(games, remains)
+
+        data = list(map(lambda d: [
+            targetDate,
+            league,
+            str(d["index"]),
+            str(round(d["max"] * 1000)),
+            str(round(d["now"] * 1000)),
+            str(round(d["min"] * 1000)),
+            str(round(d["selfV"] * 1000)),
+            "t" if d["canSelfV"] else "f",
+            str(round(d["win1"] * 1000)),
+            str(round(d["win2"] * 1000)),
+            str(round(d["win3"] * 1000)),
+            str(d["win1Magic"]) if d["win1Magic"] is not None else "n",
+            str(d["win2Magic"]) if d["win2Magic"] is not None else "n",
+            str(d["win3Magic"]) if d["win3Magic"] is not None else "n",
+            str(round(d["lose1"] * 1000)),
+            str(round(d["lose2"] * 1000)),
+            str(round(d["lose3"] * 1000)),
+            str(-1 * d["lose1Magic"]) if d["lose1Magic"] is not None else "n",
+            str(-1 * d["lose2Magic"]) if d["lose2Magic"] is not None else "n",
+            str(-1 * d["lose3Magic"]) if d["lose3Magic"] is not None else "n",
+        ], result))
+
+
+        with open("data.csv", mode='a') as f:
+            f.write("\n".join(list(map(lambda x: ",".join(x), data))) + "\n")
+
 def main():
-    data = calc()
+    leagueMain("c")
+    leagueMain("p")
 
-    return list(map(lambda d: [
-        d["league"],
-        d["index"],
-        str(round(d["max"] * 1000)),
-        str(round(d["now"] * 1000)),
-        str(round(d["min"] * 1000)),
-        str(round(d["selfV"] * 1000)),
-        "t" if d["canSelfV"] else "f",
-        str(round(d["win1"] * 1000)),
-        str(round(d["win2"] * 1000)),
-        str(round(d["win3"] * 1000)),
-        str(d["win1Magic"]) if d["win1Magic"] is not None else "n",
-        str(d["win2Magic"]) if d["win2Magic"] is not None else "n",
-        str(d["win3Magic"]) if d["win3Magic"] is not None else "n",
-        str(round(d["lose1"] * 1000)),
-        str(round(d["lose2"] * 1000)),
-        str(round(d["lose3"] * 1000)),
-        str(-1 * d["lose1Magic"]) if d["lose1Magic"] is not None else "n",
-        str(-1 * d["lose2Magic"]) if d["lose2Magic"] is not None else "n",
-        str(-1 * d["lose3Magic"]) if d["lose3Magic"] is not None else "n",
-    ], data))
-
-
-rs = main()
-for r in rs:
-    print(r)
-
-
-
+main()

@@ -299,7 +299,7 @@ def calc(games: list[Game], remains: list[Remain]):
             }
         )
 
-    return data
+    return sorted(data, key = lambda x: x["now"], reverse = True)
 
 
 def getGameResult(targetDate: str, league: str):

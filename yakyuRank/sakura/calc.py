@@ -304,7 +304,7 @@ def calc(games: list[Game], remains: list[Remain]):
 
 def getGameResult(targetDate: str, league: str):
     teamData = {
-        "c": {"G": 0, "T": 1, "DB": 2, "C": 3, "Y": 4, "D": 5},
+        "c": {"G": 0, "T": 1, "DB": 2, "C": 3, "S": 4, "D": 5},
         "p": {"H": 0, "F": 1, "M": 2, "E": 3, "B": 4, "L": 5},
     }
 

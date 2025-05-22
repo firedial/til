@@ -356,67 +356,73 @@ def getGameResult(targetDate: str, league: str):
 
     return list(map(lambda x: Game(x[0], x[1]), games)), list(map(lambda x: Remain(tuple(x)), remains))
 
-def leagueMain(league: str):
-    # 試合結果に入っている日付
-    dateList = set()
-    with open("result.csv") as f:
-        for column in csv.reader(f):
-            if column[1] != league:
-                continue
-            dateList.add(column[0])
+def leagueMain(league: str, targetDate: str):
+    games, remains = getGameResult(targetDate, league)
 
-    # 集計済みの日付
-    aggregatedDateList = set()
-    with open("data.csv") as f:
-        for column in csv.reader(f):
-            if column[1] != league:
-                continue
-            aggregatedDateList.add(column[0])
+    # 全チーム1勝1負以上で集計対象にする
+    isOverZero = False
+    for game in games:
+        if game.win == 0 or game.lose == 0:
+            isOverZero = True
+            break
+    if isOverZero:
+        return
 
-    # 未集計の日付で集計していく
-    for targetDate in list(dateList - aggregatedDateList):
-        games, remains = getGameResult(targetDate, league)
+    result = calc(games, remains)
 
-        # 全チーム1勝1負以上で集計対象にする
-        isOverZero = False
-        for game in games:
-            if game.win == 0 or game.lose == 0:
-                isOverZero = True
-                break
-        if isOverZero:
-            continue
-
-        result = calc(games, remains)
-
-        data = list(map(lambda d: [
-            targetDate,
-            league,
-            str(d["index"]),
-            str(round(d["max"] * 1000)),
-            str(round(d["now"] * 1000)),
-            str(round(d["min"] * 1000)),
-            str(round(d["selfV"] * 1000)),
-            "t" if d["canSelfV"] else "f",
-            str(round(d["win1"] * 1000)),
-            str(round(d["win2"] * 1000)),
-            str(round(d["win3"] * 1000)),
-            str(d["win1Magic"]) if d["win1Magic"] is not None else "n",
-            str(d["win2Magic"]) if d["win2Magic"] is not None else "n",
-            str(d["win3Magic"]) if d["win3Magic"] is not None else "n",
-            str(round(d["lose1"] * 1000)),
-            str(round(d["lose2"] * 1000)),
-            str(round(d["lose3"] * 1000)),
-            str(-1 * d["lose1Magic"]) if d["lose1Magic"] is not None else "n",
-            str(-1 * d["lose2Magic"]) if d["lose2Magic"] is not None else "n",
-            str(-1 * d["lose3Magic"]) if d["lose3Magic"] is not None else "n",
-        ], result))
+    data = list(map(lambda d: [
+        targetDate,
+        league,
+        str(d["index"]),
+        str(round(d["max"] * 1000)),
+        str(round(d["now"] * 1000)),
+        str(round(d["min"] * 1000)),
+        str(round(d["selfV"] * 1000)),
+        "t" if d["canSelfV"] else "f",
+        str(round(d["win1"] * 1000)),
+        str(round(d["win2"] * 1000)),
+        str(round(d["win3"] * 1000)),
+        str(d["win1Magic"]) if d["win1Magic"] is not None else "n",
+        str(d["win2Magic"]) if d["win2Magic"] is not None else "n",
+        str(d["win3Magic"]) if d["win3Magic"] is not None else "n",
+        str(round(d["lose1"] * 1000)),
+        str(round(d["lose2"] * 1000)),
+        str(round(d["lose3"] * 1000)),
+        str(-1 * d["lose1Magic"]) if d["lose1Magic"] is not None else "n",
+        str(-1 * d["lose2Magic"]) if d["lose2Magic"] is not None else "n",
+        str(-1 * d["lose3Magic"]) if d["lose3Magic"] is not None else "n",
+    ], result))
 
 
-        with open("data.csv", mode='a') as f:
-            f.write("\n".join(list(map(lambda x: ",".join(x), data))) + "\n")
+    with open("data.csv", mode='a') as f:
+        f.write("\n".join(list(map(lambda x: ",".join(x), data))) + "\n")
 
 def main():
-    leagueMain("c")
-    leagueMain("p")
+    # 試合結果に入っている日付
+    centralDateList = set()
+    pacificDateList = set()
+    with open("result.csv") as f:
+        for column in csv.reader(f):
+            if column[1] == "c":
+                centralDateList.add(column[0])
+            elif column[1] == "p":
+                pacificDateList.add(column[0])
+
+    # 集計済みの日付
+    centralAggregatedDateList = set()
+    pacificAggregatedDateList = set()
+    with open("data.csv") as f:
+        for column in csv.reader(f):
+            if column[1] == "c":
+                centralAggregatedDateList.add(column[0])
+            if column[1] == "p":
+                pacificAggregatedDateList.add(column[0])
+
+    # 未集計の日付で集計していく
+    for targetDate in sorted(list((centralDateList | pacificDateList) - (centralAggregatedDateList | pacificAggregatedDateList))):
+        if targetDate in centralDateList:
+            leagueMain("c", targetDate)
+        if targetDate in pacificDateList:
+            leagueMain("p", targetDate)
 
 main()

@@ -1,0 +1,6 @@
+services:
+    sagemath:
+        image: sagemath/sagemath
+        tty: true
+        volumes:
+         - ./src/:/src

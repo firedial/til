@@ -304,11 +304,12 @@ def calc(games: list[Game], remains: list[Remain]):
 
 def getGameResult(targetDate: str, league: str):
     teamData = {
-        "c": {"G": 0, "T": 1, "DB": 2, "C": 3, "S": 4, "D": 5},
-        "p": {"H": 0, "F": 1, "M": 2, "E": 3, "B": 4, "L": 5},
+        "c": {"G": 0, "T": 1, "DB": 2, "C": 3, "S": 4, "D": 5, "O": 6},
+        "p": {"H": 0, "F": 1, "M": 2, "E": 3, "B": 4, "L": 5, "O": 6},
     }
 
     games = [
+        [0, 0],
         [0, 0],
         [0, 0],
         [0, 0],
@@ -324,6 +325,7 @@ def getGameResult(targetDate: str, league: str):
         [25, 25, 25, 0, 25, 25, 18],
         [25, 25, 25, 25, 0, 25, 18],
         [25, 25, 25, 25, 25, 0, 18],
+        [0, 0, 0, 0, 0, 0, 108],
     ]
 
     targetDate = datetime.datetime.strptime(targetDate, "%Y-%m-%d")
@@ -353,6 +355,10 @@ def getGameResult(targetDate: str, league: str):
                 games[t2][0] += 1 # 勝ち
             else:
                 raise Exception("game result is wrong")
+
+    # 最後の要素を削除する
+    games.pop()
+    remains.pop()
 
     return list(map(lambda x: Game(x[0], x[1]), games)), list(map(lambda x: Remain(tuple(x)), remains))
 

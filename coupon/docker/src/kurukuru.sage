@@ -57,6 +57,41 @@ print(f(7))
 # g(m) = (mp(10)- mp(6) * 72 * ((m-6) * (m-7) - 32/7)) / (2^8*3^6*5 * 2^m)
 # print(g(6))
 
+def getOtherB(dim):
+    k = var('k', domain='integer')
+    n = var('n', domain='integer')
+    m = var('m', domain='integer')
+
+    p(n, m) = (1/n^(n+m)) * sum((-1)^(n-k) * binomial(n, k) * k^(n+m), k, 0, n)
+
+    b(n, m) = factorial(m)/factorial(n+m) * sum((-1)^(n-k) * binomial(n, k) * k^(n+m), k, 0, n)
+
+    A = Matrix(
+        [[(i+1)^(j+1) for j in range(dim)] for i in range(dim)]
+    )
+    v = vector([b(i + 1, dim).unhold() * 2^dim for i in range(dim)])
+
+    a = list(A.solve_right(v))
+    a.reverse()
+
+    return a
+
+def getOtherP(i):
+    startM = i + 2
+    term = i // 2 + (i % 2)
+
+    A = Matrix(
+        [[mp(k)(m=m) for k in range(i * 2, i * 2 - term * 2, -2)] for m in range(i + 2, i + 2 + 2 * term, 2)]
+    )
+    v = vector([getOtherB(m)[i] for m in range(i + 2, i + 2 + 2 * term, 2)])
+    a = list(A.solve_right(v))
+
+    return a
+    r = 0
+    for p, c in zip([mp(k)(m=m) for k in range(i * 2, i * 2 - term * 2, -2)], a):
+        r += p * c
+    return r
+
 def getP(vi):
     p0(m) = mp(0)
     p1(m) = mp(2) / (2*3)
@@ -132,3 +167,10 @@ print(diff.collect(n))
 # print(p6(m) / 2 ^ m)
 # print(p7(m) / 2 ^ m)
 # print(p8(m) / 2 ^ m)
+
+
+print("------------------------------")
+for vi in range(1, 12):
+    p = getOtherP(vi)
+    print(p)
+print("------------------------------")

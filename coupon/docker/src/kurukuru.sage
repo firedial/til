@@ -69,7 +69,8 @@ def getOtherB(dim):
     A = Matrix(
         [[(i+1)^(j+1) for j in range(dim)] for i in range(dim)]
     )
-    v = vector([b(i + 1, dim).unhold() * 2^dim for i in range(dim)])
+    # v = vector([b(i + 1, dim).unhold() * 2^dim for i in range(dim)])
+    v = vector([b(i + 1, dim).unhold() for i in range(dim)])
 
     a = list(A.solve_right(v))
     a.reverse()
@@ -83,7 +84,7 @@ def getOtherP(i):
     A = Matrix(
         [[mp(k)(m=m) for k in range(i * 2, i * 2 - term * 2, -2)] for m in range(i + 2, i + 2 + 2 * term, 2)]
     )
-    v = vector([getOtherB(m)[i] for m in range(i + 2, i + 2 + 2 * term, 2)])
+    v = vector([getOtherB(m)[i] * 2^m for m in range(i + 2, i + 2 + 2 * term, 2)])
     a = list(A.solve_right(v))
 
     return a
@@ -170,7 +171,27 @@ print(diff.collect(n))
 
 
 print("------------------------------")
-for vi in range(1, 12):
+for vi in range(1, 13):
     p = getOtherP(vi)
-    print(p)
+    s = "\\phi_{" + str(vi) + "}(m) &= "
+    for i, pp in enumerate(p):
+        if pp.numerator() == 0:
+            continue
+
+        sgn = 1 if pp.numerator() > 0 else -1
+        s += (" + " if sgn == 1 else " - ") + "\\frac{" + str(sgn * pp.numerator() * mp(2*vi - 2*i)).replace("*", "") + "}{" + str(pp.denominator()) + "}"
+    print(s + " \\\\")
+
+# for vm in range(1, 31):
+#     p = getOtherB(vm)
+#     s = "B_{" + str(vm) + "}^{(-n)} &= "
+#     for i, pp in enumerate(p):
+#         if pp.numerator() == 0:
+#             s += " &"
+#             continue
+#
+#         sgn = 1 if pp.numerator() > 0 else -1
+#         s += (" &+ " if sgn == 1 else " &- ") + "\\frac{" + str(sgn * pp.numerator()) + "}{" + str(pp.denominator()) + "}" + ("n" if vm - i == 1 else "n^{" + str(vm - i) + "}")
+#     print(s + (" &" * (29 - i)) + " \\\\")
+
 print("------------------------------")

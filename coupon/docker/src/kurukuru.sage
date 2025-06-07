@@ -1,3 +1,5 @@
+import functools
+
 # x = var('x')
 # n = var('n', domain='integer')
 #
@@ -77,7 +79,11 @@ def getOtherB(dim):
 
     return a
 
+@functools.cache
 def getOtherP(i):
+    if i == 0:
+        return 1
+
     startM = i + 2
     term = i // 2 + (i % 2)
 
@@ -87,7 +93,6 @@ def getOtherP(i):
     v = vector([getOtherB(m)[i] * 2^m for m in range(i + 2, i + 2 + 2 * term, 2)])
     a = list(A.solve_right(v))
 
-    return a
     r = 0
     for p, c in zip([mp(k)(m=m) for k in range(i * 2, i * 2 - term * 2, -2)], a):
         r += p * c
@@ -115,46 +120,47 @@ def getP(vi):
     ps = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11]
     return ps[vi]
 
-
+@functools.cache
 def getB(vm):
     if vm == 0:
         return 1
 
     f = 0
     for i in range(vm):
-        f += getP(i) * n ^ (vm - i)
+        f += getOtherP(i) * n ^ (vm - i)
 
     return (f / 2^m)(m=vm)
 
 print("-----------")
-print(getB(8)(n=1))
-print(getB(8)(n=2))
-print(getB(9)(n=1))
-print(getB(9)(n=2))
+# print(getB(8)(n=1))
+# print(getB(8)(n=2))
+# print(getB(9)(n=1))
+# print(getB(9)(n=2))
 
-A = Matrix(
-    [
-        [1, 1],
-        [4, 2],
-    ]
-)
-
-v = vector([
-    1/9 - getB(8)(n=1),
-    511/45 - getB(8)(n=2),
-])
-print(v)
-print(A.solve_right(v))
+# A = Matrix(
+#     [
+#         [1, 1],
+#         [4, 2],
+#     ]
+# )
+#
+# v = vector([
+#     1/9 - getB(8)(n=1),
+#     511/45 - getB(8)(n=2),
+# ])
+# print(v)
+# print(A.solve_right(v))
 
 
 print("-----------")
 
-print(getB(9))
-print(getB(10))
-print(getB(11))
-vm = 12
-diff = (n + vm) * getB(vm) - n * getB(vm)(n=n-1) - n * vm * getB(vm - 1)
-print(diff.collect(n))
+print(getB(2))
+print(getB(3))
+# print(getB(10))
+# print(getB(11))
+for vm in range(1, 3):
+    diff = (n + vm) * getB(vm) - n * getB(vm)(n=n-1) - n * vm * getB(vm - 1)
+    print(vm, diff.collect(n))
 
 
 # m = 12
@@ -171,27 +177,28 @@ print(diff.collect(n))
 
 
 print("------------------------------")
-for vi in range(1, 13):
-    p = getOtherP(vi)
-    s = "\\phi_{" + str(vi) + "}(m) &= "
-    for i, pp in enumerate(p):
-        if pp.numerator() == 0:
-            continue
-
-        sgn = 1 if pp.numerator() > 0 else -1
-        s += (" + " if sgn == 1 else " - ") + "\\frac{" + str(sgn * pp.numerator() * mp(2*vi - 2*i)).replace("*", "") + "}{" + str(pp.denominator()) + "}"
-    print(s + " \\\\")
-
-# for vm in range(1, 31):
-#     p = getOtherB(vm)
-#     s = "B_{" + str(vm) + "}^{(-n)} &= "
+# or vi in range(1, 13):
+#    p = getOtherP(vi)
+#    print(p.collect(m))
+#     s = "\\phi_{" + str(vi) + "}(m) &= "
 #     for i, pp in enumerate(p):
 #         if pp.numerator() == 0:
-#             s += " &"
 #             continue
 #
 #         sgn = 1 if pp.numerator() > 0 else -1
-#         s += (" &+ " if sgn == 1 else " &- ") + "\\frac{" + str(sgn * pp.numerator()) + "}{" + str(pp.denominator()) + "}" + ("n" if vm - i == 1 else "n^{" + str(vm - i) + "}")
-#     print(s + (" &" * (29 - i)) + " \\\\")
+#         s += (" + " if sgn == 1 else " - ") + "\\frac{" + str(sgn * pp.numerator() * mp(2*vi - 2*i)).replace("*", "") + "}{" + str(pp.denominator()) + "}"
+#     print(s + " \\\\")
+
+for vm in range(1, 10):
+    p = getOtherB(vm)
+    s = "B_{" + str(vm) + "}^{(-n)} &= "
+    for i, pp in enumerate(p):
+        if pp.numerator() == 0:
+            s += " &"
+            continue
+
+        sgn = 1 if pp.numerator() > 0 else -1
+        s += (" &+ " if sgn == 1 else " &- ") + "\\frac{" + str(sgn * pp.numerator()) + "}{" + str(pp.denominator()) + "}" + ("n" if vm - i == 1 else "n^{" + str(vm - i) + "}")
+    print(s + (" &" * (8 - i)) + " \\\\")
 
 print("------------------------------")

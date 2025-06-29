@@ -372,8 +372,26 @@ def leagueMain(league: str, targetDate: str):
 
     table = Table(games, remains)
     dualTable = table.getDualTable()
-    winMax = calcWinMax(table)
-    loseMin = calcWinMax(dualTable)
+
+    # とり得る値の最大値と最小値
+    with open("winMax.csv", mode='r') as f:
+        for column in csv.reader(f):
+            if column[0] == targetDate and column[1] == league:
+                winMax = eval(column[2])
+                break
+        else:
+            winMax = calcWinMax(table)
+            with open("winMax.csv", mode='a') as g:
+                g.write(targetDate + ',' + league + ',' + '"' + str(winMax) + '"' + '\n')
+    with open("loseMin.csv", mode='r') as f:
+        for column in csv.reader(f):
+            if column[0] == targetDate and column[1] == league:
+                loseMin = eval(column[2])
+                break
+        else:
+            loseMin = calcWinMax(dualTable)
+            with open("loseMin.csv", mode='a') as g:
+                g.write(targetDate + ',' + league + ',' + '"' + str(loseMin) + '"' + '\n')
 
     result = calc(table, winMax, loseMin)
 

@@ -184,7 +184,7 @@ def getMaxWinT1(count: int, maxWin: dict, t1: int) -> WinningRate:
     return maxWinByT1
 
 
-def calc(games: list[Game], remains: list[Remain]):
+def calcWinMax(table: Table):
     t1ss = [
         [0],
         [1],
@@ -235,8 +235,6 @@ def calc(games: list[Game], remains: list[Remain]):
         [3, 4, 5],
     ]
 
-    table = Table(games, remains)
-
     selfV: list[WinningRate] = []
     for t1s in t1ss:
         selfV.append(table.getSelfV(t1s[0]))
@@ -253,18 +251,15 @@ def calc(games: list[Game], remains: list[Remain]):
         for t3s, result in zip(t3ss, executor.map(table.getWin3, list(map(lambda x: x[0], t3ss)), list(map(lambda x: x[1], t3ss)), list(map(lambda x: x[2], t3ss)))):
             winMax[frozenset(t3s)] = result
 
-    dualTable = table.getDualTable()
-    loseMin: dict[frozenset, WinningRate] = {}
-    for t1s in t1ss:
-        loseMin[frozenset(t1s)] = dualTable.getWin1(t1s[0])
-    for t2s in t2ss:
-        loseMin[frozenset(t2s)] = dualTable.getWin2(t2s[0], t2s[1])
-    # for t3s in t3ss:
-    #     loseMin[frozenset(t3s)] = table.getWin3(t3s[0], t3s[1], t3s[2])
+    return winMax
 
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        for t3s, result in zip(t3ss, executor.map(dualTable.getWin3, list(map(lambda x: x[0], t3ss)), list(map(lambda x: x[1], t3ss)), list(map(lambda x: x[2], t3ss)))):
-            loseMin[frozenset(t3s)] = result
+
+def calc(table: Table, winMax, loseMin):
+    dualTable = table.getDualTable()
+
+    selfV: list[WinningRate] = []
+    for t1s in [[0], [1], [2], [3], [4], [5]]:
+        selfV.append(table.getSelfV(t1s[0]))
 
     data = []
     for t1 in range(6):
@@ -362,6 +357,7 @@ def getGameResult(targetDate: str, league: str):
 
     return list(map(lambda x: Game(x[0], x[1]), games)), list(map(lambda x: Remain(tuple(x)), remains))
 
+
 def leagueMain(league: str, targetDate: str):
     games, remains = getGameResult(targetDate, league)
 
@@ -374,7 +370,12 @@ def leagueMain(league: str, targetDate: str):
     if isOverZero:
         return
 
-    result = calc(games, remains)
+    table = Table(games, remains)
+    dualTable = table.getDualTable()
+    winMax = calcWinMax(table)
+    loseMin = calcWinMax(dualTable)
+
+    result = calc(table, winMax, loseMin)
 
     data = list(map(lambda d: [
         targetDate,
@@ -400,8 +401,8 @@ def leagueMain(league: str, targetDate: str):
     ], result))
 
 
-    with open("data.csv", mode='a') as f:
-        f.write("\n".join(list(map(lambda x: ",".join(x), data))) + "\n")
+    return "\n".join(list(map(lambda x: ",".join(x), data))) + "\n"
+
 
 def main():
     # 試合結果に入っている日付
@@ -427,8 +428,16 @@ def main():
     # 未集計の日付で集計していく
     for targetDate in sorted(list((centralDateList | pacificDateList) - (centralAggregatedDateList | pacificAggregatedDateList))):
         if targetDate in centralDateList:
-            leagueMain("c", targetDate)
+            data = leagueMain("c", targetDate)
+            if data is None:
+                continue
+            with open("data.csv", mode='a') as f:
+                f.write(data)
         if targetDate in pacificDateList:
-            leagueMain("p", targetDate)
+            data = leagueMain("p", targetDate)
+            if data is None:
+                continue
+            with open("data.csv", mode='a') as f:
+                f.write(data)
 
 main()

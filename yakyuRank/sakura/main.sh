@@ -1,0 +1,17 @@
+#!/bin/bash
+
+git pull
+git -C ../../../web-site-sakura pull
+
+python3 ./calc.py
+
+git add .
+git commit -m "結果反映"
+git push
+
+mv ./data.csv ../../../web-site-sakura/public/csv/data.csv
+
+git -C ../../../web-site-sakura add .
+git -C ../../../web-site-sakura commit -m "結果反映"
+git -C ../../../web-site-sakura push
+

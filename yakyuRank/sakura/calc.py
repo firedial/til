@@ -294,8 +294,13 @@ def calc(table: Table, winMax, loseMin):
             }
         )
 
-    return sorted(data, key = lambda x: x["now"], reverse = True)
+    sortedData = sorted(data, key = lambda x: x["now"], reverse = True)
+    resultData = []
+    for i, data in enumerate(sortedData):
+        data["rank"] = i + 1
+        resultData.append(data)
 
+    return resultData
 
 def getGameResult(targetDate: str, league: str):
     teamData = {

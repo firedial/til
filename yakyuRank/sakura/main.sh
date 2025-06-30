@@ -3,6 +3,10 @@
 git pull
 git -C ../../../web-site-sakura pull
 
+if [ "$#" -ne 1]; then
+    exit 1
+fi
+
 python3 ./calc.py $1
 
 git add .

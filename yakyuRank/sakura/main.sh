@@ -3,7 +3,7 @@
 git pull
 git -C ../../../web-site-sakura pull
 
-python3 ./calc.py
+python3 ./calc.py $1
 
 git add .
 git commit -m "結果反映"

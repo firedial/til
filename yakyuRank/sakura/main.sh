@@ -3,8 +3,7 @@
 git pull
 git -C ../../../web-site-sakura pull
 
-if [ "$#" -ne 1]; then
-    echo "end"
+if [ "$#" -ne 1 ]; then
     exit 1
 fi
 

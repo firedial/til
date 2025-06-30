@@ -34,16 +34,18 @@ class WinningRate:
 class Game:
     win: int
     lose: int
+    draw: int
 
-    def __init__(self, win: int, lose: int) -> None:
+    def __init__(self, win: int, lose: int, draw: int) -> None:
         if win < 0 or lose < 0:
             raise ValueError("Exists negative number.")
 
         object.__setattr__(self, "win", win)
         object.__setattr__(self, "lose", lose)
+        object.__setattr__(self, "draw", draw)
 
     def getDualGame(self):
-        return Game(self.lose, self.win)
+        return Game(self.lose, self.win, self.draw)
 
 
 @dataclass(frozen=True)
@@ -291,6 +293,9 @@ def calc(table: Table, winMax, loseMin):
                 "lose1Magic": dualTable.getWinMagic(t1, lose1),
                 "lose2Magic": dualTable.getWinMagic(t1, lose2),
                 "lose3Magic": dualTable.getWinMagic(t1, lose3),
+                "winCount": table.games[t1].win,
+                "loseCount": table.games[t1].lose,
+                "drawCount": table.games[t1].draw,
             }
         )
 
@@ -309,13 +314,13 @@ def getGameResult(targetDate: str, league: str):
     }
 
     games = [
-        [0, 0],
-        [0, 0],
-        [0, 0],
-        [0, 0],
-        [0, 0],
-        [0, 0],
-        [0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
     ]
 
     remains = [
@@ -346,7 +351,8 @@ def getGameResult(targetDate: str, league: str):
 
             gameResult = column[4]
             if gameResult == "d":
-                pass
+                games[t1][2] += 1 # 引き分け
+                games[t2][2] += 1 # 引き分け
             elif gameResult == "w":
                 games[t1][0] += 1 # 勝ち
                 games[t2][1] += 1 # 負け
@@ -360,7 +366,7 @@ def getGameResult(targetDate: str, league: str):
     games.pop()
     remains.pop()
 
-    return list(map(lambda x: Game(x[0], x[1]), games)), list(map(lambda x: Remain(tuple(x)), remains))
+    return list(map(lambda x: Game(x[0], x[1], x[2]), games)), list(map(lambda x: Remain(tuple(x)), remains))
 
 
 def leagueMain(league: str, targetDate: str):
@@ -418,9 +424,14 @@ def leagueMain(league: str, targetDate: str):
         str(round(d["lose1"] * 1000)),
         str(round(d["lose2"] * 1000)),
         str(round(d["lose3"] * 1000)),
-        str(-1 * d["lose1Magic"]) if d["lose1Magic"] is not None else "n",
-        str(-1 * d["lose2Magic"]) if d["lose2Magic"] is not None else "n",
-        str(-1 * d["lose3Magic"]) if d["lose3Magic"] is not None else "n",
+        str(d["lose1Magic"]) if d["lose1Magic"] is not None else "n",
+        str(d["lose2Magic"]) if d["lose2Magic"] is not None else "n",
+        str(d["lose3Magic"]) if d["lose3Magic"] is not None else "n",
+        str(d["rank"]),
+        str(d["winCount"]),
+        str(d["loseCount"]),
+        str(d["drawCount"]),
+        str(143 - d["winCount"] - d["loseCount"] - d["drawCount"]),
     ], result))
 
 

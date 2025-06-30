@@ -4,6 +4,7 @@ git pull
 git -C ../../../web-site-sakura pull
 
 if [ "$#" -ne 1]; then
+    echo "end"
     exit 1
 fi
 

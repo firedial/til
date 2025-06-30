@@ -433,29 +433,21 @@ def main():
             elif column[1] == "p":
                 pacificDateList.add(column[0])
 
-    # 集計済みの日付
-    centralAggregatedDateList = set()
-    pacificAggregatedDateList = set()
-    with open("data.csv") as f:
-        for column in csv.reader(f):
-            if column[1] == "c":
-                centralAggregatedDateList.add(column[0])
-            if column[1] == "p":
-                pacificAggregatedDateList.add(column[0])
-
     # 未集計の日付で集計していく
-    for targetDate in sorted(list((centralDateList | pacificDateList) - (centralAggregatedDateList | pacificAggregatedDateList))):
+    dataString = ""
+    for targetDate in sorted(list(centralDateList | pacificDateList)):
         if targetDate in centralDateList:
             data = leagueMain("c", targetDate)
             if data is None:
                 continue
-            with open("data.csv", mode='a') as f:
-                f.write(data)
+            dataString += data
         if targetDate in pacificDateList:
             data = leagueMain("p", targetDate)
             if data is None:
                 continue
-            with open("data.csv", mode='a') as f:
-                f.write(data)
+            dataString += data
+
+    with open("data.csv", mode='w') as f:
+        f.write(dataString)
 
 main()

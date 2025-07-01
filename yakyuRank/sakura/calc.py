@@ -469,10 +469,11 @@ def main():
 
 
 def updateResult(data: str):
-    C = ["G", "T", "Z", "C", "S", "D"]
-    P = ["H", "F", "M", "E", "B", "L"]
+    C = ["G", "T", "Z", "C", "S", "D", "O"]
+    P = ["H", "F", "M", "E", "B", "L", "O"]
 
     l = data.split(",")
+    resultData = ""
 
     for rawDate, result in zip(l[0::2], l[1::2]):
         date = datetime.datetime.strptime(rawDate, "%Y-%m-%d").strftime("%Y-%m-%d")
@@ -480,18 +481,29 @@ def updateResult(data: str):
         for t1, t2, r in zip(result[0::3], result[1::3], result[2::3]):
             if t1 in C:
                 league = "c"
+                group = C
             elif t1 in P:
                 league = "p"
+                group = P
             else:
                 raise ValueError("no league.")
+
+            if t1 not in group:
+                raise ValueError("wrong team.")
+            if t2 not in group:
+                raise ValueError("wrong team.")
+            if r not in ["w", "l", "d"]:
+                raise ValueError("wrong result.")
 
             if t1 == "Z":
                 t1 = "DB"
             if t2 == "Z":
                 t2 = "DB"
 
-            with open("result.csv", mode='a') as f:
-                f.write(','.join([date, league, t1, t2, r]) + "\n")
+            resultData += ','.join([date, league, t1, t2, r]) + "\n"
+
+    with open("result.csv", mode='a') as f:
+        f.write(resultData)
 
 if len(sys.argv) == 2:
     updateResult(sys.argv[1])

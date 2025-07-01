@@ -16,16 +16,17 @@ class WinningRate:
         if win < 0 or lose < 0:
             raise ValueError("Exists negative number.")
 
-        if win + lose == 0:
-            raise ValueError("No game.")
-
         object.__setattr__(self, "win", win)
         object.__setattr__(self, "lose", lose)
 
     def rate(self) -> Fraction:
+        if self.win + self.lose == 0:
+            return Fraction(0, 1)
         return Fraction(self.win, self.win + self.lose)
 
     def dualRate(self) -> Fraction:
+        if self.win + self.lose == 0:
+            return Fraction(1, 1)
         return Fraction(self.lose, self.win + self.lose)
 
     def __lt__(self, other):
@@ -373,15 +374,6 @@ def getGameResult(targetDate: str, league: str):
 def leagueMain(league: str, targetDate: str):
     games, remains = getGameResult(targetDate, league)
 
-    # 全チーム1勝1負以上で集計対象にする
-    isOverZero = False
-    for game in games:
-        if game.win == 0 or game.lose == 0:
-            isOverZero = True
-            break
-    if isOverZero:
-        return
-
     table = Table(games, remains)
     dualTable = table.getDualTable()
 
@@ -443,6 +435,8 @@ def main():
     # 試合結果に入っている日付
     centralDateList = set()
     pacificDateList = set()
+    centralDateList.add("2025-01-01")
+    pacificDateList.add("2025-01-01")
     with open("result.csv") as f:
         for column in csv.reader(f):
             if column[1] == "c":

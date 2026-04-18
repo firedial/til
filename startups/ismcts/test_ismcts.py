@@ -20,7 +20,7 @@ def ismcts_policy_factory(iterations: int = 500, seed: int = 0):
     return policy
 
 
-def play_one_game(policies: list, seed: int) -> list[float]:
+def play_one_game(policies: list, seed: int):
     game = StartupsGame(seed=seed)
     rng = random.Random(seed + 9999)
     steps = 0
@@ -29,26 +29,19 @@ def play_one_game(policies: list, seed: int) -> list[float]:
         action = policies[pid](game, rng)
         game.step(action)
         steps += 1
-    return game.get_rewards()
+    return game.get_rewards(), game.get_winner()
 
 
 def tournament(policies, num_games: int, base_seed: int = 0, label: str = ""):
     wins = [0] * NUM_PLAYERS
-    draws = 0
-    total_coins = [0.0] * NUM_PLAYERS
+    total_points = [0] * NUM_PLAYERS
 
     start = time.time()
     for g in range(num_games):
-        rewards = play_one_game(policies, base_seed + g)
+        rewards, winner = play_one_game(policies, base_seed + g)
         for i, r in enumerate(rewards):
-            total_coins[i] += r
-        m = max(rewards)
-        top = [i for i, r in enumerate(rewards) if r == m]
-        if len(top) == 1:
-            wins[top[0]] += 1
-        else:
-            draws += 1
-        # 進捗表示
+            total_points[i] += r
+        wins[winner] += 1
         if (g + 1) % max(1, num_games // 10) == 0:
             print(f"  [{label}] {g+1}/{num_games} games done...")
 
@@ -56,10 +49,9 @@ def tournament(policies, num_games: int, base_seed: int = 0, label: str = ""):
     print(f"\n=== {label} ({num_games} games, {elapsed:.1f}s) ===")
     for i in range(NUM_PLAYERS):
         wr = wins[i] / num_games * 100
-        avg = total_coins[i] / num_games
-        print(f"  P{i}: wins={wins[i]} ({wr:.1f}%), avg_coins={avg:.2f}")
-    print(f"  Draws: {draws}")
-    return wins, draws, total_coins
+        avg = total_points[i] / num_games
+        print(f"  P{i}: wins={wins[i]} ({wr:.1f}%), avg_points={avg:.2f}")
+    return wins, total_points
 
 
 if __name__ == "__main__":
@@ -79,7 +71,7 @@ if __name__ == "__main__":
     # 実験2: ISMCTS(P0) vs Greedy(P1) vs Greedy(P2)
     # ============================================================
     print("\n\n===== 実験2: ISMCTS vs Greedy vs Greedy =====")
-    ismcts_pol2 = ismcts_policy_factory(iterations=3000, seed=1)
+    ismcts_pol2 = ismcts_policy_factory(iterations=300, seed=1)
     tournament(
         [ismcts_pol2, greedy_policy, greedy_policy],
         num_games=50,

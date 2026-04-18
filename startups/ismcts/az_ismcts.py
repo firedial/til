@@ -200,17 +200,11 @@ class AlphaZeroISMCTS:
             node = node.children[chosen_idx]
             is_root = False
 
-        # 終端に到達 → 実際の報酬で Backup
-        # root_player 視点の報酬 (-1, 0, 1 に正規化)
-        rewards = det_game.get_rewards()
-        my = rewards[root_player]
-        max_others = max(r for i, r in enumerate(rewards) if i != root_player)
-        if my > max_others:
-            value = 1.0
-        elif my == max_others:
-            value = 0.0
-        else:
-            value = -1.0
+        # 終端に到達 → ポイント制報酬で Backup
+        rewards = det_game.get_rewards()  # [2, 1, -1]
+        my_points = rewards[root_player]
+        # 正規化: 1位→1.0, 2位→0.0, 3位→-1.0
+        value = {2: 1.0, 1: 0.0, -1: -1.0}.get(my_points, 0.0)
 
         self._backup(path, root, value)
 

@@ -25,7 +25,7 @@ def play_one_game(policies, seed):
         action = policies[pid](game)
         game.step(action)
         steps += 1
-    return game.get_rewards()
+    return game.get_rewards(), game.get_winner()
 
 
 def make_policy_from_net(net, iterations=50, seed=0):
@@ -39,22 +39,15 @@ def make_policy_from_net(net, iterations=50, seed=0):
 
 def tournament(policies, num_games, base_seed=0, label=""):
     wins = [0] * NUM_PLAYERS
-    draws = 0
-    coins_sum = [0.0] * NUM_PLAYERS
+    total_points = [0] * NUM_PLAYERS
     for g in range(num_games):
-        rewards = play_one_game(policies, base_seed + g)
+        rewards, winner = play_one_game(policies, base_seed + g)
         for i, r in enumerate(rewards):
-            coins_sum[i] += r
-        m = max(rewards)
-        top = [i for i, r in enumerate(rewards) if r == m]
-        if len(top) == 1:
-            wins[top[0]] += 1
-        else:
-            draws += 1
+            total_points[i] += r
+        wins[winner] += 1
     print(f"\n=== {label} ({num_games} games) ===")
     for i in range(NUM_PLAYERS):
-        print(f"  P{i}: wins={wins[i]} ({wins[i]/num_games*100:.1f}%), avg_coins={coins_sum[i]/num_games:.2f}")
-    print(f"  Draws: {draws}")
+        print(f"  P{i}: wins={wins[i]} ({wins[i]/num_games*100:.1f}%), avg_points={total_points[i]/num_games:.2f}")
     return wins
 
 
@@ -69,9 +62,9 @@ if __name__ == "__main__":
     print(">>> 学習を実施します")
     rng = random.Random(0)
     all_samples = []
-    NUM_ITER = 20
-    GAMES_PER_ITER = 30
-    MCTS_ITERS = 200
+    NUM_ITER = 4
+    GAMES_PER_ITER = 10
+    MCTS_ITERS = 40
 
     for it in range(NUM_ITER):
         print(f"\n--- Iteration {it+1}/{NUM_ITER} ---")
@@ -88,8 +81,8 @@ if __name__ == "__main__":
         print(f"  train: {time.time()-start:.1f}s")
 
     # 保存
-    torch.save(trained.state_dict(), "./az_net_trained.pt")
-    torch.save(untrained.state_dict(), "./az_net_untrained.pt")
+    torch.save(trained.state_dict(), "/home/claude/az_net_trained.pt")
+    torch.save(untrained.state_dict(), "/home/claude/az_net_untrained.pt")
 
     # ------------ 対戦 ------------
     print("\n\n>>> trained(P0) vs untrained(P1,P2) で対戦")

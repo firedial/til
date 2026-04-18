@@ -75,9 +75,10 @@ class GameState:
     # 手番のフェーズ: "draw" or "play"
     phase: str = "draw"
     # この手番でマーケットから取った企業(ドローフェーズでマーケットから引いた時に設定)
-    # プレイフェーズで「その企業と同じカード」を放流できない制約に使う
-    # None なら制約なし(山札から引いた手番、またはプレイフェーズ終了後)
     market_locked_company: Optional[int] = None
+    # タイブレーク用: 各プレイヤーの初手順。0が先手、大きいほど後手。
+    # 同点時は「初手が遅かった順で上位」なので値が大きい方が有利。
+    turn_order: list[int] = field(default_factory=lambda: list(range(NUM_PLAYERS)))
     # 終了フラグ
     terminal: bool = False
     # rng
@@ -135,6 +136,7 @@ class StartupsGame:
         s.current_player = 0
         s.phase = "draw"
         s.market_locked_company = None
+        s.turn_order = list(range(NUM_PLAYERS))  # [0,1,2] = P0が先手
         s.terminal = False
 
     # --------------------------------------------------------
@@ -165,17 +167,13 @@ class StartupsGame:
                     # マーケット空 → 無条件で山札から引ける
                     actions.append(("draw_deck",))
                 else:
-                    # マーケットにカードがある
-                    # 独禁チップで持ってる企業がマーケットにあるなら支払い免除で山札から引ける
-                    has_free_draw = any(
-                        p.antitrust[s.market[i]] == 1 for i in range(len(s.market))
+                    # マーケットにカードがある場合:
+                    # 独禁していない企業のカードにだけコイン1枚ずつ置く必要がある
+                    cost = sum(
+                        1 for c_idx in s.market if p.antitrust[c_idx] == 0
                     )
-                    if has_free_draw:
+                    if p.coins >= cost:
                         actions.append(("draw_deck",))
-                    else:
-                        # 山札から引くにはマーケット全カードにコイン1枚ずつ置く必要
-                        if p.coins >= len(s.market):
-                            actions.append(("draw_deck",))
 
             # マーケットから取る選択肢(市場にある各カード、ただし独禁保有企業は取れない)
             seen = set()
@@ -231,12 +229,10 @@ class StartupsGame:
         s.market_locked_company = None
 
         if kind == "draw_deck":
-            # マーケットにカードがあり、独禁チップによる免除がない場合、コイン支払い
+            # マーケットにカードがある場合、独禁していない企業のカードにだけコインを置く
             if len(s.market) > 0:
-                has_free = any(p.antitrust[s.market[i]] == 1 for i in range(len(s.market)))
-                if not has_free:
-                    # 各マーケットカードにコイン1枚ずつ置く
-                    for i in range(len(s.market)):
+                for i in range(len(s.market)):
+                    if p.antitrust[s.market[i]] == 0:
                         s.market_coins[i] += 1
                         p.coins -= 1
             # 山札から1枚引く
@@ -378,25 +374,62 @@ class StartupsGame:
         s.terminal = True
 
     # --------------------------------------------------------
-    # 報酬(勝敗)
+    # 順位・報酬
     # --------------------------------------------------------
-    def get_rewards(self) -> list[float]:
-        """各プレイヤーの報酬を返す。
-        シンプルには「最終コイン数」を使う。
-        勝敗ベースにしたければ、最大コイン者に+1、他に0等に変更可能。
+    def get_ranking(self) -> list[int]:
+        """全プレイヤーの順位リストを返す (1-indexed: 1位, 2位, 3位)。
+
+        同点処理:
+          1. コインが多い方が上位
+          2. コイン同点なら、より大きい企業(index大=カード枚数多い)で
+             単独最大投資しているプレイヤーが上位。
+             大きい企業から順に確認し、最初に差がついた企業で決着。
+          3. それでも決まらない場合、初手が遅い方(turn_order大)が上位。
         """
         assert self.state.terminal
-        return [float(p.coins) for p in self.state.players]
+        s = self.state
+
+        def sort_key(pid: int):
+            """大きいほど上位になるキーを返す。"""
+            coins = s.players[pid].coins
+            # タイブレーク1: 大きい企業(index 5→0)で単独最大投資
+            # 各企業について、そのプレイヤーが単独トップなら1、そうでなければ0
+            tiebreak_companies = []
+            for c_idx in range(NUM_COMPANIES - 1, -1, -1):  # 大きい企業から
+                counts = [s.players[i].invested[c_idx] for i in range(NUM_PLAYERS)]
+                my_count = counts[pid]
+                max_count = max(counts)
+                is_sole_top = (my_count == max_count and counts.count(max_count) == 1 and max_count > 0)
+                tiebreak_companies.append(1 if is_sole_top else 0)
+            # タイブレーク2: 初手が遅い方が上位
+            late_bonus = s.turn_order[pid]
+            return (coins, tiebreak_companies, late_bonus)
+
+        # 全プレイヤーをソートして順位を付ける
+        pids = list(range(NUM_PLAYERS))
+        pids.sort(key=sort_key, reverse=True)
+        ranking = [0] * NUM_PLAYERS
+        for rank_0indexed, pid in enumerate(pids):
+            ranking[pid] = rank_0indexed + 1
+        return ranking
+
+    def get_rewards(self) -> list[int]:
+        """各プレイヤーの報酬を返す。
+        1位: 2点, 2位: 1点, 最下位: -1点
+        """
+        assert self.state.terminal
+        ranking = self.get_ranking()
+        reward_map = {1: 2, 2: 1, 3: -1}
+        return [reward_map[r] for r in ranking]
 
     def get_winner(self) -> Optional[int]:
-        """単独勝者がいればそのID、引き分けならNone。"""
+        """1位のプレイヤーIDを返す。タイブレークで必ず決まる。"""
         assert self.state.terminal
-        coins = [p.coins for p in self.state.players]
-        m = max(coins)
-        top = [i for i, c in enumerate(coins) if c == m]
-        if len(top) == 1:
-            return top[0]
-        return None
+        ranking = self.get_ranking()
+        for pid, r in enumerate(ranking):
+            if r == 1:
+                return pid
+        return None  # ありえないが念のため
 
     # --------------------------------------------------------
     # 観測(不完全情報)

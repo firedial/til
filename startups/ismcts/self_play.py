@@ -95,17 +95,10 @@ def self_play_one_game(
         game.step(action)
         move_count += 1
 
-    # 勝敗から各プレイヤーの value を決定
-    coins = game.get_rewards()
-    values = []
-    for pid in range(NUM_PLAYERS):
-        others_max = max(r for i, r in enumerate(coins) if i != pid)
-        if coins[pid] > others_max:
-            values.append(1.0)
-        elif coins[pid] == others_max:
-            values.append(0.0)
-        else:
-            values.append(-1.0)
+    # 勝敗から各プレイヤーの value を決定 (ポイント制)
+    rewards = game.get_rewards()  # [2, 1, -1]
+    point_to_value = {2: 1.0, 1: 0.0, -1: -1.0}
+    values = [point_to_value.get(rewards[pid], 0.0) for pid in range(NUM_PLAYERS)]
 
     # サンプル化
     samples = []
@@ -118,7 +111,7 @@ def self_play_one_game(
                 legal_mask=mask,
             ))
 
-    return samples, coins
+    return samples, rewards
 
 
 def self_play_many(
@@ -131,10 +124,10 @@ def self_play_many(
     rng = random.Random(seed)
     all_samples = []
     for g in range(num_games):
-        samples, coins = self_play_one_game(net, iterations=iterations, rng=rng)
+        samples, rewards = self_play_one_game(net, iterations=iterations, rng=rng)
         all_samples.extend(samples)
         if (g + 1) % max(1, num_games // 5) == 0:
-            print(f"  self-play {g+1}/{num_games} done, coins={coins}, samples so far={len(all_samples)}")
+            print(f"  self-play {g+1}/{num_games} done, rewards={rewards}, samples so far={len(all_samples)}")
     return all_samples
 
 
@@ -149,11 +142,11 @@ if __name__ == "__main__":
 
     print("=== 1ゲーム自己対戦 ===")
     start = time.time()
-    samples, coins = self_play_one_game(net, iterations=50, rng=random.Random(0))
+    samples, rewards = self_play_one_game(net, iterations=50, rng=random.Random(0))
     elapsed = time.time() - start
     print(f"所要時間: {elapsed:.1f}秒")
     print(f"得られたサンプル数: {len(samples)}")
-    print(f"最終コイン: {coins}")
+    print(f"最終報酬: {rewards}")
 
     # サンプルの中身をざっと確認
     s = samples[0]

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Startups AI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0f14;--bg2:#151922;--bg3:#1c2230;--txt:#e4e6ec;--mut:#7a8194;--acc:#3ee8a5;--acc2:#2bc48a;--wrn:#f5a623;--dng:#e85d5d;--p0:#5bc0eb;--p1:#fde74c;--p2:#e85df5;--r:12px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+.m{font-family:'DM Mono',monospace}
+.app{max-width:860px;margin:0 auto;padding:16px}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:14px}
+header h1{font-size:20px;font-weight:600}
+header h1 b{color:var(--acc)}
+.hbtn{background:none;border:1px solid var(--mut);color:var(--mut);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit;transition:.2s}
+.hbtn:hover{border-color:var(--dng);color:var(--dng)}
+#modesel{background:var(--bg2);border-radius:var(--r);padding:24px;border:1px solid rgba(255,255,255,.06);text-align:center}
+#modesel h2{font-size:18px;font-weight:500;margin-bottom:16px}
+.modes{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.modebtn{flex:1;min-width:160px;max-width:240px;background:var(--bg3);border:2px solid rgba(255,255,255,.08);border-radius:var(--r);padding:18px 14px;cursor:pointer;transition:.2s;text-align:left}
+.modebtn:hover{border-color:var(--acc)}
+.modebtn h3{font-size:15px;font-weight:600;margin-bottom:4px}
+.modebtn p{font-size:12px;color:var(--mut);line-height:1.4}
+#setup{display:none;background:var(--bg2);border-radius:var(--r);padding:24px;border:1px solid rgba(255,255,255,.06)}
+#setup h2{font-size:17px;font-weight:500;margin-bottom:4px}
+#setup .sub{color:var(--mut);font-size:13px;margin-bottom:14px}
+.hr{margin-bottom:12px}
+.hr label{display:block;font-size:13px;font-weight:500;margin-bottom:4px}
+.hr .cds{display:flex;gap:5px;flex-wrap:wrap}
+.cb{min-width:38px;height:44px;padding:0 6px;border-radius:6px;border:2px solid rgba(255,255,255,.08);background:var(--bg3);color:var(--txt);font-family:'DM Mono',monospace;font-size:14px;font-weight:500;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;position:relative}
+.cb:hover{border-color:var(--acc);transform:translateY(-1px)}
+.cb.s{border-color:var(--acc);background:rgba(62,232,165,.12);color:var(--acc)}
+.cb .cnt{position:absolute;top:-6px;right:-6px;background:var(--acc);color:var(--bg);font-size:10px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.hr .ch{font-size:12px;color:var(--mut);margin-top:3px;min-height:14px}
+.gobtn{width:100%;padding:11px;border-radius:8px;border:none;background:var(--acc);color:var(--bg);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;transition:.2s}
+.gobtn:hover{background:var(--acc2)}
+.gobtn:disabled{opacity:.35;cursor:not-allowed}
+#game{display:none}
+.tb{display:flex;gap:8px;margin-bottom:10px}
+.sb{flex:1;background:var(--bg2);border-radius:8px;padding:8px 12px;border:1px solid rgba(255,255,255,.06)}
+.sb .sl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px}
+.sb .sv{font-size:18px;font-weight:600;margin-top:1px}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.pc{background:var(--bg2);border-radius:var(--r);padding:10px;border:2px solid transparent;transition:.3s}
+.pc.a{border-color:var(--acc)}
+.pc .ph{display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.pc .pd{width:7px;height:7px;border-radius:50%}
+.pc .pn{font-weight:500;font-size:13px}
+.pc .pp{font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(62,232,165,.15);color:var(--acc);margin-left:auto}
+.pc .pv{font-size:22px;font-weight:700;margin:3px 0}
+.pc .pv .ci{color:var(--wrn)}
+.pc .pi{font-size:11px;color:var(--mut);line-height:1.4}
+.pc .hc{margin-top:4px;display:flex;gap:2px;flex-wrap:wrap}
+.mc{display:inline-flex;align-items:center;justify-content:center;width:24px;height:28px;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace;font-weight:500;background:var(--bg3);border:1px solid rgba(255,255,255,.06)}
+.mc.fd{background:repeating-linear-gradient(45deg,var(--bg3),var(--bg3) 2px,rgba(255,255,255,.03) 2px,rgba(255,255,255,.03) 4px);color:transparent}
+.mk{background:var(--bg2);border-radius:var(--r);padding:10px;border:1px solid rgba(255,255,255,.06);margin-bottom:10px}
+.mk .mt{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.mkc{display:flex;gap:5px;flex-wrap:wrap;min-height:28px;align-items:center}
+.mki{display:flex;flex-direction:column;align-items:center;gap:1px;background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:5px;padding:5px 8px;font-family:'DM Mono',monospace;font-size:14px}
+.mki .mcc{font-size:9px;color:var(--wrn)}
+.mke{color:var(--mut);font-size:12px;font-style:italic}
+#aa{background:var(--bg2);border-radius:var(--r);padding:14px;border:1px solid rgba(255,255,255,.06);margin-bottom:10px}
+#aa h3{font-size:13px;font-weight:500;margin-bottom:8px}
+.al{display:flex;flex-direction:column;gap:5px}
+.ar{display:flex;align-items:center;padding:9px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.06);background:var(--bg3);cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+.ar:hover{border-color:var(--acc);background:rgba(62,232,165,.04)}
+.ar.best{border-color:rgba(62,232,165,.4)}
+.ar .bar{position:absolute;left:0;top:0;bottom:0;border-radius:7px;transition:width .4s;pointer-events:none}
+.ar .bar.pos{background:rgba(62,232,165,.08)}.ar .bar.neg{background:rgba(232,93,93,.06)}
+.ar .ac{position:relative;z-index:1;display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.ar .ic{font-size:12px;width:18px;text-align:center;flex-shrink:0}
+.ar .lb{font-size:13px;flex:1;min-width:0}
+.ar .bb{font-size:9px;background:rgba(62,232,165,.15);color:var(--acc);padding:1px 5px;border-radius:3px;flex-shrink:0}
+.ar .ep{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;min-width:56px;text-align:right;flex-shrink:0}
+.ar .ep.h{color:var(--acc)}.ar .ep.m{color:var(--wrn)}.ar .ep.l{color:var(--dng)}
+.ar .vi{font-size:10px;color:var(--mut);min-width:32px;text-align:right;flex-shrink:0}
+.anz{color:var(--mut);font-size:13px;display:flex;align-items:center;gap:7px}
+.sp{display:inline-block;width:14px;height:14px;border:2px solid var(--mut);border-top-color:var(--acc);border-radius:50%;animation:sp .6s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.am{background:rgba(232,93,245,.06);border:1px solid rgba(232,93,245,.2);border-radius:var(--r);padding:12px 14px;margin-bottom:6px}
+.am .at{color:var(--p2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
+.am .av{font-size:15px;font-weight:500}
+.am .ad{color:var(--mut);font-size:11px;margin-top:4px}
+.ob{padding:7px 18px;border-radius:6px;border:none;background:var(--p2);color:var(--bg);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;margin-top:6px;transition:.2s}
+.ob:hover{opacity:.85}
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+.mbg.show{display:flex}
+.md{background:var(--bg2);border-radius:var(--r);padding:22px;border:1px solid rgba(255,255,255,.06);max-width:340px;width:90%;text-align:center}
+.md h3{font-size:15px;margin-bottom:3px}
+.md p{font-size:12px;color:var(--mut);margin-bottom:12px}
+.md .cds{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+.md .cb{width:44px;height:52px;font-size:16px}
+#result{display:none;background:var(--bg2);border-radius:var(--r);padding:22px;border:1px solid rgba(255,255,255,.06);text-align:center}
+#result h2{font-size:20px;font-weight:600;margin-bottom:10px}
+.wt{font-size:16px;margin-bottom:14px}
+.rg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:left;margin-bottom:14px}
+.rc{background:var(--bg3);border-radius:8px;padding:10px}
+.rc.w{border:2px solid var(--acc)}
+.rc .rn{font-weight:500;margin-bottom:3px;font-size:13px}
+.rc .rv{font-size:20px;font-weight:700}
+.rc .ri{font-size:11px;color:var(--mut);margin-top:3px}
+.rc .rp{font-size:12px;margin-top:3px}
+@media(max-width:640px){.pg,.rg{grid-template-columns:1fr}.modes{flex-direction:column;align-items:center}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><h1><b>Startups</b> AI</h1><button class="hbtn" onclick="doReset()">リセット</button></header>
+
+<div id="modesel">
+<h2>モード選択</h2>
+<div class="modes">
+<div class="modebtn" onclick="selMode('battle')"><h3>対戦</h3><p>UIで完結。自動配り。人間1人 vs AI 2体</p></div>
+<div class="modebtn" onclick="selMode('real')"><h3>リアル</h3><p>現物併用。自分視点で入力、期待値で判断支援</p></div>
+<div class="modebtn" onclick="selMode('debug')"><h3>デバッグ</h3><p>全情報公開。全員手入力。AI期待値表示</p></div>
+</div>
+</div>
+
+<div id="setup">
+<h2 id="stitle">初期手札を入力</h2>
+<p class="sub">企業の数字で入力 — 5(5枚) 6(6枚) 7(7枚) 8(8枚) 9(9枚) 10(10枚)<br>同じ企業を複数回タップで複数枚選べます</p>
+<div id="sh"></div>
+<button class="gobtn" id="gb" onclick="doStart()" disabled>ゲーム開始</button>
+</div>
+
+<div id="game">
+<div class="tb">
+<div class="sb"><div class="sl">山札</div><div class="sv m" id="dn">-</div></div>
+<div class="sb"><div class="sl">ターン</div><div class="sv" id="tn">-</div></div>
+<div class="sb"><div class="sl">モード</div><div class="sv" id="mn">-</div></div>
+</div>
+<div class="pg" id="pg"></div>
+<div class="mk"><div class="mt">マーケット</div><div class="mkc" id="mkc"></div></div>
+<div id="aib"></div>
+<div id="aa"><h3 id="aat">アクション</h3><div class="al" id="al"></div></div>
+</div>
+
+<div id="result"></div>
+</div>
+
+<div class="mbg" id="modal"><div class="md"><h3 id="mt2">カード選択</h3><p id="md2">企業番号を選んでください</p><div class="cds" id="mc2"></div></div></div>
+
+<script>
+const CO=[5,6,7,8,9,10],PC=["#5bc0eb","#fde74c","#e85df5"];
+let H={},G=null,MODE="battle";
+
+function inv2s(inv){return CO.map((c,i)=>inv[i]>0?c+"x"+inv[i]:null).filter(Boolean).join(", ")||"-"}
+function at2s(at){return CO.filter((_,i)=>at[i]).join(", ")||"-"}
+function pLbl(pid){
+  if(MODE==="battle")return pid===0?"あなた":"AI-"+pid;
+  return "P"+pid;
+}
+
+/* ── Mode ── */
+function selMode(m){
+  MODE=m;
+  document.getElementById("modesel").style.display="none";
+  if(m==="battle"){startBattle();return}
+  document.getElementById("setup").style.display="block";
+  setupInit();
+}
+
+/* ── Battle: 自動配り ── */
+async function startBattle(){
+  const r=await fetch("/api/auto_setup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mode:"battle"})});
+  G=await r.json();
+  document.getElementById("game").style.display="block";
+  render();
+}
+
+/* ── Setup (real / debug) ── */
+function setupInit(){
+  const el=document.getElementById("sh");el.innerHTML="";
+  const labels=MODE==="real"?["あなた (P0)","P1","P2"]:["P0","P1","P2"];
+  const count=MODE==="real"?1:3;
+  document.getElementById("stitle").textContent=MODE==="real"?"あなたの初期手札を入力":"全員の初期手札を入力";
+  H={};
+  for(let p=0;p<count;p++){
+    H[p]=[];
+    const d=document.createElement("div");d.className="hr";
+    const l=document.createElement("label");l.style.color=PC[p];l.textContent=labels[p]+" の手札 (3枚)";d.appendChild(l);
+    const cds=document.createElement("div");cds.className="cds";cds.id="cds-"+p;
+    for(const c of CO){
+      const b=document.createElement("button");b.className="cb";b.textContent=c;
+      b.onclick=()=>togCard(p,c);
+      cds.appendChild(b);
+    }
+    d.appendChild(cds);
+    const ch=document.createElement("div");ch.className="ch";ch.id="ch-"+p;d.appendChild(ch);
+    el.appendChild(d);
+  }
+  updReady();
+}
+
+function togCard(pid,num){
+  const h=H[pid];
+  if(h.length<3){
+    h.push(num);
+  }else{
+    // 3枚埋まってたら最後を外して新しいのを追加... ではなく無視
+    return;
+  }
+  updCardUI(pid);
+  updReady();
+}
+
+function updCardUI(pid){
+  const h=H[pid];
+  const cds=document.getElementById("cds-"+pid);
+  // 各ボタンの状態を更新: 選択回数をバッジで表示
+  const counts={};
+  for(const c of h)counts[c]=(counts[c]||0)+1;
+  const btns=cds.querySelectorAll(".cb");
+  btns.forEach(b=>{
+    const c=parseInt(b.textContent);
+    const n=counts[c]||0;
+    b.className="cb"+(n>0?" s":"");
+    const old=b.querySelector(".cnt");if(old)old.remove();
+    if(n>1){const badge=document.createElement("span");badge.className="cnt";badge.textContent=n;b.appendChild(badge)}
+  });
+  const disp=document.getElementById("ch-"+pid);
+  if(h.length>0){
+    disp.innerHTML=`選択: ${h.join(" ")} <span style="cursor:pointer;color:var(--dng);margin-left:8px" onclick="undoCard(${pid})">[取消]</span>`;
+  }else{disp.textContent=""}
+}
+
+function undoCard(pid){
+  H[pid].pop();
+  updCardUI(pid);
+  updReady();
+}
+
+function updReady(){
+  let ok=true;
+  const count=MODE==="real"?1:3;
+  for(let p=0;p<count;p++){if(!H[p]||H[p].length!==3)ok=false}
+  document.getElementById("gb").disabled=!ok;
+}
+
+async function doStart(){
+  let hands;
+  if(MODE==="real"){
+    // P0のみ入力。P1,P2は dummy(サーバー側で残りから自動)
+    // → サーバーの /api/setup に P0 だけ渡して残りはランダム
+    const all=[];for(const c of CO)for(let i=0;i<c;i++)all.push(c);
+    const rem=[...all];for(const c of H[0])rem.splice(rem.indexOf(c),1);
+    for(let i=rem.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rem[i],rem[j]]=[rem[j],rem[i]]}
+    hands=[H[0],rem.slice(0,3),rem.slice(3,6)];
+  }else{
+    // debug: 全員入力
+    hands=[H[0],H[1],H[2]];
+  }
+  const r=await fetch("/api/setup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({hands,mode:MODE,real_player:0})});
+  G=await r.json();
+  document.getElementById("setup").style.display="none";
+  document.getElementById("game").style.display="block";
+  render();
+}
+
+/* ── Render ── */
+function isAI(pid){
+  if(MODE==="battle")return pid!==0;
+  return false; // real, debug ではAI自動行動なし(全部手入力)
+}
+
+function render(){
+  if(!G||!G.started)return;
+  if(G.terminal){renderRes();return}
+  const cp=G.current_player,ph=G.phase==="draw"?"ドロー":"プレイ";
+  document.getElementById("dn").textContent=G.deck_size;
+  document.getElementById("tn").innerHTML=`<span style="color:${PC[cp]}">${pLbl(cp)}</span> ${ph}`;
+  document.getElementById("mn").textContent={battle:"対戦",real:"リアル",debug:"デバッグ"}[MODE];
+
+  const g=document.getElementById("pg");g.innerHTML="";
+  for(const p of G.players){
+    const d=document.createElement("div");d.className="pc"+(p.id===cp?" a":"");
+    let hh="";
+    if(p.hand){for(const c of p.hand)hh+=`<span class="mc">${c}</span>`}
+    else{for(let i=0;i<p.hand_size;i++)hh+=`<span class="mc fd">?</span>`}
+    d.innerHTML=`<div class="ph"><span class="pd" style="background:${PC[p.id]}"></span><span class="pn">${pLbl(p.id)}</span>${p.id===cp?`<span class="pp">${ph}</span>`:""}</div><div class="pv"><span class="ci">●</span> <span class="m">${p.coins}</span></div><div class="pi">投資: ${inv2s(p.invested)}<br>独禁: ${at2s(p.antitrust)}</div><div class="hc">${hh}</div>`;
+    g.appendChild(d);
+  }
+
+  const mk=document.getElementById("mkc");mk.innerHTML="";
+  if(!G.market.length)mk.innerHTML=`<span class="mke">なし</span>`;
+  else for(const m of G.market){const d=document.createElement("div");d.className="mki";d.innerHTML=`${m.company}${m.coins?`<span class="mcc">+${m.coins}</span>`:""}`;mk.appendChild(d)}
+
+  if(isAI(cp)){doAiTurn()}
+  else{analyze()}
+}
+
+/* ── Analyze ── */
+async function analyze(){
+  document.getElementById("aib").innerHTML="";
+  const al=document.getElementById("al");
+  const cp=G.current_player;
+  const isMyTurn=MODE!=="real"||cp===0;
+  document.getElementById("aat").textContent=pLbl(cp)+" のアクション";
+
+  if(isMyTurn){
+    // 自分のターン or 非リアルモード → 期待値を計算して表示
+    al.innerHTML=`<div class="anz"><span class="sp"></span>期待値を計算中...</div>`;
+    const r=await fetch("/api/analyze",{method:"POST"});
+    const d=await r.json();al.innerHTML="";
+    const acts=d.actions;
+    if(!acts.length){al.innerHTML=`<div style="color:var(--mut)">選択肢なし</div>`;return}
+    acts.sort((a,b)=>b.ep-a.ep);
+    for(const a of acts){
+      const row=document.createElement("div");row.className="ar"+(a.is_best?" best":"");
+      const bw=Math.max(0,Math.min(100,(a.ep+1)/3*100));
+      let ic="",lb="";
+      if(a.type==="draw_deck"){ic="📥";lb=`山札から引く${a.cost?` <span style="color:var(--wrn)">-${a.cost}</span>`:""}`}
+      else if(a.type==="draw_market"){ic="🏪";lb=`${a.company} を取る${a.coins_on?` <span style="color:var(--wrn)">+${a.coins_on}コイン</span>`:""}`}
+      else if(a.type==="invest"){ic="📈";lb=`${a.company} に投資`}
+      else{ic="📤";lb=`${a.company} を放流`}
+      let ec="m";if(a.ep>=1.2)ec="h";else if(a.ep<0)ec="l";
+      const eps=a.ep>=0?"+"+a.ep.toFixed(2):a.ep.toFixed(2);
+      row.innerHTML=`<div class="bar ${a.ep>=0.5?"pos":"neg"}" style="width:${bw}%"></div><div class="ac"><span class="ic">${ic}</span><span class="lb">${lb}</span>${a.is_best?'<span class="bb">推奨</span>':""}<span class="ep ${ec}">${eps}</span><span class="vi">${a.visits}回</span></div>`;
+      row.onclick=()=>{
+        if(a.type==="draw_deck")showM("引いたカード","めくったカードの企業番号を選んでください",c=>hAct(a.action,c));
+        else hAct(a.action);
+      };
+      al.appendChild(row);
+    }
+  }else{
+    // リアルモード + 他プレイヤーのターン → 期待値なし、行動だけ入力
+    const r=await fetch("/api/legal");
+    const d=await r.json();al.innerHTML="";
+    const acts=d.legal;
+    if(!acts.length){al.innerHTML=`<div style="color:var(--mut)">選択肢なし</div>`;return}
+    for(const a of acts){
+      const row=document.createElement("div");row.className="ar";
+      let ic="",lb="";
+      if(a.type==="draw_deck"){ic="📥";lb=`山札から引く${a.cost?` <span style="color:var(--wrn)">-${a.cost}</span>`:""}`}
+      else if(a.type==="draw_market"){ic="🏪";lb=`${a.company} を取る${a.coins_on?` <span style="color:var(--wrn)">+${a.coins_on}コイン</span>`:""}`}
+      else if(a.type==="invest"){ic="📈";lb=`${a.company} に投資`}
+      else{ic="📤";lb=`${a.company} を放流`}
+      row.innerHTML=`<div class="ac"><span class="ic">${ic}</span><span class="lb">${lb}</span></div>`;
+      row.onclick=()=>{
+        // 他プレイヤーの山札ドロー → カードは不明なのでモーダル出さずにそのまま送信
+        hAct(a.action);
+      };
+      al.appendChild(row);
+    }
+  }
+}
+
+async function hAct(action,dc){
+  const b={action};if(dc!==undefined)b.drawn_card=dc;
+  const r=await fetch("/api/human",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)});
+  G=await r.json();render();
+}
+
+/* ── AI turn (battle only) ── */
+async function doAiTurn(){
+  const al=document.getElementById("al");al.innerHTML="";
+  document.getElementById("aat").textContent=pLbl(G.current_player)+" のターン";
+  const ab=document.getElementById("aib");
+  ab.innerHTML=`<div class="am"><div class="at"><span class="sp"></span> AI 思考中...</div></div>`;
+  const r=await fetch("/api/ai_turn",{method:"POST"});
+  const d=await r.json();
+  if(d.need_reveal){
+    const cs=d.cost?` <span style="color:var(--wrn)">(-${d.cost})</span>`:"";
+    ab.innerHTML=`<div class="am"><div class="at">${pLbl(G.current_player)} ドロー</div><div class="av">山札から引く${cs}</div><div class="ad">山札をめくって AI の手札に伏せてください</div></div>`;
+    showM("AIが引いたカード","めくったカードの企業番号を選んでください",async c=>{
+      const r2=await fetch("/api/ai_turn",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({drawn_card:c})});
+      G=await r2.json();doAiPlay(ab);
+    });
+    return;
+  }
+  if(d.phase==="draw"){
+    ab.innerHTML=`<div class="am"><div class="at">${pLbl(G.current_player)} ドロー</div><div class="av">マーケットから ${d.company} を取る</div></div>`;
+    G=d;doAiPlay(ab);return;
+  }
+  if(d.phase==="play"){showAiPlay(ab,"",d)}
+}
+
+async function doAiPlay(ab){
+  const prev=ab.innerHTML;
+  ab.innerHTML=prev+`<div class="am" style="margin-top:5px"><div class="at"><span class="sp"></span> AI 思考中...</div></div>`;
+  const r=await fetch("/api/ai_turn",{method:"POST"});
+  const d=await r.json();showAiPlay(ab,prev,d);
+}
+
+function showAiPlay(ab,prev,d){
+  const tt=d.type==="invest"?"に投資":"を放流";
+  ab.innerHTML=prev+`<div class="am" style="margin-top:5px"><div class="at">${pLbl(G.current_player)} プレイ</div><div class="av">${d.company} ${tt}</div></div>`;
+  G=d;document.getElementById("al").innerHTML=`<button class="ob" onclick="okAi()">完了 → 次へ</button>`;
+}
+function okAi(){document.getElementById("aib").innerHTML="";render()}
+
+/* ── Modal ── */
+function showM(t,d,cb){
+  const m=document.getElementById("modal");
+  document.getElementById("mt2").textContent=t;document.getElementById("md2").textContent=d;
+  const cs=document.getElementById("mc2");cs.innerHTML="";
+  for(const c of CO){const b=document.createElement("button");b.className="cb";b.textContent=c;b.onclick=()=>{m.classList.remove("show");cb(c)};cs.appendChild(b)}
+  m.classList.add("show");
+}
+
+/* ── Result ── */
+function renderRes(){
+  document.getElementById("game").style.display="none";
+  const el=document.getElementById("result");el.style.display="block";
+  const w=G.winner;
+  const wt=`<span style="color:${PC[w]}">${pLbl(w)} の勝利!</span>`;
+  let ph="";
+  for(const p of G.players){
+    const coins=G.final_coins[p.id],rank=G.ranking[p.id],pts=G.rewards[p.id],isW=p.id===w;
+    ph+=`<div class="rc${isW?" w":""}"><div class="rn" style="color:${PC[p.id]}">${pLbl(p.id)}</div><div class="rv m">${coins} コイン</div><div class="ri">投資: ${inv2s(p.invested)}</div><div class="rp">${rank}位 (${pts>0?"+":""}${pts}pt)</div></div>`;
+  }
+  el.innerHTML=`<h2>ゲーム終了</h2><div class="wt">${wt}</div><div class="rg">${ph}</div><button class="gobtn" onclick="doReset()">もう一度遊ぶ</button>`;
+}
+
+async function doReset(){
+  await fetch("/api/reset",{method:"POST"});
+  document.getElementById("setup").style.display="none";document.getElementById("game").style.display="none";document.getElementById("result").style.display="none";
+  document.getElementById("modesel").style.display="block";
+  H={};G=null;
+}
+</script>
+</body>
+</html>

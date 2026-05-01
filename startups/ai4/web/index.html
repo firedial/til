@@ -37,6 +37,11 @@ header h1 b{color:var(--acc)}
 .gobtn{width:100%;padding:11px;border-radius:8px;border:none;background:var(--acc);color:var(--bg);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;transition:.2s}
 .gobtn:hover{background:var(--acc2)}
 .gobtn:disabled{opacity:.35;cursor:not-allowed}
+/* seat selector */
+.seat-sel{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.seat-btn{padding:8px 16px;border-radius:8px;border:2px solid rgba(255,255,255,.08);background:var(--bg3);color:var(--txt);font-family:inherit;font-size:13px;cursor:pointer;transition:.15s}
+.seat-btn:hover{border-color:var(--acc)}
+.seat-btn.s{border-color:var(--acc);background:rgba(62,232,165,.12);color:var(--acc)}
 #game{display:none}
 .tb{display:flex;gap:8px;margin-bottom:10px}
 .sb{flex:1;background:var(--bg2);border-radius:8px;padding:8px 12px;border:1px solid rgba(255,255,255,.06)}
@@ -107,7 +112,7 @@ header h1 b{color:var(--acc)}
 </head>
 <body>
 <div class="app">
-<header><h1><b>Startups</b> AI</h1><button class="hbtn" onclick="doReset()">リセット</button></header>
+<header><h1><b>Startups</b> AI</h1><div><button class="hbtn" id="undobtn" onclick="doUndo()" style="margin-right:6px;display:none">↩ 戻す</button><button class="hbtn" onclick="doReset()">リセット</button></div></header>
 
 <div id="modesel">
 <h2>モード選択</h2>
@@ -144,14 +149,16 @@ header h1 b{color:var(--acc)}
 
 <script>
 const CO=[5,6,7,8,9,10],PC=["#5bc0eb","#fde74c","#e85df5"];
-let H={},G=null,MODE="battle";
+let H={},G=null,MODE="battle",HP=0,AI_SEAT=-1;
 
 function inv2s(inv){return CO.map((c,i)=>inv[i]>0?c+"x"+inv[i]:null).filter(Boolean).join(", ")||"-"}
 function at2s(at){return CO.filter((_,i)=>at[i]).join(", ")||"-"}
 function pLbl(pid){
-  if(MODE==="battle")return pid===0?"あなた":"AI-"+pid;
+  if(MODE==="battle")return pid===HP?"あなた":"AI-"+pid;
+  if(MODE==="real")return pid===HP?"あなた":"P"+pid;
   return "P"+pid;
 }
+function isMyTurn(){return G&&G.current_player===HP}
 
 /* ── Mode ── */
 function selMode(m){
@@ -162,10 +169,11 @@ function selMode(m){
   setupInit();
 }
 
-/* ── Battle: 自動配り ── */
+/* ── Battle: 全自動配り ── */
 async function startBattle(){
   const r=await fetch("/api/auto_setup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mode:"battle"})});
   G=await r.json();
+  HP=G.human_player;
   document.getElementById("game").style.display="block";
   render();
 }
@@ -173,35 +181,80 @@ async function startBattle(){
 /* ── Setup (real / debug) ── */
 function setupInit(){
   const el=document.getElementById("sh");el.innerHTML="";
-  const labels=MODE==="real"?["あなた (P0)","P1","P2"]:["P0","P1","P2"];
-  const count=MODE==="real"?1:3;
-  document.getElementById("stitle").textContent=MODE==="real"?"あなたの初期手札を入力":"全員の初期手札を入力";
-  H={};
-  for(let p=0;p<count;p++){
-    H[p]=[];
-    const d=document.createElement("div");d.className="hr";
-    const l=document.createElement("label");l.style.color=PC[p];l.textContent=labels[p]+" の手札 (3枚)";d.appendChild(l);
-    const cds=document.createElement("div");cds.className="cds";cds.id="cds-"+p;
-    for(const c of CO){
-      const b=document.createElement("button");b.className="cb";b.textContent=c;
-      b.onclick=()=>togCard(p,c);
-      cds.appendChild(b);
+  H={};AI_SEAT=-1;
+
+  if(MODE==="real"){
+    document.getElementById("stitle").textContent="あなたの席と手札を入力";
+    // 自分の席選択
+    const seatDiv=document.createElement("div");seatDiv.className="hr";
+    const seatLabel=document.createElement("label");seatLabel.textContent="あなたの順番を選択";seatDiv.appendChild(seatLabel);
+    const seatBtns=document.createElement("div");seatBtns.className="seat-sel";
+    for(let i=0;i<3;i++){
+      const b=document.createElement("button");b.className="seat-btn";b.textContent=(i+1)+"番手 (P"+i+")";
+      b.onclick=()=>{
+        HP=i;AI_SEAT=-1;
+        seatBtns.querySelectorAll(".seat-btn").forEach(x=>x.classList.remove("s"));
+        b.classList.add("s");
+        buildHandInputs();
+        updReady();
+      };
+      seatBtns.appendChild(b);
     }
-    d.appendChild(cds);
-    const ch=document.createElement("div");ch.className="ch";ch.id="ch-"+p;d.appendChild(ch);
-    el.appendChild(d);
+    seatDiv.appendChild(seatBtns);
+    el.appendChild(seatDiv);
+
+    // 手札入力は席が決まってから表示
+    const handArea=document.createElement("div");handArea.id="hand-area";el.appendChild(handArea);
+  }else{
+    // debug: 全員入力
+    document.getElementById("stitle").textContent="全員の初期手札を入力";
+    for(let p=0;p<3;p++){
+      H[p]=[];
+      buildOneHandInput(el,p,"P"+p);
+    }
   }
   updReady();
 }
 
+function buildHandInputs(){
+  const area=document.getElementById("hand-area");
+  if(!area)return;
+  area.innerHTML="";
+  H={};
+  if(MODE==="real"){
+    // リアル: 自分の手札だけ入力
+    H[HP]=[];
+    buildOneHandInput(area,HP,"あなた (P"+HP+")");
+  }else{
+    // battle: AI以外
+    for(let p=0;p<3;p++){
+      if(p===AI_SEAT)continue;
+      H[p]=[];
+      const label=p===HP?"あなた (P"+p+")":"P"+p;
+      buildOneHandInput(area,p,label);
+    }
+  }
+}
+
+function buildOneHandInput(parent,pid,label){
+  H[pid]=H[pid]||[];
+  const d=document.createElement("div");d.className="hr";
+  const l=document.createElement("label");l.style.color=PC[pid];l.textContent=label+" の手札 (3枚)";d.appendChild(l);
+  const cds=document.createElement("div");cds.className="cds";cds.id="cds-"+pid;
+  for(const c of CO){
+    const b=document.createElement("button");b.className="cb";b.textContent=c;
+    b.onclick=()=>togCard(pid,c);
+    cds.appendChild(b);
+  }
+  d.appendChild(cds);
+  const ch=document.createElement("div");ch.className="ch";ch.id="ch-"+pid;d.appendChild(ch);
+  parent.appendChild(d);
+}
+
 function togCard(pid,num){
   const h=H[pid];
-  if(h.length<3){
-    h.push(num);
-  }else{
-    // 3枚埋まってたら最後を外して新しいのを追加... ではなく無視
-    return;
-  }
+  if(h.length>=3)return;
+  h.push(num);
   updCardUI(pid);
   updReady();
 }
@@ -209,50 +262,50 @@ function togCard(pid,num){
 function updCardUI(pid){
   const h=H[pid];
   const cds=document.getElementById("cds-"+pid);
-  // 各ボタンの状態を更新: 選択回数をバッジで表示
-  const counts={};
-  for(const c of h)counts[c]=(counts[c]||0)+1;
-  const btns=cds.querySelectorAll(".cb");
-  btns.forEach(b=>{
-    const c=parseInt(b.textContent);
-    const n=counts[c]||0;
+  if(!cds)return;
+  const counts={};for(const c of h)counts[c]=(counts[c]||0)+1;
+  cds.querySelectorAll(".cb").forEach(b=>{
+    const c=parseInt(b.textContent);const n=counts[c]||0;
     b.className="cb"+(n>0?" s":"");
     const old=b.querySelector(".cnt");if(old)old.remove();
     if(n>1){const badge=document.createElement("span");badge.className="cnt";badge.textContent=n;b.appendChild(badge)}
   });
   const disp=document.getElementById("ch-"+pid);
-  if(h.length>0){
-    disp.innerHTML=`選択: ${h.join(" ")} <span style="cursor:pointer;color:var(--dng);margin-left:8px" onclick="undoCard(${pid})">[取消]</span>`;
-  }else{disp.textContent=""}
+  if(disp)disp.innerHTML=h.length?`選択: ${h.join(" ")} <span style="cursor:pointer;color:var(--dng);margin-left:8px" onclick="undoCard(${pid})">[取消]</span>`:"";
 }
 
-function undoCard(pid){
-  H[pid].pop();
-  updCardUI(pid);
-  updReady();
-}
+function undoCard(pid){H[pid].pop();updCardUI(pid);updReady()}
 
 function updReady(){
   let ok=true;
-  const count=MODE==="real"?1:3;
-  for(let p=0;p<count;p++){if(!H[p]||H[p].length!==3)ok=false}
+  if(MODE==="real"){
+    if(HP<0){ok=false}
+    else if(!H[HP]||H[HP].length!==3){ok=false}
+  }else{
+    for(let p=0;p<3;p++){if(!H[p]||H[p].length!==3)ok=false}
+  }
   document.getElementById("gb").disabled=!ok;
 }
 
 async function doStart(){
   let hands;
   if(MODE==="real"){
-    // P0のみ入力。P1,P2は dummy(サーバー側で残りから自動)
-    // → サーバーの /api/setup に P0 だけ渡して残りはランダム
+    // 自分の手札だけ指定、他2人はランダム
     const all=[];for(const c of CO)for(let i=0;i<c;i++)all.push(c);
-    const rem=[...all];for(const c of H[0])rem.splice(rem.indexOf(c),1);
+    const rem=[...all];
+    for(const c of H[HP])rem.splice(rem.indexOf(c),1);
     for(let i=rem.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rem[i],rem[j]]=[rem[j],rem[i]]}
-    hands=[H[0],rem.slice(0,3),rem.slice(3,6)];
+    hands=[];
+    let ri=0;
+    for(let p=0;p<3;p++){
+      if(p===HP)hands.push(H[HP]);
+      else{hands.push(rem.slice(ri,ri+3));ri+=3}
+    }
   }else{
-    // debug: 全員入力
     hands=[H[0],H[1],H[2]];
+    HP=0;
   }
-  const r=await fetch("/api/setup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({hands,mode:MODE,real_player:0})});
+  const r=await fetch("/api/setup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({hands,mode:MODE,real_player:HP})});
   G=await r.json();
   document.getElementById("setup").style.display="none";
   document.getElementById("game").style.display="block";
@@ -261,12 +314,14 @@ async function doStart(){
 
 /* ── Render ── */
 function isAI(pid){
-  if(MODE==="battle")return pid!==0;
-  return false; // real, debug ではAI自動行動なし(全部手入力)
+  if(MODE==="battle")return pid!==HP;
+  return false;
 }
 
 function render(){
   if(!G||!G.started)return;
+  // undo ボタンの表示 (終了画面でも戻せる)
+  document.getElementById("undobtn").style.display="inline-block";
   if(G.terminal){renderRes();return}
   const cp=G.current_player,ph=G.phase==="draw"?"ドロー":"プレイ";
   document.getElementById("dn").textContent=G.deck_size;
@@ -296,11 +351,10 @@ async function analyze(){
   document.getElementById("aib").innerHTML="";
   const al=document.getElementById("al");
   const cp=G.current_player;
-  const isMyTurn=MODE!=="real"||cp===0;
+  const showEP=(MODE==="battle"&&cp===HP)||(MODE==="real"&&cp===HP)||MODE==="debug";
   document.getElementById("aat").textContent=pLbl(cp)+" のアクション";
 
-  if(isMyTurn){
-    // 自分のターン or 非リアルモード → 期待値を計算して表示
+  if(showEP){
     al.innerHTML=`<div class="anz"><span class="sp"></span>期待値を計算中...</div>`;
     const r=await fetch("/api/analyze",{method:"POST"});
     const d=await r.json();al.innerHTML="";
@@ -325,26 +379,54 @@ async function analyze(){
       al.appendChild(row);
     }
   }else{
-    // リアルモード + 他プレイヤーのターン → 期待値なし、行動だけ入力
-    const r=await fetch("/api/legal");
-    const d=await r.json();al.innerHTML="";
-    const acts=d.legal;
-    if(!acts.length){al.innerHTML=`<div style="color:var(--mut)">選択肢なし</div>`;return}
-    for(const a of acts){
-      const row=document.createElement("div");row.className="ar";
-      let ic="",lb="";
-      if(a.type==="draw_deck"){ic="📥";lb=`山札から引く${a.cost?` <span style="color:var(--wrn)">-${a.cost}</span>`:""}`}
-      else if(a.type==="draw_market"){ic="🏪";lb=`${a.company} を取る${a.coins_on?` <span style="color:var(--wrn)">+${a.coins_on}コイン</span>`:""}`}
-      else if(a.type==="invest"){ic="📈";lb=`${a.company} に投資`}
-      else{ic="📤";lb=`${a.company} を放流`}
-      row.innerHTML=`<div class="ac"><span class="ic">${ic}</span><span class="lb">${lb}</span></div>`;
-      row.onclick=()=>{
-        // 他プレイヤーの山札ドロー → カードは不明なのでモーダル出さずにそのまま送信
-        hAct(a.action);
-      };
-      al.appendChild(row);
+    // リアルモード + 他プレイヤーのターン → 見えた行動を企業番号で入力
+    al.innerHTML="";
+    const ph=G.phase;
+
+    if(ph==="draw"){
+      // ドローフェーズ: 「山札から引いた」or「マーケットからXを取った」
+      // 山札ドロー
+      const drow=document.createElement("div");drow.className="ar";
+      drow.innerHTML=`<div class="ac"><span class="ic">📥</span><span class="lb">山札から引いた</span></div>`;
+      drow.onclick=()=>otherAct({type:"draw_deck"});
+      al.appendChild(drow);
+      // マーケット各カード
+      const seen=new Set();
+      for(const m of G.market){
+        const key=m.company+"_"+m.coins;
+        if(seen.has(key))continue;seen.add(key);
+        const mrow=document.createElement("div");mrow.className="ar";
+        mrow.innerHTML=`<div class="ac"><span class="ic">🏪</span><span class="lb">マーケットから ${m.company} を取った${m.coins?` <span style="color:var(--wrn)">+${m.coins}コイン</span>`:""}</span></div>`;
+        mrow.onclick=()=>otherAct({type:"draw_market",company:m.company});
+        al.appendChild(mrow);
+      }
+    }else{
+      // プレイフェーズ: 各企業番号で「投資した」「放流した」
+      // カード枚数上限に達している企業は除外
+      const u=cardUsed();
+      for(const c of CO){
+        if(c-u[c]<=0)continue;
+        const irow=document.createElement("div");irow.className="ar";
+        irow.innerHTML=`<div class="ac"><span class="ic">📈</span><span class="lb">${c} に投資した</span></div>`;
+        irow.onclick=()=>otherAct({type:"invest",company:c});
+        al.appendChild(irow);
+      }
+      for(const c of CO){
+        if(c-u[c]<=0)continue;
+        const drow=document.createElement("div");drow.className="ar";
+        drow.innerHTML=`<div class="ac"><span class="ic">📤</span><span class="lb">${c} を放流した</span></div>`;
+        drow.onclick=()=>otherAct({type:"discard",company:c});
+        al.appendChild(drow);
+      }
     }
   }
+}
+
+async function otherAct(body){
+  const r=await fetch("/api/other_action",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const d=await r.json();
+  if(d.error){alert("エラー: "+d.error);return}
+  G=d;render();
 }
 
 async function hAct(action,dc){
@@ -353,50 +435,75 @@ async function hAct(action,dc){
   G=await r.json();render();
 }
 
-/* ── AI turn (battle only) ── */
+/* ── AI turn (battle) ── */
 async function doAiTurn(){
   const al=document.getElementById("al");al.innerHTML="";
   document.getElementById("aat").textContent=pLbl(G.current_player)+" のターン";
   const ab=document.getElementById("aib");
   ab.innerHTML=`<div class="am"><div class="at"><span class="sp"></span> AI 思考中...</div></div>`;
-  const r=await fetch("/api/ai_turn",{method:"POST"});
+
+  // draw
+  const r=await fetch("/api/ai_turn",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
   const d=await r.json();
+
   if(d.need_reveal){
+    // リアル/デバッグのAI (battle ではここに来ない)
     const cs=d.cost?` <span style="color:var(--wrn)">(-${d.cost})</span>`:"";
-    ab.innerHTML=`<div class="am"><div class="at">${pLbl(G.current_player)} ドロー</div><div class="av">山札から引く${cs}</div><div class="ad">山札をめくって AI の手札に伏せてください</div></div>`;
-    showM("AIが引いたカード","めくったカードの企業番号を選んでください",async c=>{
+    ab.innerHTML=`<div class="am"><div class="at">${pLbl(G.current_player)} ドロー</div><div class="av">山札から引く${cs}</div><div class="ad">山札をめくってカードを入力してください</div></div>`;
+    showM("AIが引いたカード","めくった企業番号を選んでください",async c=>{
       const r2=await fetch("/api/ai_turn",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({drawn_card:c})});
       G=await r2.json();doAiPlay(ab);
     });
     return;
   }
+
   if(d.phase==="draw"){
-    ab.innerHTML=`<div class="am"><div class="at">${pLbl(G.current_player)} ドロー</div><div class="av">マーケットから ${d.company} を取る</div></div>`;
+    if(d.draw_type==="deck"){
+      ab.innerHTML=`<div class="am"><div class="at">${pLbl(G.current_player)} ドロー</div><div class="av">山札から引いた</div></div>`;
+    }else{
+      ab.innerHTML=`<div class="am"><div class="at">${pLbl(G.current_player)} ドロー</div><div class="av">マーケットから ${d.company} を取った</div></div>`;
+    }
     G=d;doAiPlay(ab);return;
   }
+
   if(d.phase==="play"){showAiPlay(ab,"",d)}
 }
 
 async function doAiPlay(ab){
   const prev=ab.innerHTML;
   ab.innerHTML=prev+`<div class="am" style="margin-top:5px"><div class="at"><span class="sp"></span> AI 思考中...</div></div>`;
-  const r=await fetch("/api/ai_turn",{method:"POST"});
+  const r=await fetch("/api/ai_turn",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
   const d=await r.json();showAiPlay(ab,prev,d);
 }
 
 function showAiPlay(ab,prev,d){
   const tt=d.type==="invest"?"に投資":"を放流";
   ab.innerHTML=prev+`<div class="am" style="margin-top:5px"><div class="at">${pLbl(G.current_player)} プレイ</div><div class="av">${d.company} ${tt}</div></div>`;
-  G=d;document.getElementById("al").innerHTML=`<button class="ob" onclick="okAi()">完了 → 次へ</button>`;
+  G=d;document.getElementById("al").innerHTML=`<button class="ob" onclick="okAi()">次へ</button>`;
 }
 function okAi(){document.getElementById("aib").innerHTML="";render()}
 
 /* ── Modal ── */
+function cardUsed(){
+  // 各企業の見えている枚数を計算
+  const u={};for(const c of CO)u[c]=0;
+  if(!G)return u;
+  for(const p of G.players)CO.forEach((c,i)=>{u[c]+=p.invested[i]});
+  for(const m of G.market)u[m.company]=(u[m.company]||0)+1;
+  for(const p of G.players){if(p.hand)for(const c of p.hand)u[c]=(u[c]||0)+1}
+  return u;
+}
+
 function showM(t,d,cb){
   const m=document.getElementById("modal");
   document.getElementById("mt2").textContent=t;document.getElementById("md2").textContent=d;
   const cs=document.getElementById("mc2");cs.innerHTML="";
-  for(const c of CO){const b=document.createElement("button");b.className="cb";b.textContent=c;b.onclick=()=>{m.classList.remove("show");cb(c)};cs.appendChild(b)}
+  const u=cardUsed();
+  for(const c of CO){
+    if(c-u[c]<=0)continue; // 上限到達 → 表示しない
+    const b=document.createElement("button");b.className="cb";b.textContent=c;
+    b.onclick=()=>{m.classList.remove("show");cb(c)};cs.appendChild(b);
+  }
   m.classList.add("show");
 }
 
@@ -414,11 +521,22 @@ function renderRes(){
   el.innerHTML=`<h2>ゲーム終了</h2><div class="wt">${wt}</div><div class="rg">${ph}</div><button class="gobtn" onclick="doReset()">もう一度遊ぶ</button>`;
 }
 
+async function doUndo(){
+  const r=await fetch("/api/undo",{method:"POST"});
+  const d=await r.json();
+  if(d.error){alert(d.error);return}
+  G=d;
+  // 終了画面から戻る場合、ゲーム画面を復帰
+  document.getElementById("result").style.display="none";
+  document.getElementById("game").style.display="block";
+  render();
+}
+
 async function doReset(){
   await fetch("/api/reset",{method:"POST"});
   document.getElementById("setup").style.display="none";document.getElementById("game").style.display="none";document.getElementById("result").style.display="none";
   document.getElementById("modesel").style.display="block";
-  H={};G=null;
+  H={};G=null;HP=0;AI_SEAT=-1;
 }
 </script>
 </body>

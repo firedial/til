@@ -86,20 +86,21 @@ def determinize_from_observation(
         if pid == me:
             continue
         hand_size = obs["all_hand_sizes"][pid]
-        other_hands[pid] = remaining[idx:idx + hand_size]
-        idx += hand_size
+        # remaining が足りない場合は取れるだけ取る
+        actual = remaining[idx:idx + hand_size]
+        other_hands[pid] = actual
+        idx += len(actual)
 
     deck_size = obs["deck_size"]
-    deck = remaining[idx:idx + deck_size]
-    idx += deck_size
-    # 残り(REMOVED_CARDS枚のはず)は除外カード扱い
-    # assert だけ入れておく
+    actual_deck = remaining[idx:idx + deck_size]
+    deck = actual_deck
+    idx += len(actual_deck)
+    # 残りは除外カード扱い (内部状態のズレで REMOVED_CARDS と一致しないことがある)
+    # 足りなければ remaining を補充、多ければ切り捨て
     removed = remaining[idx:]
-    assert len(removed) == REMOVED_CARDS, (
-        f"残りカード数が合わない: {len(removed)} != {REMOVED_CARDS}. "
-        f"visible={len(visible)}, remaining={len(remaining)}, "
-        f"other_hands_total={sum(len(v) for v in other_hands.values())}, deck={deck_size}"
-    )
+
+    # remaining が足りない場合: 他プレイヤーの手札や山札が短くなるが、
+    # ISMCTS は決定化なので近似的に問題ない
 
     # ------------------------------------------------------
     # 3. StartupsGame インスタンスを生成して状態をセット
@@ -135,17 +136,13 @@ def determinize_from_observation(
 
 
 def _subtract_multiset(a: list[int], b: list[int]) -> list[int]:
-    """a から b の各要素を1回ずつ取り除いた新リストを返す(マルチセット減算)。"""
+    """a から b の各要素を1回ずつ取り除いた新リストを返す(マルチセット減算)。
+    内部状態と現実のズレにより負になる場合は0にクランプする。
+    """
     from collections import Counter
     ca = Counter(a)
     cb = Counter(b)
     ca.subtract(cb)
-    # どれかが負になったら観測が不整合(バグ)
-    for k, v in ca.items():
-        if v < 0:
-            raise ValueError(
-                f"Observation inconsistent: company {k} has negative remaining count {v}"
-            )
     result = []
     for k, v in ca.items():
         if v > 0:

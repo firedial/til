@@ -28,6 +28,8 @@ agent: AlphaZeroISMCTS = None
 pending_ai_draw = None
 mode = "battle"  # "battle" | "real" | "debug"
 real_player = 0  # real モードで情報を見るプレイヤー
+human_player = 0  # battle モードでの人間の席番号
+history = []  # undo 用: GameState の deepcopy リスト
 
 
 def load_model(path="az_net_trained.pt", hidden=64, layers=2):
@@ -36,6 +38,13 @@ def load_model(path="az_net_trained.pt", hidden=64, layers=2):
     net.load_state_dict(torch.load(path, weights_only=True))
     net.eval()
     agent = AlphaZeroISMCTS(net=net, iterations=AI_ITERATIONS, rng=random.Random(42))
+
+
+def save_snapshot():
+    """現在のゲーム状態を history に保存 (undo 用)。"""
+    from copy import deepcopy
+    if game is not None:
+        history.append(deepcopy(game.state))
 
 
 def _draw_cost(player, market):
@@ -79,7 +88,7 @@ def game_state_json(for_player=None):
         "started": True, "terminal": s.terminal,
         "current_player": s.current_player, "phase": s.phase,
         "deck_size": len(s.deck), "players": players, "market": market,
-        "mode": mode,
+        "mode": mode, "human_player": human_player,
     }
     if s.terminal:
         result["winner"] = game.get_winner()
@@ -169,10 +178,11 @@ def api_state():
 
 @app.route("/api/setup", methods=["POST"])
 def api_setup():
-    global game, pending_ai_draw, mode, real_player
+    global game, pending_ai_draw, mode, real_player, human_player
     data = request.json
     mode = data.get("mode", "battle")
     real_player = data.get("real_player", 0)
+    human_player = real_player
     hands_raw = data["hands"]  # [[5,6,10], [7,8,9], [5,9,10]] 数字で来る
     hands = [[NUM_TO_IDX[int(c)] for c in h] for h in hands_raw]
 
@@ -214,18 +224,20 @@ def api_setup():
 
 @app.route("/api/auto_setup", methods=["POST"])
 def api_auto_setup():
-    """対戦モード用: 全自動でカードを配る。"""
-    global game, pending_ai_draw, mode, real_player
+    """対戦モード用: 全自動でカードを配る。人間の席はランダム。"""
+    global game, pending_ai_draw, mode, real_player, human_player
     data = request.json or {}
     mode = data.get("mode", "battle")
-    real_player = data.get("real_player", 0)
 
     game = StartupsGame(seed=random.randint(0, 10**9))
     pending_ai_draw = None
+    human_player = random.randint(0, NUM_PLAYERS - 1)
+    real_player = human_player
 
-    # P0(人間)の手札を返す。battle モードでは AI の手札は非公開。
-    fp = 0 if mode == "battle" else None
-    return jsonify({"ok": True, **game_state_json(for_player=fp)})
+    fp = human_player if mode == "battle" else None
+    result = game_state_json(for_player=fp)
+    result["human_player"] = human_player
+    return jsonify({"ok": True, **result})
 
 @app.route("/api/legal")
 def api_legal():
@@ -265,6 +277,7 @@ def api_analyze():
 def api_human():
     data = request.json
     action = tuple(data["action"])
+    save_snapshot()
     if game.state.phase == "draw" and action[0] == "draw_deck":
         card_num = data.get("drawn_card")
         if card_num is not None:
@@ -274,6 +287,76 @@ def api_human():
                 s.deck.remove(card)
             s.deck.insert(0, card)
     game.step(action)
+    fp = human_player if mode == "battle" else (real_player if mode == "real" else None)
+    return jsonify({"ok": True, **game_state_json(for_player=fp)})
+
+@app.route("/api/other_action", methods=["POST"])
+def api_other_action():
+    """行動を企業番号ベースで受け付ける。
+
+    自分(real_player)の場合は手札チェックあり。
+    他プレイヤーの場合は手札が見えないので、手札になくても強制的に処理する。
+
+    リクエスト例:
+      ドロー: {"type": "draw_deck"}
+      マーケット取得: {"type": "draw_market", "company": 7}
+      投資: {"type": "invest", "company": 8}
+      放流: {"type": "discard", "company": 6}
+    """
+    data = request.json
+    s = game.state
+    pid = s.current_player
+    p = s.players[pid]
+    act_type = data["type"]
+    is_self = (pid == real_player)
+
+    save_snapshot()
+
+    if s.phase == "draw":
+        if act_type == "draw_deck":
+            game.step(("draw_deck",))
+        elif act_type == "draw_market":
+            c_idx = NUM_TO_IDX[int(data["company"])]
+            game.step(("draw_market", c_idx))
+        else:
+            history.pop()  # snapshot を戻す
+            return jsonify({"error": f"Invalid draw action: {act_type}"}), 400
+
+    elif s.phase == "play":
+        c_idx = NUM_TO_IDX[int(data["company"])]
+        # 手札からその企業のカードを見つける
+        hand_idx = None
+        for i, hc in enumerate(p.hand):
+            if hc == c_idx:
+                hand_idx = i
+                break
+
+        if hand_idx is None:
+            if is_self:
+                # 自分の手札にない → エラー
+                history.pop()
+                return jsonify({"error": f"手札に {data['company']} がありません"}), 400
+            else:
+                # 他プレイヤー → 手札が内部状態と現実でズレている
+                # 手札の中の1枚を正しい企業に差し替えて処理する
+                # (山札から引いたカードが内部と現実で異なるため)
+                if len(p.hand) > 0:
+                    # 末尾のカードを差し替え (直近に山札から引いたカードのはず)
+                    p.hand[-1] = c_idx
+                    hand_idx = len(p.hand) - 1
+                else:
+                    # 手札が空 (通常ありえないが安全策)
+                    history.pop()
+                    return jsonify({"error": "手札が空です"}), 400
+
+        if act_type == "invest":
+            game.step(("play_invest", hand_idx))
+        elif act_type == "discard":
+            game.step(("play_discard", hand_idx))
+        else:
+            history.pop()
+            return jsonify({"error": f"Invalid play action: {act_type}"}), 400
+
     fp = real_player if mode == "real" else None
     return jsonify({"ok": True, **game_state_json(for_player=fp)})
 
@@ -281,8 +364,10 @@ def api_human():
 def api_ai_turn():
     """AI のドロー+プレイを一括実行。drawn_card が必要なら need_reveal を返す。"""
     global pending_ai_draw
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     pid = game.current_player()
+
+    save_snapshot()
 
     if game.state.phase == "draw":
         if pending_ai_draw is not None:
@@ -299,9 +384,18 @@ def api_ai_turn():
         else:
             action = agent.search(game, root_player=pid)
             if action[0] == "draw_deck":
-                pending_ai_draw = action
-                cost = _draw_cost(game.state.players[pid], game.state.market)
-                return jsonify({"phase": "draw", "draw_type": "deck", "cost": cost, "need_reveal": True})
+                if mode == "battle":
+                    # 対戦モード: 山札ドローも自動 (カード入力不要)
+                    drawn_card = _c(game.state.deck[0])  # 引くカードの数字
+                    game.step(action)
+                    fp = human_player if mode == "battle" else (real_player if mode == "real" else None)
+                    return jsonify({"phase": "draw", "draw_type": "deck", "drawn_card": drawn_card,
+                                    "need_reveal": False, **game_state_json(for_player=fp)})
+                else:
+                    # リアル/デバッグ: めくったカードの入力が必要
+                    pending_ai_draw = action
+                    cost = _draw_cost(game.state.players[pid], game.state.market)
+                    return jsonify({"phase": "draw", "draw_type": "deck", "cost": cost, "need_reveal": True})
             else:
                 c_idx = action[1]
                 game.step(action)
@@ -323,11 +417,23 @@ def api_ai_turn():
     fp = real_player if mode == "real" else None
     return jsonify(game_state_json(for_player=fp))
 
+@app.route("/api/undo", methods=["POST"])
+def api_undo():
+    """直前の行動を取り消す。"""
+    global pending_ai_draw
+    if not history:
+        return jsonify({"error": "これ以上戻せません"}), 400
+    game.state = history.pop()
+    pending_ai_draw = None
+    fp = real_player if mode == "real" else (human_player if mode == "battle" else None)
+    return jsonify({"ok": True, "undo_remaining": len(history), **game_state_json(for_player=fp)})
+
 @app.route("/api/reset", methods=["POST"])
 def api_reset():
-    global game, pending_ai_draw
+    global game, pending_ai_draw, history
     game = None
     pending_ai_draw = None
+    history = []
     return jsonify({"ok": True})
 
 if __name__ == "__main__":

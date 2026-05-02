@@ -10,14 +10,10 @@ fn main() {
 
     let mut suit2 = basic::suit::first_suit(13);
     let mut count = 0;
-    let mut tempai_count = 0;
     loop {
         suit2 = suit2.next_suit();
-        if suit2.is_valid_suit() {
+        if suit2.is_valid_suit() && suit2.is_basic() && suit2.waiting().is_tempai() {
             count += 1;
-            if suit2.waiting().is_tempai() {
-                tempai_count += 1;
-            }
         }
 
         if suit2.is_first_suit() {
@@ -25,5 +21,4 @@ fn main() {
         };
     }
     println!("count {}", count);
-    println!("tempai count {}", tempai_count);
 }

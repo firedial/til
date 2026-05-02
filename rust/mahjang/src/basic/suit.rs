@@ -62,6 +62,54 @@ impl Suit {
     pub fn is_first_suit(&self) -> bool {
         first_suit(self.sum()).suit == self.suit
     }
+
+    fn reverse(&self) -> Suit {
+        Suit { suit: std::array::from_fn(|i| self.suit[SUIT_LENGTH - 1 - i])}
+    }
+
+    fn left_index(&self) -> usize {
+        for i in 0 .. SUIT_LENGTH {
+            if self.suit[i] != 0 {
+                return i;
+            }
+        }
+
+        unreachable!();
+    }
+
+    fn right_index(&self) -> usize {
+        SUIT_LENGTH - self.reverse().left_index() - 1
+    }
+
+    fn gravity(&self) -> isize {
+        let mut diff = 0;
+        let left_index = self.left_index();
+        let right_index = self.right_index();
+
+        loop {
+            // 左右対称形
+            if left_index + diff >= right_index - diff {
+                return 0;
+            }
+
+            // 左重心
+            if self.suit[left_index + diff] > self.suit[right_index - diff] {
+                return 1;
+            }
+
+            // 右重心
+            if self.suit[left_index + diff] < self.suit[right_index - diff] {
+                return -1;
+            }
+
+            diff += 1;
+        }
+    }
+
+    pub fn is_basic(&self) -> bool {
+        // 左接地で左重心であれば基本形
+        self.left_index() == 0 && self.gravity() >= 0
+    }
 }
 
 pub fn first_suit(count: usize) -> Suit {

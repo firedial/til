@@ -37,4 +37,30 @@ impl Suit {
     pub fn atama_remove(&self) -> Vec<Self> {
         remove::atama_remove(self)
     }
+
+    pub fn next_suit(&self) -> Suit {
+        // 先頭以降に0でないものを見つける
+        for index in 1..SUIT_LENGTH {
+            if self.suit[index] != 0 {
+                let mut new_suit = self.suit;
+                new_suit[0] = 0;
+                new_suit[index - 1] = self.suit[0] + 1;
+                new_suit[index] -= 1;
+                return Suit { suit: new_suit };
+            }
+        }
+
+        // 見つけられなかった場合は最初の手牌を返す
+        return first_suit(self.sum());
+    }
+
+    pub fn is_first_suit(&self) -> bool {
+        first_suit(self.sum()).suit == self.suit
+    }
+}
+
+pub fn first_suit(count: usize) -> Suit {
+    let mut suit = [0; SUIT_LENGTH];
+    suit[SUIT_LENGTH - 1] = count;
+    Suit { suit: suit }
 }

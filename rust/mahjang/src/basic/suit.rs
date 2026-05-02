@@ -3,6 +3,7 @@ use crate::basic::agari::Waiting;
 use super::remove;
 
 pub const SUIT_LENGTH: usize = 9;
+pub const TILE_COUNT: usize = 4;
 
 #[derive(Debug)]
 pub struct Suit {
@@ -16,6 +17,10 @@ impl Suit {
             sum += s;
         }
         return sum;
+    }
+
+    pub fn is_valid_suit(&self) -> bool {
+        self.suit.iter().all( |x| *x <= TILE_COUNT )
     }
 
     pub fn is_regular(&self) -> bool {

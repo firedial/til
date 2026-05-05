@@ -1,11 +1,13 @@
 use super::agari;
 use crate::basic::agari::Waiting;
+use std::ops::{Sub};
 use super::remove;
+use super::irreducible;
 
 pub const SUIT_LENGTH: usize = 9;
 pub const TILE_COUNT: usize = 4;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Suit {
     pub suit: [usize; SUIT_LENGTH],
 }
@@ -41,6 +43,10 @@ impl Suit {
 
     pub fn atama_remove(&self) -> Vec<Self> {
         remove::atama_remove(self)
+    }
+
+    pub fn sendable_waiting_form_remove(&self) -> Vec<Self> {
+        remove::sendable_waiting_form_remove(self)
     }
 
     pub fn next_suit(&self) -> Suit {
@@ -81,6 +87,21 @@ impl Suit {
         SUIT_LENGTH - self.reverse().left_index() - 1
     }
 
+    pub fn length(&self) -> usize {
+        self.right_index() - self.left_index() + 1
+    }
+
+    pub fn one_right_slide(&self) -> Suit {
+        let mut new_suit = self.suit;
+        new_suit[0] = 0;
+
+        for index in 1 .. SUIT_LENGTH {
+            new_suit[index] = self.suit[index - 1];
+        }
+
+        Suit { suit: new_suit }
+    }
+
     fn gravity(&self) -> isize {
         let mut diff = 0;
         let left_index = self.left_index();
@@ -109,6 +130,28 @@ impl Suit {
     pub fn is_basic(&self) -> bool {
         // 左接地で左重心であれば基本形
         self.left_index() == 0 && self.gravity() >= 0
+    }
+
+    pub fn is_mentsu_irreducible(&self) -> bool {
+        irreducible::is_mentsu_irreducible(self)
+    }
+
+    pub fn is_sendable_waiting_form_irreducible(&self) -> bool {
+        irreducible::is_sendable_waiting_form_irreducible(self)
+    }
+
+    pub fn is_irreducible(&self) -> bool {
+        irreducible::is_irreducible(self)
+    }
+}
+
+impl Sub for Suit {
+    type Output = Suit;
+
+    fn sub(self, other: Suit) -> Suit {
+        Suit {
+            suit: std::array::from_fn(|i| self.suit[i] - other.suit[i])
+        }
     }
 }
 

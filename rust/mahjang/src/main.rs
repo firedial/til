@@ -1,19 +1,35 @@
 pub mod basic;
 
 fn main() {
-    let suit = basic::suit::Suit {
-        suit: [1, 1, 0, 0, 2, 0, 0, 0, 0],
-    };
-    println!("is agari {}", suit.is_agari());
-    println!("is tempai {}", suit.waiting().is_tempai());
-    println!("waiting {:?}", suit.waiting());
+    // let suit = basic::suit::Suit {
+    //     suit: [3, 2, 0, 0, 0, 0, 0, 0, 0],
+    // };
+    // println!("is agari {}", suit.is_agari());
+    // println!("is tempai {}", suit.waiting().is_tempai());
+    // println!("waiting {:?}", suit.waiting());
 
     let mut suit2 = basic::suit::first_suit(13);
     let mut count = 0;
     loop {
         suit2 = suit2.next_suit();
         if suit2.is_valid_suit() && suit2.is_basic() && suit2.waiting().is_tempai() {
-            count += 1;
+            // println!("target {:?}", suit2.suit);
+            if suit2.length() == 9 {
+                if suit2.is_irreducible() {
+                    println!("suit {:?}", suit2.suit);
+                    count += 1;
+                }
+            } else if suit2.length() == 8 {
+                if suit2.is_irreducible() || suit2.one_right_slide().is_irreducible() {
+                    println!("suit {:?}", suit2.suit);
+                    count += 1;
+                }
+            } else {
+                if suit2.one_right_slide().is_irreducible() {
+                    println!("suit {:?}", suit2.suit);
+                    count += 1;
+                }
+            }
         }
 
         if suit2.is_first_suit() {

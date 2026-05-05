@@ -1,6 +1,8 @@
 use super::suit::*;
+use std::fmt;
+use std::ops::{Add};
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 struct WaitingStructure {
     is_tanki: bool,
     is_shampon: bool,
@@ -17,6 +19,20 @@ impl WaitingStructure {
     }
 }
 
+impl Add for WaitingStructure {
+    type Output = WaitingStructure;
+
+    fn add(self, other: WaitingStructure) -> WaitingStructure {
+        WaitingStructure {
+            is_tanki: self.is_tanki || other.is_tanki,
+            is_shampon: self.is_shampon || other.is_shampon,
+            is_kanchan: self.is_kanchan || other.is_kanchan,
+            is_ryanmen_left: self.is_ryanmen_left || other.is_ryanmen_left,
+            is_ryanmen_right: self.is_ryanmen_right || other.is_ryanmen_right,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Waiting {
     waiting: [WaitingStructure; SUIT_LENGTH],
@@ -26,6 +42,29 @@ pub struct Waiting {
 impl Waiting {
     pub fn is_tempai(&self) -> bool {
         self.is_sendable || self.waiting.iter().any( |x| x.is_wating() )
+    }
+}
+
+impl PartialEq for Waiting {
+    fn eq(&self, other: &Waiting) -> bool {
+        self.waiting.iter().map( |x| x.is_wating() ).eq(other.waiting.iter().map( |x| x.is_wating() )) && self.is_sendable == other.is_sendable
+    }
+}
+
+impl Add for Waiting {
+    type Output = Waiting;
+
+    fn add(self, other: Waiting) -> Waiting {
+        Waiting {
+            waiting: std::array::from_fn(|i| self.waiting[i].clone() + other.waiting[i].clone()),
+            is_sendable: false, // @todo これで定義すると都合がいいのでそうする
+        }
+    }
+}
+
+impl fmt::Display for Waiting {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.waiting.iter().map(|&x| if x.is_wating() { '1' } else { '0' }).collect::<String>() + if self.is_sendable { " 1" } else { " 0" })
     }
 }
 
@@ -41,16 +80,20 @@ pub fn is_agari(suit: &Suit) -> bool {
         2 => { // 手牌の合計が 3n + 2 なら雀頭を除去する
             let removed_suit = suit.atama_remove();
             for s in removed_suit {
-                return is_agari(&s);
+                if is_agari(&s) {
+                    return true;
+                }
             }
-            return false;
+            false
         }
         0 => { // 手牌の合計が 3n なら面子を除去する
             let removed_suit = suit.mentsu_remove();
             for s in removed_suit {
-                return is_agari(&s);
+                if is_agari(&s) {
+                    return true;
+                }
             }
-            return false;
+            false
         }
         _ => unreachable!(),
     }

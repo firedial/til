@@ -8,7 +8,7 @@ use super::irreducible;
 pub const SUIT_LENGTH: usize = 9;
 pub const TILE_COUNT: usize = 4;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Suit {
     pub suit: [usize; SUIT_LENGTH],
 }
@@ -31,7 +31,7 @@ impl Suit {
     }
 
     pub fn is_agari(&self) -> bool {
-        agari::is_agari(self)
+        agari::is_agari(self.clone())
     }
 
     pub fn waiting(&self) -> Waiting {
@@ -90,6 +90,16 @@ impl Suit {
 
     pub fn length(&self) -> usize {
         self.right_index() - self.left_index() + 1
+    }
+
+    pub fn combinations_number(&self) -> usize {
+        let mut count = 1;
+
+        for index in 0 .. SUIT_LENGTH {
+            count *= combinations(TILE_COUNT, self.suit[index]);
+        }
+
+        count
     }
 
     pub fn one_right_slide(&self) -> Suit {
@@ -189,4 +199,9 @@ pub fn first_suit(count: usize) -> Suit {
     let mut suit = [0; SUIT_LENGTH];
     suit[SUIT_LENGTH - 1] = count;
     Suit { suit: suit }
+}
+
+fn combinations(n: usize, r: usize) -> usize{
+    if r > n { return 0; }
+    (1..=r).fold(1, |acc, i| acc * (n - r + i) / i)
 }

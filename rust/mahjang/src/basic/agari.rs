@@ -1,6 +1,7 @@
 use super::suit::*;
 use std::fmt;
 use std::ops::{Add};
+use cached::proc_macro::cached;
 
 pub const USE_TILE_COUNT: usize = 5;
 
@@ -70,7 +71,8 @@ impl fmt::Display for Waiting {
     }
 }
 
-pub fn is_agari(suit: &Suit) -> bool {
+#[cached]
+pub fn is_agari(suit: Suit) -> bool {
 
     // 手牌の合計が 0 なら和了形
     if suit.sum() == 0 {
@@ -82,7 +84,7 @@ pub fn is_agari(suit: &Suit) -> bool {
         2 => { // 手牌の合計が 3n + 2 なら雀頭を除去する
             let removed_suit = suit.atama_remove();
             for s in removed_suit {
-                if is_agari(&s) {
+                if is_agari(s) {
                     return true;
                 }
             }
@@ -91,7 +93,7 @@ pub fn is_agari(suit: &Suit) -> bool {
         0 => { // 手牌の合計が 3n なら面子を除去する
             let removed_suit = suit.mentsu_remove();
             for s in removed_suit {
-                if is_agari(&s) {
+                if is_agari(s) {
                     return true;
                 }
             }

@@ -1,28 +1,43 @@
 pub mod basic;
 use std::collections::HashMap;
 
-fn is_irreducible(number: usize) {
+fn unique(number: usize) {
     let mut suit = basic::suit::first_suit(number);
-
     let mut map: HashMap<String, usize> = HashMap::new();
 
     loop {
         suit = suit.next_suit();
 
         if suit.is_valid_suit() && suit.is_basic() && suit.waiting().is_tempai() {
-            // println!("{}", suit.irreducible_suit().iter().map(|x| x.basic_form().to_string()).collect::<Vec<_>>().join(", "));
+            println!("{}", suit.irreducible_suit().iter().map(|x| x.basic_form().to_string()).collect::<Vec<_>>().join(", "));
 
-            // let v = suit.irreducible_suit();
-            // let mut result: Vec<_> = v.iter().map(|x| x.basic_form()).collect();
-            // result.sort();
-            // result.dedup();
-            // let key = result.iter().map(|x| x.basic_form().to_string()).collect::<Vec<_>>().join("|");
+            let v = suit.irreducible_suit();
+            let mut result: Vec<_> = v.iter().map(|x| x.basic_form()).collect();
+            result.sort();
+            result.dedup();
+            let key = result.iter().map(|x| x.basic_form().to_string()).collect::<Vec<_>>().join("|");
 
-            // *map.entry(key.clone()).or_insert(0) += 1;
-            // println!("{}: {}", suit, key);
+            *map.entry(key.clone()).or_insert(0) += 1;
+            println!("{}: {}", suit, key);
 
-            // continue;
+            continue;
+        }
 
+        if suit.is_first_suit() {
+            break;
+        };
+    }
+
+    println!("{:?}", map);
+}
+
+fn is_irreducible(number: usize) {
+    let mut suit = basic::suit::first_suit(number);
+
+    loop {
+        suit = suit.next_suit();
+
+        if suit.is_valid_suit() && suit.is_basic() && suit.waiting().is_tempai() {
             if suit.length() == 9 {
                 if suit.is_irreducible() {
                     println!("{}b", suit);
@@ -51,8 +66,6 @@ fn is_irreducible(number: usize) {
             break;
         };
     }
-
-    // println!("{:?}", map);
 }
 
 

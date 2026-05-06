@@ -8,7 +8,7 @@ use super::irreducible;
 pub const SUIT_LENGTH: usize = 9;
 pub const TILE_COUNT: usize = 4;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Suit {
     pub suit: [usize; SUIT_LENGTH],
 }
@@ -105,10 +105,10 @@ impl Suit {
 
     pub fn right_slide(&self) -> Suit {
         let mut new_suit = self.suit;
-        let length = self.length();
+        let right_index = self.right_index();
 
         for index in 0 .. SUIT_LENGTH {
-            new_suit[index] = if index < SUIT_LENGTH - length { 0 } else {self.suit[index - (SUIT_LENGTH - length)]}
+            new_suit[index] = if index < SUIT_LENGTH - right_index - 1 { 0 } else {self.suit[index - (SUIT_LENGTH - right_index - 1)]}
         }
 
         Suit { suit: new_suit }
@@ -144,6 +144,14 @@ impl Suit {
         self.left_index() == 0 && self.gravity() >= 0
     }
 
+    pub fn basic_form(&self) -> Self {
+        if self.gravity() < 0 {
+            self.right_slide().reverse()
+        } else {
+            self.reverse().right_slide().reverse()
+        }
+    }
+
     pub fn is_mentsu_irreducible(&self) -> bool {
         irreducible::is_mentsu_irreducible(self)
     }
@@ -154,6 +162,10 @@ impl Suit {
 
     pub fn is_irreducible(&self) -> bool {
         irreducible::is_irreducible(self)
+    }
+
+    pub fn irreducible_suit(&self) -> Vec<Self> {
+        irreducible::irreducible_suit(self)
     }
 }
 

@@ -40,3 +40,30 @@ pub fn is_irreducible(suit: &Suit) -> bool {
 
     suit.is_mentsu_irreducible()
 }
+
+pub fn irreducible_suit(suit: &Suit) -> Vec<Suit> {
+    let mut v = Vec::new();
+
+    if !suit.waiting().is_tempai() {
+        return v;
+    }
+
+    if suit.is_irreducible() {
+        v.push(*suit);
+        return v;
+    }
+
+    if suit.is_regular() {
+        let removed_suit = suit.sendable_waiting_form_remove();
+        for s in removed_suit {
+            v.extend(irreducible_suit(&s));
+        }
+    }
+
+    let removed_suit = suit.mentsu_remove();
+    for s in removed_suit {
+        v.extend(irreducible_suit(&s));
+    }
+
+    v
+}

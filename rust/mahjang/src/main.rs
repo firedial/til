@@ -8,8 +8,6 @@ fn unique(number: usize, map: &mut HashMap<String, usize>) {
         suit = suit.next_suit();
 
         if suit.is_valid_suit() && suit.waiting().is_tempai() {
-            // println!("{}", suit.irreducible_suit().iter().map(|x| x.basic_form().to_string()).collect::<Vec<_>>().join(", "));
-
             let v = suit.irreducible_suit();
             let mut result: Vec<_> = v.iter().map(|x| x.basic_form()).collect();
             result.sort();
@@ -17,7 +15,6 @@ fn unique(number: usize, map: &mut HashMap<String, usize>) {
             let key = result.iter().map(|x| x.basic_form().to_string()).collect::<Vec<_>>().join("|");
 
             *map.entry(key.clone()).or_insert(0) += suit.combinations_number();
-            // println!("{}: {}", suit, key);
         }
 
         if suit.is_first_suit() {
@@ -81,7 +78,7 @@ fn main() {
         unique(n, &mut map);
     }
 
-    let mut c = 1;
+    let mut c = 0;
     for (key, value) in &map {
         c += value;
         println!("{}: {:?}", key, value);

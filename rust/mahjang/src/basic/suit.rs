@@ -1,4 +1,5 @@
 use super::agari;
+use std::fmt;
 use crate::basic::agari::Waiting;
 use std::ops::{Sub};
 use super::remove;
@@ -163,6 +164,12 @@ impl Sub for Suit {
         Suit {
             suit: std::array::from_fn(|i| self.suit[i] - other.suit[i])
         }
+    }
+}
+
+impl fmt::Display for Suit {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.suit.iter().map( |x| x.to_string() ).collect::<String>())
     }
 }
 

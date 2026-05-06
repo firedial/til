@@ -1,8 +1,7 @@
 pub mod basic;
 
-fn is_irreducible(number: usize) -> usize {
+fn is_irreducible(number: usize) {
     let mut suit = basic::suit::first_suit(number);
-    let mut count = 0;
 
     loop {
         suit = suit.next_suit();
@@ -10,15 +9,24 @@ fn is_irreducible(number: usize) -> usize {
         if suit.is_valid_suit() && suit.is_basic() && suit.waiting().is_tempai() {
             if suit.length() == 9 {
                 if suit.is_irreducible() {
-                    count += 1
+                    println!("{}b", suit);
                 }
             } else if suit.length() == 8 {
-                if suit.is_irreducible() || suit.one_right_slide().is_irreducible() {
-                    count += 1
+                if suit.is_irreducible() {
+                    println!("{}l", suit);
+                }
+                if suit.one_right_slide().is_irreducible() {
+                    println!("{}r", suit);
                 }
             } else {
+                if suit.is_irreducible() {
+                    println!("{}l", suit);
+                }
                 if suit.one_right_slide().is_irreducible() {
-                    count += 1
+                    println!("{}c", suit);
+                }
+                if suit.right_slide().is_irreducible() {
+                    println!("{}r", suit);
                 }
             }
         }
@@ -27,15 +35,15 @@ fn is_irreducible(number: usize) -> usize {
             break;
         };
     }
-
-    count
 }
 
 
 fn main() {
     // let suit = basic::suit::Suit {
-    //     suit: [0, 1, 4, 2, 1, 1, 3, 1, 0],
+    //     suit: [0, 1, 4, 2, 1, 1, 0, 0, 0],
     // };
+    // println!("right {:?}", suit.right_slide());
+
     // let r = suit.is_irreducible();
     // println!("irreducible {:?}", r);
     // println!("is agari {}", suit.is_agari());
@@ -43,7 +51,6 @@ fn main() {
     // println!("waiting {:?}", suit.waiting());
 
     for n in [1, 2, 4, 5, 7, 8, 10, 11, 13] {
-        let c = is_irreducible(n);
-        println!("count {}", c);
+        is_irreducible(n);
     }
 }

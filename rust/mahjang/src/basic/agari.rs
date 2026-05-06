@@ -106,21 +106,21 @@ pub fn waiting(suit: &Suit) -> Waiting {
         WaitingStructure {
             is_tanki: {
                 // 正規形の手牌が条件に必要
-                suit.suit[i] <= USE_TILE_COUNT && suit.is_regular() && suit.suit[i] >= 1 && {
+                suit.suit[i] <= USE_TILE_COUNT - 1 && suit.is_regular() && suit.suit[i] >= 1 && {
                     let mut removed_suit = suit.suit;
                     removed_suit[i] -= 1;
                     Suit { suit: removed_suit }.is_agari()
                 }
             },
             is_shampon: {
-                suit.suit[i] <= USE_TILE_COUNT && suit.suit[i] >= 2 && {
+                suit.suit[i] <= USE_TILE_COUNT - 1 && suit.suit[i] >= 2 && {
                     let mut removed_suit = suit.suit;
                     removed_suit[i] -= 2;
                     Suit { suit: removed_suit }.is_agari()
                 }
             },
             is_kanchan: {
-                suit.suit[i] <= USE_TILE_COUNT && i > 0 && i < SUIT_LENGTH - 1 && suit.suit[i - 1] >= 1 && suit.suit[i + 1] >= 1 && {
+                suit.suit[i] <= USE_TILE_COUNT - 1 && i > 0 && i < SUIT_LENGTH - 1 && suit.suit[i - 1] >= 1 && suit.suit[i + 1] >= 1 && {
                     let mut removed_suit = suit.suit;
                     removed_suit[i - 1] -= 1;
                     removed_suit[i + 1] -= 1;
@@ -128,7 +128,7 @@ pub fn waiting(suit: &Suit) -> Waiting {
                 }
             },
             is_ryanmen_left: {
-                suit.suit[i] <= USE_TILE_COUNT && i > 1 && suit.suit[i - 1] >= 1 && suit.suit[i - 2] >= 1 && {
+                suit.suit[i] <= USE_TILE_COUNT - 1 && i > 1 && suit.suit[i - 1] >= 1 && suit.suit[i - 2] >= 1 && {
                     let mut removed_suit = suit.suit;
                     removed_suit[i - 1] -= 1;
                     removed_suit[i - 2] -= 1;
@@ -136,7 +136,7 @@ pub fn waiting(suit: &Suit) -> Waiting {
                 }
             },
             is_ryanmen_right: {
-                suit.suit[i] <= USE_TILE_COUNT && i < SUIT_LENGTH - 2 && suit.suit[i + 1] >= 1 && suit.suit[i + 2] >= 1 && {
+                suit.suit[i] <= USE_TILE_COUNT - 1 && i < SUIT_LENGTH - 2 && suit.suit[i + 1] >= 1 && suit.suit[i + 2] >= 1 && {
                     let mut removed_suit = suit.suit;
                     removed_suit[i + 1] -= 1;
                     removed_suit[i + 2] -= 1;

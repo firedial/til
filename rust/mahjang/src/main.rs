@@ -12,16 +12,16 @@ fn is_irreducible(number: usize) {
         if suit.is_valid_suit() && suit.is_basic() && suit.waiting().is_tempai() {
             // println!("{}", suit.irreducible_suit().iter().map(|x| x.basic_form().to_string()).collect::<Vec<_>>().join(", "));
 
-            let v = suit.irreducible_suit();
-            let mut result: Vec<_> = v.iter().map(|x| x.basic_form()).collect();
-            result.sort();
-            result.dedup();
-            let key = result.iter().map(|x| x.basic_form().to_string()).collect::<Vec<_>>().join("|");
+            // let v = suit.irreducible_suit();
+            // let mut result: Vec<_> = v.iter().map(|x| x.basic_form()).collect();
+            // result.sort();
+            // result.dedup();
+            // let key = result.iter().map(|x| x.basic_form().to_string()).collect::<Vec<_>>().join("|");
 
-            *map.entry(key.clone()).or_insert(0) += 1;
+            // *map.entry(key.clone()).or_insert(0) += 1;
             // println!("{}: {}", suit, key);
 
-            continue;
+            // continue;
 
             if suit.length() == 9 {
                 if suit.is_irreducible() {
@@ -51,7 +51,8 @@ fn is_irreducible(number: usize) {
             break;
         };
     }
-    println!("{:?}", map);
+
+    // println!("{:?}", map);
 }
 
 
@@ -67,7 +68,7 @@ fn main() {
     // println!("is tempai {}", suit.waiting().is_tempai());
     // println!("waiting {:?}", suit.waiting());
 
-    for n in [1, 2, 4, 5, 7] {
+    for n in [1, 2, 4, 5, 7, 8, 10, 11, 13] {
         is_irreducible(n);
     }
 }

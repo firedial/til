@@ -102,6 +102,17 @@ impl Suit {
         Suit { suit: new_suit }
     }
 
+    pub fn right_slide(&self) -> Suit {
+        let mut new_suit = self.suit;
+        let length = self.length();
+
+        for index in 0 .. SUIT_LENGTH {
+            new_suit[index] = if index < SUIT_LENGTH - length { 0 } else {self.suit[index - (SUIT_LENGTH - length)]}
+        }
+
+        Suit { suit: new_suit }
+    }
+
     fn gravity(&self) -> isize {
         let mut diff = 0;
         let left_index = self.left_index();

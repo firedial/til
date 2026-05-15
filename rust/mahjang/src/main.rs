@@ -1,7 +1,7 @@
 pub mod basic;
 use std::collections::HashMap;
 
-fn unique(number: usize, map: &mut HashMap<String, usize>) {
+fn unique(number: usize, map: &mut HashMap<String, usize>, t_map: &HashMap<String, String>) {
     let mut suit = basic::suit::first_suit(number);
 
     loop {
@@ -24,11 +24,25 @@ fn unique(number: usize, map: &mut HashMap<String, usize>) {
         }
         else {
             let v = suit.irreducible_suit();
-            let mut result: Vec<_> = v.iter().map(|x| x.basic_form()).collect();
+            let mut result: Vec<String> = v.iter().map(|x| x.basic_form().to_string()).collect();
+
+            // 七対子なら単騎待ちを追加
+            if suit.is_chiitoi_tempai() {
+                result.push("100000000".to_string());
+            }
+
             result.sort();
             result.dedup();
-            let key = result.iter().map(|x| x.basic_form().to_string()).collect::<Vec<_>>().join("|");
+            let key = result.join("|");
 
+            if result.len() >= 14 {
+                let mut t_parts: Vec<String> = result.iter()
+                    .map(|k| t_map.get(k).cloned().unwrap_or_else(|| k.clone()))
+                    .collect();
+                t_parts.sort();
+                let t_key = t_parts.join(",");
+                println!("{}: {}", t_key, suit);
+            }
             *map.entry(key.clone()).or_insert(0) += suit.combinations_number();
         }
 
@@ -96,7 +110,7 @@ fn main() {
         }
     }
 
-    unique(13, &mut map);
+    unique(13, &mut map, &t_map);
 
     let mut c = 0;
     let mut entries: Vec<(Vec<String>, usize)> = map.iter().map(|(key, &value)| {

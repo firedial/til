@@ -14,10 +14,15 @@ fn unique(number: usize, map: &mut HashMap<String, usize>) {
             continue;
         }
 
-        if !suit.waiting().is_tempai() {
-            let key = if suit.is_iishanten() {"A1"} else {"A2"};
+        if !suit.waiting().is_tempai() && !suit.is_chiitoi_tempai() {
+            // イーシャンテン以下
+            let key = if suit.is_iishanten() || suit.is_chiitoi_iishanten() {"A1"} else {"A2"};
             *map.entry(key.to_string()).or_insert(0) += suit.combinations_number();
-        } else {
+        } else if !suit.waiting().is_tempai() && suit.is_chiitoi_tempai() {
+            // 七対子形だけで聴牌になる場合、単騎待ちとしてカウント
+            *map.entry("100000000".to_string()).or_insert(0) += suit.combinations_number();
+        }
+        else {
             let v = suit.irreducible_suit();
             let mut result: Vec<_> = v.iter().map(|x| x.basic_form()).collect();
             result.sort();

@@ -23,8 +23,9 @@ fn unique(number: usize, map: &mut HashMap<String, usize>) {
     }
 }
 
-fn is_irreducible(number: usize) {
+fn is_irreducible(number: usize) -> Vec<String> {
     let mut suit = basic::suit::first_suit(number);
+    let mut results: Vec<String> = Vec::new();
 
     loop {
         suit = suit.next_suit();
@@ -32,24 +33,15 @@ fn is_irreducible(number: usize) {
         if suit.is_valid_suit() && suit.is_basic() && suit.waiting().is_tempai() {
             if suit.length() == 9 {
                 if suit.is_irreducible() {
-                    println!("{}b", suit);
+                    results.push(suit.to_string());
                 }
             } else if suit.length() == 8 {
-                if suit.is_irreducible() {
-                    println!("{}l", suit);
-                }
-                if suit.one_right_slide().is_irreducible() {
-                    println!("{}r", suit);
+                if suit.is_irreducible() || suit.one_right_slide().is_irreducible() {
+                    results.push(suit.to_string());
                 }
             } else {
-                if suit.is_irreducible() {
-                    println!("{}l", suit);
-                }
                 if suit.one_right_slide().is_irreducible() {
-                    println!("{}c", suit);
-                }
-                if suit.right_slide().is_irreducible() {
-                    println!("{}r", suit);
+                    results.push(suit.to_string());
                 }
             }
         }
@@ -58,6 +50,8 @@ fn is_irreducible(number: usize) {
             break;
         };
     }
+
+    results
 }
 
 
@@ -74,14 +68,38 @@ fn main() {
     // println!("waiting {:?}", suit.waiting());
 
     let mut map: HashMap<String, usize> = HashMap::new();
+    let mut t_map: HashMap<String, String> = HashMap::new();
+    let mut counter = 1;
     for n in [1, 2, 4, 5, 7, 8, 10, 11, 13] {
-        unique(n, &mut map);
+        let mut results = is_irreducible(n);
+        results.sort();
+        for s in &results {
+            let t = format!("T{:03}", counter);
+            // println!("{}: {}", t, s);
+            t_map.insert(s.clone(), t);
+            counter += 1;
+        }
     }
 
+    unique(13, &mut map);
+
     let mut c = 0;
-    for (key, value) in &map {
+    let mut entries: Vec<(Vec<String>, usize)> = map.iter().map(|(key, &value)| {
+        let t_parts: Vec<String> = key.split('|')
+            .map(|k| t_map.get(k).cloned().unwrap_or_else(|| k.to_string()))
+            .collect();
+        (t_parts, value)
+    }).collect();
+
+    entries.sort_by_key(|(parts, _)| {
+        let mut sorted = parts.clone();
+        sorted.sort();
+        (parts.len(), sorted)
+    });
+
+    for (parts, value) in &entries {
         c += value;
-        println!("{}: {:?}", key, value);
+        println!("|{}|{:?}|", parts.join(","), value);
     }
 
     println!("{}", c);

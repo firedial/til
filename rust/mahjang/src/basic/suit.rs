@@ -170,6 +170,25 @@ impl Suit {
         irreducible::is_sendable_waiting_form_irreducible(self)
     }
 
+    pub fn is_iishanten(&self) -> bool {
+        for i in 0..SUIT_LENGTH {
+            if self.suit[i] < TILE_COUNT {
+                let mut added = self.suit;
+                added[i] += 1;
+                for j in 0..SUIT_LENGTH {
+                    if added[j] > 0 {
+                        let mut swapped = added;
+                        swapped[j] -= 1;
+                        if (Suit { suit: swapped }).waiting().is_tempai() {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        false
+    }
+
     pub fn is_irreducible(&self) -> bool {
         irreducible::is_irreducible(self)
     }

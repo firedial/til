@@ -7,7 +7,17 @@ fn unique(number: usize, map: &mut HashMap<String, usize>) {
     loop {
         suit = suit.next_suit();
 
-        if suit.is_valid_suit() && suit.waiting().is_tempai() {
+        if !suit.is_valid_suit() {
+            if suit.is_first_suit() {
+                break;
+            };
+            continue;
+        }
+
+        if !suit.waiting().is_tempai() {
+            let key = if suit.is_iishanten() {"A1"} else {"A2"};
+            *map.entry(key.to_string()).or_insert(0) += suit.combinations_number();
+        } else {
             let v = suit.irreducible_suit();
             let mut result: Vec<_> = v.iter().map(|x| x.basic_form()).collect();
             result.sort();
@@ -85,9 +95,10 @@ fn main() {
 
     let mut c = 0;
     let mut entries: Vec<(Vec<String>, usize)> = map.iter().map(|(key, &value)| {
-        let t_parts: Vec<String> = key.split('|')
+        let mut t_parts: Vec<String> = key.split('|')
             .map(|k| t_map.get(k).cloned().unwrap_or_else(|| k.to_string()))
             .collect();
+        t_parts.sort();
         (t_parts, value)
     }).collect();
 

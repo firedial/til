@@ -127,9 +127,10 @@ fn main() {
         (parts.len(), sorted)
     });
 
+    let total: usize = entries.iter().map(|(_, v)| v).sum();
     for (parts, value) in &entries {
         c += value;
-        println!("|{}|{:?}|", parts.join(","), value);
+        println!("|{}|{:?}|{:.10}|", parts.join(","), value, *value as f64 / total as f64 * 100.0);
     }
 
     println!("{}", c);

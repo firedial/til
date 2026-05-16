@@ -31,7 +31,7 @@ fn unique(number: usize, map: &mut HashMap<String, usize>, t_map: &HashMap<Strin
                 result.push("100000000".to_string());
             } else {
                 if suit.agari_tile_count() == 0 {
-                    println!("no: {}", suit);
+                    // println!("no: {}", suit);
                 }
             }
 
@@ -45,7 +45,7 @@ fn unique(number: usize, map: &mut HashMap<String, usize>, t_map: &HashMap<Strin
                     .collect();
                 t_parts.sort();
                 let t_key = t_parts.join(",");
-                println!("{}: {}", t_key, suit);
+                // println!("{}: {}", t_key, suit);
             }
             *map.entry(key.clone()).or_insert(0) += suit.combinations_number();
         }

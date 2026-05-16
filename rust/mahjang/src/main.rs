@@ -29,6 +29,10 @@ fn unique(number: usize, map: &mut HashMap<String, usize>, t_map: &HashMap<Strin
             // 七対子なら単騎待ちを追加
             if suit.is_chiitoi_tempai() {
                 result.push("100000000".to_string());
+            } else {
+                if suit.agari_tile_count() == 0 {
+                    println!("no: {}", suit);
+                }
             }
 
             result.sort();

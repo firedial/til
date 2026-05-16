@@ -1,6 +1,7 @@
 use super::agari;
 use std::fmt;
 use crate::basic::agari::Waiting;
+use crate::basic::agari::WaitingStructure;
 use std::ops::{Sub};
 use super::remove;
 use super::irreducible;
@@ -36,6 +37,17 @@ impl Suit {
 
     pub fn waiting(&self) -> Waiting {
         agari::waiting(self)
+    }
+
+    pub fn agari_tile_count(&self) -> usize {
+        let waiting = self.waiting();
+        let mut agari_tile_count = if waiting.is_sendable {2} else {0};
+
+        for i in 0..SUIT_LENGTH {
+            agari_tile_count += if waiting.waiting[i].is_wating() { TILE_COUNT - self.suit[i] } else {0}
+        }
+
+        agari_tile_count
     }
 
     pub fn mentsu_remove(&self) -> Vec<Self> {

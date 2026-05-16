@@ -6,7 +6,7 @@ use cached::proc_macro::cached;
 pub const USE_TILE_COUNT: usize = 5;
 
 #[derive(Debug, Copy, Clone)]
-struct WaitingStructure {
+pub struct WaitingStructure {
     is_tanki: bool,
     is_shampon: bool,
     is_kanchan: bool,
@@ -38,8 +38,8 @@ impl Add for WaitingStructure {
 
 #[derive(Debug)]
 pub struct Waiting {
-    waiting: [WaitingStructure; SUIT_LENGTH],
-    is_sendable: bool,
+    pub waiting: [WaitingStructure; SUIT_LENGTH],
+    pub is_sendable: bool,
 }
 
 impl Waiting {
